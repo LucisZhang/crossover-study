@@ -102,3 +102,36 @@ selected by VAL NDCG@10 per the pre-declared rule. TEST untouched during selecti
 **top_n = 50** (also cheapest to build and score). `configs/eval_itemknn_test.yaml`
 finalized to top_n 50 for the single TEST run. Note: strict-cold segment (n_train=0)
 scores exactly 0 for kNN as expected — no TRAIN history means zero co-occurrence signal.
+
+## Phase 2 acceptance — eval harness + baselines (2026-08-06)
+
+All runs: TRAIN-only knowledge cutoff, full-catalog ranking (368,228 items,
+TRAIN-seen excluded), user-bootstrap 95% CIs (1,000 resamples, seed 20260805),
+5 history-depth segments. 10 records in `results/runs.jsonl` (5 TEST evals,
+3 VAL kNN-grid evals, 2 paired deltas). TEST touched once per model.
+
+**TEST headline (228,153 users):**
+
+| model | Recall@20 | NDCG@10 |
+|---|---:|---:|
+| random (seed 13) | 0.0001 | 0.0000 |
+| popularity all-time | 0.0035 | 0.0008 |
+| item-kNN (top_n=50) | 0.0025 | 0.0009 |
+| popularity per-category (t12m) | 0.0142 | 0.0047 |
+| **popularity trailing-12m** | **0.0178** | **0.0054** |
+
+**Acceptance criterion 3 — windowing delta (paired bootstrap, CI excludes 0 on all
+7 metrics):** trailing-12m − all-time = **+0.0046 NDCG@10 [+0.0044, +0.0048]**,
++0.0143 Recall@20 [+0.0139, +0.0148]. A 12-month window is ~6× better than all-time
+popularity on Electronics — catalog churn dominates.
+
+**Failed hypothesis (logged, not discarded):** expected item-kNN to beat popularity
+in deep-history segments (early crossover signal). It does not — kNN loses to
+trailing-12m popularity in EVERY segment (20+: 0.0006 vs 0.0037 NDCG@10; paired
+delta −0.0045 NDCG@10 [−0.0047, −0.0042] globally). Plausible mechanism: 2023 TEST
+purchases concentrate on items released after train_end with little/no TRAIN
+co-occurrence mass, which recency-windowed popularity partially tracks and static
+co-occurrence cannot. Popularity NDCG@10 declines with history depth (0.0075 cold →
+0.0037 at 20+), so the "popularity stops working for deep users" half of the
+crossover thesis IS visible; the "personalization takes over" half now rests on
+ALS/content (Phase 3+).

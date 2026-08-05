@@ -4,9 +4,9 @@
 # (eval_pop_t12m_test / eval_pop_alltime_test) before running.
 kind: paired_delta
 a:
-  run_id: REPLACE_ME   # eval_pop_t12m_test.yaml TEST run_id
+  run_id: 20260805T172047Z-035042b
 b:
-  run_id: REPLACE_ME   # eval_pop_alltime_test.yaml TEST run_id
+  run_id: 20260805T173018Z-035042b
 metrics: [recall@10, recall@20, recall@50, ndcg@10, ndcg@20, mrr, hitrate@10]
 bootstrap:
   n_resamples: 1000
