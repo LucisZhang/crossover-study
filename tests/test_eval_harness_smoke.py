@@ -196,6 +196,27 @@ def _run(cfg, tmp_path, name, results, run_id, allow_stale=False):
     )
 
 
+def test_dirty_from_porcelain_excludes_run_outputs():
+    """A tree whose ONLY changes are results/runs.jsonl / EXPERIMENT_LOG.md is
+    treated as clean; any other change still counts as dirty."""
+    assert runlog._dirty_from_porcelain([]) is False
+    assert runlog._dirty_from_porcelain(["?? results/runs.jsonl"]) is False
+    assert runlog._dirty_from_porcelain([" M EXPERIMENT_LOG.md"]) is False
+    assert (
+        runlog._dirty_from_porcelain(
+            ["?? results/runs.jsonl", " M EXPERIMENT_LOG.md"]
+        )
+        is False
+    )
+    assert runlog._dirty_from_porcelain([" M src/batch_recsys_lab/eval/runlog.py"]) is True
+    assert (
+        runlog._dirty_from_porcelain(
+            ["?? results/runs.jsonl", " M some/other/file.py"]
+        )
+        is True
+    )
+
+
 def test_harness_smoke(spark, synthetic_gold, tmp_path, monkeypatch):
     cache_root = tmp_path / "cache"
     summary = extract(

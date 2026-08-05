@@ -38,12 +38,48 @@ def sha256_file(path: str | Path) -> str:
     return f"sha256:{digest}"
 
 
+# Run-output paths excluded from the dirty determination: these are append-only
+# artifacts produced BY the eval/logging process itself (results/runs.jsonl,
+# EXPERIMENT_LOG.md), not code. The dirty guard exists to pin code reproducibility
+# (CLAUDE.md invariant #1/#3: a TEST number must trace to a committed SHA) — it is
+# not meant to pin the outputs the runs themselves generate. Without this
+# exclusion, the very first eval run leaves results/runs.jsonl modified/untracked,
+# which would make every subsequent TEST run in the same session refuse.
+_DIRTY_EXCLUDE_PATHS = frozenset({"results/runs.jsonl", "EXPERIMENT_LOG.md"})
+
+
+def _dirty_from_porcelain(lines: list[str]) -> bool:
+    """True if any ``git status --porcelain`` line refers to a path outside
+    :data:`_DIRTY_EXCLUDE_PATHS`.
+
+    Handles both tracked-modified lines (``" M path"``, ``"MM path"``, etc.) and
+    untracked lines (``"?? path"``). Porcelain lines are ``XY path`` (or
+    ``XY orig -> path`` for renames); the path is taken as everything after the
+    2-character status + space, with any rename arrow resolved to the new path.
+    """
+    for raw in lines:
+        line = raw.rstrip("\n")
+        if not line.strip():
+            continue
+        # Porcelain format: "XY path" (status is first 2 chars, then a space).
+        path = line[3:] if len(line) > 3 else line.strip()
+        if " -> " in path:
+            path = path.split(" -> ", 1)[1]
+        path = path.strip().strip('"')
+        if path not in _DIRTY_EXCLUDE_PATHS:
+            return True
+    return False
+
+
 def git_info() -> dict:
     """``{"git_sha": <full sha or None>, "git_dirty": bool}`` via subprocess.
 
     ``git_dirty`` is True when the working tree has any staged or unstaged
-    change (``git status --porcelain`` non-empty). Runs against the repo root so
-    the result is independent of the process working directory.
+    change (``git status --porcelain`` non-empty) OUTSIDE of
+    :data:`_DIRTY_EXCLUDE_PATHS`. Those two paths (``results/runs.jsonl``,
+    ``EXPERIMENT_LOG.md``) are append-only outputs the run itself writes, so
+    counting them would make every run after the first look dirty. Runs against
+    the repo root so the result is independent of the process working directory.
     """
     def _run(args: list[str]) -> tuple[int, str]:
         proc = subprocess.run(
@@ -54,7 +90,7 @@ def git_info() -> dict:
     rc_sha, out_sha = _run(["git", "rev-parse", "HEAD"])
     git_sha = out_sha.strip() if rc_sha == 0 else None
     rc_st, out_st = _run(["git", "status", "--porcelain"])
-    git_dirty = bool(out_st.strip()) if rc_st == 0 else False
+    git_dirty = _dirty_from_porcelain(out_st.splitlines()) if rc_st == 0 else False
     return {"git_sha": git_sha, "git_dirty": git_dirty}
 
 
