@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # The repo Makefile uses `JAVA_HOME ?=` so this workflow-provided
+      # JAVA_HOME (set by setup-java above) wins over the project's local
+      # openjdk@21 default.
+      - name: Assert Java 21
+        run: java -version 2>&1 | grep '"21\.'
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked --dev
+
+      # Spark 4's bundled Ivy is 2.5.2 and resolves jars.packages under
+      # ~/.ivy2.5.2, not the classic ~/.ivy2 — cache the right directory.
+      - name: Cache Ivy jars (iceberg-spark-runtime)
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2.5.2
+          key: ivy2.5.2-iceberg-spark-runtime-4.0_2.13-1.11.0
+
+      - name: Run tests
+        run: uv run pytest -v

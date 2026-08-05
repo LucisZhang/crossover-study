@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "deny": [
+      "Write(//Users/hsiangkuochang/Library/CloudStorage/**)",
+      "Edit(//Users/hsiangkuochang/Library/CloudStorage/**)"
+    ]
+  }
+}

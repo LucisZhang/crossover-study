@@ -1,0 +1,10 @@
+data/*
+!data/MANIFEST.md
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+derby.log
+metastore_db/
+spark-warehouse/
