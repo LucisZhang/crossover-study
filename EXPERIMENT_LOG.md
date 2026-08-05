@@ -82,3 +82,23 @@ fallback is much lower than the raw/no-fallback expectation.
 ### Splits
 
 Frozen splits decision: defaults, per `docs/volume_by_month.md`.
+
+## Phase 2 — item-kNN neighbor-truncation selection on VAL (2026-08-06)
+
+**Hypothesis:** larger neighbor lists (`top_n`) improve item-kNN ranking quality;
+grid `top_n ∈ {50, 100, 200}` (cosine co-occurrence, shrinkage 0, TRAIN-only fit),
+selected by VAL NDCG@10 per the pre-declared rule. TEST untouched during selection.
+
+**Result** (VAL, 356,362 users, full-catalog ranking, run_ids in `results/runs.jsonl`):
+
+| top_n | NDCG@10 | Recall@20 | MRR | wall |
+|---:|---:|---:|---:|---:|
+| 50 | 0.001680 | 0.004229 | 0.002341 | 527s |
+| 100 | 0.001672 | 0.004270 | 0.002341 | 581s |
+| 200 | 0.001671 | 0.004314 | 0.002345 | 655s |
+
+**Verdict:** hypothesis rejected — quality is flat in `top_n` (differences ≪ CI width;
+95% CI on NDCG@10 is ±0.0001 for all three). Selection metric VAL NDCG@10 picks
+**top_n = 50** (also cheapest to build and score). `configs/eval_itemknn_test.yaml`
+finalized to top_n 50 for the single TEST run. Note: strict-cold segment (n_train=0)
+scores exactly 0 for kNN as expected — no TRAIN history means zero co-occurrence signal.
