@@ -4,8 +4,11 @@
 JAVA_HOME ?= /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 export JAVA_HOME
 export PATH := $(JAVA_HOME)/bin:$(PATH)
+# Force Spark's driver to bind loopback: this host cannot resolve its own hostname
+# for the SparkContext bind (harmless where hostname resolution already works).
+export SPARK_LOCAL_IP := 127.0.0.1
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture data
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold contracts-audit waterfall data data-hash data-verify
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -37,5 +40,57 @@ bronze-verify:
 fixture:
 	uv run python -m batch_recsys_lab.ingest.make_fixture
 
-data:
-	@echo "not implemented yet (Phase 0 T3+)"
+# Silver builds (Phase 1, T3). Items first: interactions' FK measure reads silver.items.
+silver-items:
+	uv run python -m batch_recsys_lab.features.silver --table items
+
+silver-interactions:
+	uv run python -m batch_recsys_lab.features.silver --table interactions
+
+silver: silver-items silver-interactions
+
+# Gold builds (Phase 1, T6/T7). gold-core = iterative 5-core prune; gold-features
+# = user_stats + item_features + popularity projections off the 5-core table.
+gold-core:
+	uv run python -m batch_recsys_lab.features.kcore
+
+gold-features:
+	uv run python -m batch_recsys_lab.features.gold
+
+gold: gold-core gold-features
+
+# Contract audit (Phase 1, T8). Runs every contracts/*.yaml against its published
+# table, appends dq_results, stamps contract.name/version as Iceberg TBLPROPERTIES,
+# prints a table×check matrix, and exits non-zero on any status=='fail'.
+contracts-audit:
+	uv run python -m batch_recsys_lab.contracts.run_audit
+
+# Reconciliation waterfall (Phase 1, T4b). Asserts raw→bronze→silver→gold sums
+# exactly against live Iceberg counts; publishes MANIFEST section + waterfall.json.
+waterfall:
+	uv run python -m batch_recsys_lab.features.waterfall
+
+# Deterministic rebuild (Phase 1, T8; §8 acceptance #4). ONE run id per `make data`
+# invocation ties every step's dq_results/waterfall/funnel rows together: generated
+# once here (UTC ts + git short sha) unless RECSYS_RUN_ID is already set in the env,
+# and exported to every step (all CLIs honor RECSYS_RUN_ID). Target-specific export
+# so it inherits into the prerequisite recipes (silver, gold, …) but never leaks
+# into `make test`. Flow: java-check → silver (items→interactions) → gold (core →
+# features) → contracts-audit → waterfall.
+data: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+data: java-check silver gold contracts-audit waterfall
+	@echo "make data complete · RECSYS_RUN_ID=$(RECSYS_RUN_ID)"
+
+# Determinism verification (Phase 1, T8). T9 usage:
+#   make data        # build #1
+#   make data-hash   # record data/table_hashes.json from build #1
+#   make data        # build #2 (fresh run id; rebuilds silver+gold from bronze)
+#   make data-verify # recompute current warehouse hashes, diff vs the recorded
+#                    # file, exit non-zero on ANY drift → proves content-identical.
+# data-hash WRITES data/table_hashes.json; data-verify COMPARES the live warehouse
+# against that existing file (it does not overwrite it).
+data-hash:
+	uv run python -m batch_recsys_lab.features.verify_determinism --out data/table_hashes.json
+
+data-verify:
+	uv run python -m batch_recsys_lab.features.verify_determinism --compare data/table_hashes.json

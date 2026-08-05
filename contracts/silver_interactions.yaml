@@ -1,0 +1,49 @@
+# Contract for local.silver.interactions (Phase 1; UPGRADE_PLAN.md §8, D5/D6/D8).
+# Check order is the fixed priority for primary_reason — DO NOT reorder.
+name: silver_interactions
+version: 1
+table: local.silver.interactions
+
+columns:
+  - {name: user_id, dtype: string, nullable: false}
+  - {name: parent_asin, dtype: string, nullable: false}
+  - {name: asin, dtype: string, nullable: true}          # provenance only (D1)
+  - {name: rating, dtype: double, nullable: false}
+  - {name: ts, dtype: timestamp, nullable: false}
+  - {name: helpful_vote, dtype: long, nullable: true}
+  - {name: verified_purchase, dtype: boolean, nullable: true}
+
+checks:
+  # Identity keys must be present, else the row is meaningless downstream.
+  - id: keys_non_null
+    kind: not_null
+    action: quarantine
+    columns: [user_id, parent_asin, ts]
+
+  # Implicit-feedback ratings are the discrete 1..5 star domain.
+  - id: rating_domain
+    kind: allowed_values
+    action: quarantine
+    column: rating
+    values: [1.0, 2.0, 3.0, 4.0, 5.0]
+
+  # Timestamp sanity bound (D8): snapshot ends 2023-09; upper bound exclusive.
+  - id: ts_range
+    kind: range
+    action: quarantine
+    column: ts
+    min: "1996-01-01T00:00:00Z"
+    max_exclusive: "2023-10-01T00:00:00Z"
+
+  # No published column may be entirely NULL.
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail
+
+  # Referential health vs the item catalog: measured, not dropped (D6).
+  - id: item_fk
+    kind: orphan_rate
+    action: measure
+    column: parent_asin
+    ref_table: local.silver.items
+    ref_column: parent_asin

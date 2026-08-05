@@ -1,0 +1,55 @@
+# Contract for local.silver.items (Phase 1; UPGRADE_PLAN.md §8, D7).
+# Check order is the fixed priority for primary_reason — DO NOT reorder.
+name: silver_items
+version: 1
+table: local.silver.items
+
+columns:
+  - {name: parent_asin, dtype: string, nullable: false}   # item identity (D1)
+  - {name: title, dtype: string, nullable: true}
+  - {name: main_category, dtype: string, nullable: true}
+  - {name: categories, dtype: "array<string>", nullable: true}
+  - {name: store, dtype: string, nullable: true}
+  - {name: average_rating, dtype: double, nullable: true}
+  - {name: rating_number, dtype: long, nullable: true}
+  - {name: price_usd, dtype: double, nullable: true}       # parsed from string (D7)
+  - {name: brand_norm, dtype: string, nullable: false}     # case-folded; "unknown" if absent
+
+checks:
+  - id: key_non_null
+    kind: not_null
+    action: quarantine
+    columns: [parent_asin]
+
+  # Parsed price must be non-negative. NULL (unparseable) passes — counted in
+  # the waterfall, not quarantined.
+  - id: price_nonneg
+    kind: range
+    action: quarantine
+    column: price_usd
+    min: 0.0
+
+  # Strict rejection of the course project's -1.0 price sentinel (D7).
+  - id: price_sentinel
+    kind: forbidden_values
+    action: quarantine
+    column: price_usd
+    values: [-1.0]
+
+  # Text fields must be free of control characters.
+  - id: text_hygiene
+    kind: no_control_chars
+    action: fail
+    columns: [title, brand_norm]
+
+  # No published column may be entirely NULL.
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail
+
+  # Share of items with no resolvable brand (D-projections): measured.
+  - id: brand_unknown_share
+    kind: unknown_share
+    action: measure
+    column: brand_norm
+    value: unknown

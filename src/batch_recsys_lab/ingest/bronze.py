@@ -49,6 +49,8 @@ import json
 import sys
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
 
 from pyspark import StorageLevel
 from pyspark.sql import DataFrame, SparkSession
@@ -68,6 +70,7 @@ from batch_recsys_lab.spark_session import get_spark
 
 CORRUPT_COL = "_corrupt_record"
 BRONZE_NAMESPACE = "local.bronze"
+INGEST_SUMMARY_LOG = "data/ingest_summary.jsonl"
 
 # --- Reviews schema (Amazon Reviews 2023 review record, per dataset docs). ----
 # Explicit schema, NO inference. `text` and `images` are read (so PERMISSIVE
@@ -251,6 +254,19 @@ def ingest_table(
     }
 
 
+def _append_summary_log(summary: dict, table: str) -> None:
+    """Enrich ``summary`` in place with table name / timestamp and append it as
+    one line to data/ingest_summary.jsonl (same content as what gets printed).
+    """
+    summary.setdefault("table_name", table)
+    summary["ingested_at"] = datetime.now(timezone.utc).isoformat()
+
+    log_path = Path(INGEST_SUMMARY_LOG)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a") as f:
+        f.write(json.dumps(summary) + "\n")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="batch_recsys_lab.ingest.bronze")
     parser.add_argument("--table", required=True, choices=sorted(TABLE_SPECS))
@@ -280,6 +296,8 @@ def main(argv: list[str] | None = None) -> int:
         summary = ingest_table(spark, args.table, input_path, repartition)
     finally:
         spark.stop()
+
+    _append_summary_log(summary, args.table)
 
     # Summary JSON MUST be the last stdout line so the orchestrator can parse it.
     print(json.dumps(summary))

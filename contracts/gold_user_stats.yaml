@@ -1,0 +1,31 @@
+# Contract for local.gold.user_stats (Phase 1, T7; UPGRADE_PLAN.md §8).
+name: gold_user_stats
+version: 1
+table: local.gold.user_stats
+
+columns:
+  - {name: user_id, dtype: string, nullable: false}
+  - {name: n_total, dtype: long, nullable: false}
+  - {name: n_train, dtype: long, nullable: false}
+  - {name: n_val, dtype: long, nullable: false}
+  - {name: n_test, dtype: long, nullable: false}
+  - {name: first_ts, dtype: timestamp, nullable: false}
+  - {name: last_ts, dtype: timestamp, nullable: false}
+  - {name: tenure_days, dtype: int, nullable: false}     # datediff(last, first)
+
+checks:
+  - id: user_id_non_null
+    kind: not_null
+    action: fail
+    column: user_id
+
+  # 5-core guarantees every surviving user has >= 5 distinct interactions.
+  - id: n_total_min5
+    kind: range
+    action: fail
+    column: n_total
+    min: 5
+
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail

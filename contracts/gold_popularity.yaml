@@ -1,0 +1,35 @@
+# Contract for local.gold.popularity (Phase 1, T7; UPGRADE_PLAN.md §8).
+# as_of x window_days popularity grid; leak-free by construction (ts <= as_of).
+name: gold_popularity
+version: 1
+table: local.gold.popularity
+
+columns:
+  - {name: as_of, dtype: timestamp, nullable: false}
+  - {name: window_days, dtype: int, nullable: false}
+  - {name: parent_asin, dtype: string, nullable: false}
+  - {name: n_interactions, dtype: long, nullable: false}
+  - {name: n_unique_users, dtype: long, nullable: false}
+
+checks:
+  - id: parent_asin_non_null
+    kind: not_null
+    action: fail
+    column: parent_asin
+
+  # A grid row exists only for items with at least one interaction in the window.
+  - id: n_interactions_min1
+    kind: range
+    action: fail
+    column: n_interactions
+    min: 1
+
+  - id: window_days_domain
+    kind: allowed_values
+    action: fail
+    column: window_days
+    values: [0, 30, 90, 365]
+
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail
