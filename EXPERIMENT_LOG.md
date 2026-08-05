@@ -135,3 +135,45 @@ co-occurrence cannot. Popularity NDCG@10 declines with history depth (0.0075 col
 0.0037 at 20+), so the "popularity stops working for deep users" half of the
 crossover thesis IS visible; the "personalization takes over" half now rests on
 ALS/content (Phase 3+).
+
+## Phase 3 — implicit ALS grid on VAL (2026-08-06)
+
+**Setup.** Spark MLlib ALS (`implicitPrefs=True`), trained on the eval cache's TRAIN
+pairs (14,206,658 pairs, 1,641,026 users × 368,228 items, five_core snapshot
+8184397443787800955). Factors persisted as npy artifacts keyed by param hash;
+rescoring from an artifact is bit-deterministic (sha256s in each run record) while
+Spark retraining is not bit-stable — seed + params recorded, 3-seed sd bounds
+stochastic variance. Coordinate-descent single-variable sweep, anchor
+rank=64 / reg_param=0.01 / alpha=10 / max_iter=15 / weighting=binary / seed=20260805.
+**Pre-declared selection rule:** VAL NDCG@10; candidates within 0.0001 → cheaper
+config (smaller rank, fewer iters, binary). TEST untouched throughout.
+
+### E2 — anchor, rank=64 (run_id 20260805T201636Z-f95dbbc)
+
+**Hypothesis:** ALS at moderate rank materially beats item-kNN on VAL (kNN VAL
+NDCG@10 = 0.00168) and gives the grid a live anchor.
+**Result:** VAL NDCG@10 **0.00382** [0.00367, 0.00396]; Recall@20 0.01050;
+wall 896s. Per-segment NDCG@10: 1-4: 0.00446, 5-9: 0.00423, 10-19: 0.00319,
+20+: 0.00253, cold: 0 (by construction).
+**Verdict:** confirmed — 2.3× kNN on VAL. Note the segment gradient is *inverted*
+(shallow-history users score higher than deep-history), the same depth-decline
+popularity shows; flagged for the TEST segment analysis.
+
+### E1 — rank=32 (run_id 20260805T203950Z-f95dbbc)
+
+**Hypothesis:** halving rank from the anchor loses ranking quality (capacity-bound
+regime, not overfit-bound).
+**Result:** VAL NDCG@10 **0.00349** [0.00336, 0.00362]; Recall@20 0.01022; wall 783s.
+Segments 1-4: 0.00417, 5-9: 0.00382, 10-19: 0.00290, 20+: 0.00216.
+**Verdict:** confirmed — rank 64 leads by 0.00033 (> 0.0001 tie band). Same inverted
+segment gradient as E2.
+
+### E3 — rank=128, attempt 1: FAILED (disk), retried
+
+First attempt died in-train: `java.io.IOException: No space left on device` during
+shuffle write (~24GB free on disk). Mechanism: ALS solve shuffles ≈ n_pairs × rank
+× 4B ≈ 7.3GB/iteration at rank 128, and shuffle files are reclaimed only when
+checkpointing truncates lineage — at checkpointInterval=5 that retains ~36GB.
+Fix: checkpoint_interval exposed as a training-infra knob (numerically neutral,
+excluded from the param hash by design) and set to 2 for this config, bounding
+retained shuffle at ~15GB. Partial 0-byte artifact removed. Retry below.

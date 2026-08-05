@@ -99,6 +99,7 @@ def train_als(
     seed: int,
     factors_root: str | Path = "data/eval/als",
     git_sha: str | None = None,
+    checkpoint_interval: int = 5,
 ) -> Path:
     """Train ALS on one snapshot-keyed cache dir and persist the artifact.
 
@@ -167,7 +168,10 @@ def train_als(
     )
     df = spark.createDataFrame(pdf).repartition(64, "user_idx")
 
-    # Checkpointing bounds ALS's iterative lineage growth (checkpointInterval=5).
+    # Checkpointing bounds ALS's iterative lineage growth; only checkpointing
+    # truncates lineage and reclaims shuffle files, so a lower interval bounds
+    # retained shuffle at the cost of more checkpoint writes (train.checkpoint_interval
+    # in the eval config; training-infra knob only, excluded from the param hash).
     adir.mkdir(parents=True, exist_ok=True)
     ckpt_dir = adir / "_checkpoint"
     spark.sparkContext.setCheckpointDir(str(ckpt_dir))
@@ -182,7 +186,7 @@ def train_als(
         userCol="user_idx",
         itemCol="item_idx",
         ratingCol="rating",
-        checkpointInterval=5,
+        checkpointInterval=checkpoint_interval,
         intermediateStorageLevel="MEMORY_AND_DISK",
         finalStorageLevel="MEMORY_AND_DISK",
         coldStartStrategy="nan",
@@ -231,6 +235,7 @@ def train_als(
         "git_sha": git_sha,
         "spark_version": spark.version,
         "wall_clock_s": wall,
+        "checkpoint_interval": int(checkpoint_interval),
     }
     (adir / "als_manifest.json").write_text(json.dumps(als_manifest, indent=2))
     print(
@@ -263,6 +268,7 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("als model requires seeds.model in the config")
 
     factors_root = params.get("factors_root", "data/eval/als")
+    checkpoint_interval = int(config.get("train", {}).get("checkpoint_interval", 5))
     cache_dir = _resolve_cache_dir(config["cache_dir"])
 
     # Idempotency pre-check BEFORE starting Spark: the artifact identity is fully
@@ -302,6 +308,7 @@ def main(argv: list[str] | None = None) -> int:
             weighting=str(params["weighting"]),
             seed=int(seed),
             factors_root=factors_root,
+            checkpoint_interval=checkpoint_interval,
         )
     finally:
         spark.stop()

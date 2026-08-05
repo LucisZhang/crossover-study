@@ -21,6 +21,8 @@ bootstrap:
   seed: 20260805
 seeds:
   model: 20260805
+train:
+  checkpoint_interval: 2
 tables:
   five_core: local.gold.interactions_5core
   user_stats: local.gold.user_stats
