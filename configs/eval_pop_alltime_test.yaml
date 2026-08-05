@@ -1,0 +1,24 @@
+# All-time popularity on the frozen TEST split (Phase 2, T7).
+# window_days=0 = no time window (all TRAIN history up to as_of=train_end).
+kind: eval
+model:
+  name: popularity
+  params:
+    as_of: train_end
+    window_days: 0
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache

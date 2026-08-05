@@ -1,0 +1,13 @@
+# Paired-bootstrap delta: item-kNN vs trailing-12m popularity, TEST — the early
+# crossover signal (kNN expected to win in deep-history segments). Fill both
+# run_ids from the TEST eval records produced by T7 (eval_itemknn_test /
+# eval_pop_t12m_test) before running.
+kind: paired_delta
+a:
+  run_id: REPLACE_ME   # eval_itemknn_test.yaml TEST run_id
+b:
+  run_id: REPLACE_ME   # eval_pop_t12m_test.yaml TEST run_id
+metrics: [recall@10, recall@20, recall@50, ndcg@10, ndcg@20, mrr, hitrate@10]
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805

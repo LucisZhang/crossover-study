@@ -8,7 +8,7 @@ export PATH := $(JAVA_HOME)/bin:$(PATH)
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold contracts-audit waterfall data data-hash data-verify
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -94,3 +94,29 @@ data-hash:
 
 data-verify:
 	uv run python -m batch_recsys_lab.features.verify_determinism --compare data/table_hashes.json
+
+# Eval cache extract (Phase 2, T1). Spark->numpy/scipy cache, snapshot-keyed and
+# idempotent: skips (exit 0) if the cache for the live 5-core snapshot already
+# exists. Step A of the two-process eval design (see eval/extract.py docstring).
+eval-extract: java-check
+	uv run python -m batch_recsys_lab.eval.extract
+
+# Eval scoring (Phase 2, T5). Step B: pure numpy/scipy, no Spark. Scores one
+# config's model over the snapshot-keyed cache and APPENDS one record to
+# results/runs.jsonl (append-only, invariant #3). RECSYS_RUN_ID follows the same
+# convention as `make data` (env override, else UTC ts + git short sha) so the
+# generated run_id is stable across a single invocation and echoed into the record.
+#   make eval CONFIG=configs/eval_pop_t12m_test.yaml
+eval: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+eval:
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_*.yaml"; exit 1; }
+	uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
+
+# The four TEST baselines in sequence (Phase 2, T7): random, trailing-12m pop,
+# all-time pop, per-category pop. One RECSYS_RUN_ID ties the batch together.
+eval-baselines: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+eval-baselines:
+	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_random_test.yaml
+	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_t12m_test.yaml
+	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_alltime_test.yaml
+	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_category_test.yaml

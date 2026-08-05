@@ -8,6 +8,7 @@ dependencies = [
     "pyarrow>=17",
     "pandas>=2",
     "pyyaml>=6",
+    "scipy>=1.18.0",
 ]
 
 [dependency-groups]

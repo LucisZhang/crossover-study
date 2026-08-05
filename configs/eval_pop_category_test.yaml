@@ -1,0 +1,25 @@
+# Category-conditioned popularity on the frozen TEST split (Phase 2, T7).
+# Trailing-12m windowing (as_of=train_end, window_days=365); n_train==0 users
+# fall back to raw global popularity (the strict-cold exhibit for this model).
+kind: eval
+model:
+  name: popularity_category
+  params:
+    as_of: train_end
+    window_days: 365
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache
