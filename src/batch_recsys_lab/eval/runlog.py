@@ -89,7 +89,10 @@ def git_info() -> dict:
 
     rc_sha, out_sha = _run(["git", "rev-parse", "HEAD"])
     git_sha = out_sha.strip() if rc_sha == 0 else None
-    rc_st, out_st = _run(["git", "status", "--porcelain"])
+    # -uall lists untracked files individually; without it git collapses an
+    # untracked directory to one "?? dir/" line, which the path-level exclusion
+    # in _dirty_from_porcelain cannot match (e.g. "?? results/").
+    rc_st, out_st = _run(["git", "status", "--porcelain", "-uall"])
     git_dirty = _dirty_from_porcelain(out_st.splitlines()) if rc_st == 0 else False
     return {"git_sha": git_sha, "git_dirty": git_dirty}
 
