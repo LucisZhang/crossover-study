@@ -26,7 +26,7 @@ pytestmark = pytest.mark.spark
 UTC = timezone.utc
 DAY = timedelta(days=1)
 
-FIVE_CORE_DDL = "user_id string, parent_asin string, ts timestamp"
+FIVE_CORE_DDL = "user_id string, parent_asin string, ts timestamp, rating double"
 USER_STATS_DDL = (
     "user_id string, n_total long, n_train long, n_val long, n_test long, "
     "first_ts timestamp, last_ts timestamp, tenure_days long"
@@ -68,12 +68,12 @@ def toy_gold(spark):
 
     # Items: P1..P4, sorted catalog order is P1,P2,P3,P4.
     five_core_rows = [
-        ("U1", "P1", train_ts),
-        ("U1", "P2", train_ts),
-        ("U1", "P3", val_ts),   # U1's VAL GT
-        ("U2", "P1", train_ts),
-        ("U2", "P4", test_ts),  # U2's TEST GT
-        ("U2", "P2", test_ts),  # U2's second TEST GT item
+        ("U1", "P1", train_ts, 5.0),
+        ("U1", "P2", train_ts, 4.0),
+        ("U1", "P3", val_ts, 3.0),   # U1's VAL GT
+        ("U2", "P1", train_ts, 2.0),
+        ("U2", "P4", test_ts, 1.0),  # U2's TEST GT
+        ("U2", "P2", test_ts, 5.0),  # U2's second TEST GT item
     ]
     _write(spark, five_core_rows, FIVE_CORE_DDL, FIVE_CORE)
 
@@ -139,6 +139,16 @@ def test_extract_and_dataset_round_trip(spark, toy_gold, tmp_path):
     assert ds.train_csr[u1, p1] == 1.0
     assert ds.train_csr[u1, p2] == 1.0
 
+    # TRAIN ratings cache: element-aligned with train_user_idx/train_item_idx.
+    train_user_idx = np.load(cache_dir / "train_user_idx.npy")
+    train_item_idx = np.load(cache_dir / "train_item_idx.npy")
+    train_rating = np.load(cache_dir / "train_rating.npy")
+    assert train_rating.dtype == np.float32
+    assert len(train_rating) == len(train_user_idx) == len(train_item_idx)
+    expected = {(0, p1): 5.0, (0, p2): 4.0, (1, p1): 2.0}
+    for u, i, r in zip(train_user_idx, train_item_idx, train_rating):
+        assert expected[(int(u), int(i))] == float(r)
+
     # GT: VAL — only U1 -> {P3}.
     val_gt = ds.gt["val"]
     assert list(val_gt.user_idx) == [0]
@@ -169,7 +179,7 @@ def test_extract_and_dataset_round_trip(spark, toy_gold, tmp_path):
 
     # Manifest contents.
     manifest = ds.manifest
-    assert manifest["schema_version"] == 1
+    assert manifest["schema_version"] == 2
     assert len(manifest["snapshot_ids"]) == 4
     assert manifest["catalog_size"] == 4
     assert manifest["n_users"] == 2

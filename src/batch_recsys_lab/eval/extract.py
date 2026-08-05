@@ -19,6 +19,7 @@ Cache layout, ``<out>/<interactions_5core_snapshot_id>/``::
     n_test.npy                int32, len U, aligned to user_ids
     train_user_idx.npy      int32, TRAIN pairs, user index
     train_item_idx.npy      int32, TRAIN pairs, item index (aligned to train_user_idx)
+    train_rating.npy        float32, TRAIN pairs, rating (aligned to train_user_idx)
     val_user_idx.npy        int32, VAL GT pairs
     val_item_idx.npy        int32, VAL GT pairs
     test_user_idx.npy       int32, TEST GT pairs
@@ -62,7 +63,7 @@ WINDOWS = (0, 30, 90, 365)
 AS_OF_LABELS = ("train_end", "val_end")
 SPLITS_PATH = Path(__file__).resolve().parents[3] / "configs" / "splits.yaml"
 
-CACHE_SCHEMA_VERSION = 1
+CACHE_SCHEMA_VERSION = 2
 
 
 # --- small helpers -------------------------------------------------------------
@@ -124,6 +125,8 @@ def _cache_up_to_date(cache_dir: Path, live_snapshot_ids: dict[str, int]) -> boo
         manifest = json.loads(manifest_path.read_text())
     except (OSError, ValueError):
         return False
+    if manifest.get("schema_version") != CACHE_SCHEMA_VERSION:
+        return False
     cached = manifest.get("snapshot_ids", {})
     return all(cached.get(t) == sid for t, sid in live_snapshot_ids.items())
 
@@ -177,23 +180,27 @@ def _build_pairs(
         [(iid, i) for i, iid in enumerate(item_ids)], "parent_asin string, item_idx int"
     )
 
-    base = spark.table(five_core_table).select("user_id", "parent_asin", "ts")
+    base = spark.table(five_core_table).select("user_id", "parent_asin", "ts", "rating")
     label = splits.split_label("ts")
     labeled = base.withColumn("split", label)
 
     counts: dict[str, int] = {}
     for split_name in ("train", "val", "test"):
+        cols = ["user_idx", "item_idx", "rating"] if split_name == "train" else ["user_idx", "item_idx"]
         pairs = (
             labeled.where(labeled["split"] == split_name)
             .join(user_idx_df, "user_id", "inner")
             .join(item_idx_df, "parent_asin", "inner")
-            .select("user_idx", "item_idx")
+            .select(*cols)
         )
         pdf = pairs.toPandas()
         user_arr = pdf["user_idx"].to_numpy(dtype=np.int32)
         item_arr = pdf["item_idx"].to_numpy(dtype=np.int32)
         _save_npy(user_arr, out_dir, f"{split_name}_user_idx")
         _save_npy(item_arr, out_dir, f"{split_name}_item_idx")
+        if split_name == "train":
+            rating_arr = pdf["rating"].to_numpy(dtype=np.float32)
+            _save_npy(rating_arr, out_dir, "train_rating")
         counts[split_name] = int(len(pdf))
     return counts
 

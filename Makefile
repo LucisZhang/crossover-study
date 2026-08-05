@@ -8,7 +8,7 @@ export PATH := $(JAVA_HOME)/bin:$(PATH)
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -120,3 +120,27 @@ eval-baselines:
 	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_t12m_test.yaml
 	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_alltime_test.yaml
 	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_category_test.yaml
+
+# ALS Step A (Phase 2, T2/T3): train Spark MLlib ALS once and persist factor
+# artifacts under data/eval/als/<snapshot>/<param_hash>/. Requires JVM (java-check).
+# Idempotent: skips (exit 0) if a matching artifact already exists.
+#   make als-train CONFIG=configs/eval_als_val_rank64.yaml
+als-train: java-check
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_als_*.yaml"; exit 1; }
+	uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
+
+# ALS train + score under ONE RECSYS_RUN_ID (Phase 2, T2/T3): Step A persists the
+# factors, then Step B (pure numpy, no Spark) scores the SAME config and appends
+# one record to results/runs.jsonl. Same run_id convention as `eval`.
+#   make eval-als CONFIG=configs/eval_als_val_rank64.yaml
+eval-als: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+eval-als: java-check
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_als_*.yaml"; exit 1; }
+	uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
+	uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
+
+# Paired-bootstrap delta between two eval runs (Phase 2, T5). Pure numpy.
+#   make compare CONFIG=configs/compare_als_vs_itemknn_val.yaml
+compare:
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/compare_*.yaml"; exit 1; }
+	uv run python -m batch_recsys_lab.eval.compare --config $(CONFIG)

@@ -38,6 +38,7 @@ from batch_recsys_lab.eval.metrics import (
     topk_indices,
 )
 from batch_recsys_lab.eval.protocol import segment_of
+from batch_recsys_lab.models.als import ALSRecommender
 from batch_recsys_lab.models.item_knn import ItemKNNRecommender
 from batch_recsys_lab.models.popularity import PopularityRecommender
 from batch_recsys_lab.models.popularity_category import PopularityCategoryRecommender
@@ -94,6 +95,19 @@ def _build_model(model_cfg: dict, seeds: dict):
             top_n=int(params["top_n"]),
             shrinkage=float(params.get("shrinkage", 0.0)),
             block_size=int(params.get("block_size", 8192)),
+        )
+    if name == "als":
+        seed = seeds.get("model")
+        if seed is None:
+            raise ValueError("als model requires seeds.model in the config")
+        return ALSRecommender(
+            rank=int(params["rank"]),
+            reg_param=float(params["reg_param"]),
+            alpha=float(params["alpha"]),
+            max_iter=int(params["max_iter"]),
+            weighting=str(params["weighting"]),
+            seed=int(seed),
+            factors_root=params.get("factors_root", "data/eval/als"),
         )
     raise ValueError(f"unknown model name: {name!r}")
 

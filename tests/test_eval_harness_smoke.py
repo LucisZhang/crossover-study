@@ -42,7 +42,7 @@ pytestmark = pytest.mark.spark
 UTC = timezone.utc
 DAY = timedelta(days=1)
 
-FIVE_CORE_DDL = "user_id string, parent_asin string, ts timestamp"
+FIVE_CORE_DDL = "user_id string, parent_asin string, ts timestamp, rating double"
 USER_STATS_DDL = (
     "user_id string, n_total long, n_train long, n_val long, n_test long, "
     "first_ts timestamp, last_ts timestamp, tenure_days long"
@@ -121,9 +121,10 @@ def synthetic_gold(spark):
             test_item = int(perm[kt + 1])
 
         for it in train_idx:
-            five_core_rows.append((uid, items[int(it)], train_ts))
-        five_core_rows.append((uid, items[val_item], val_ts))
-        five_core_rows.append((uid, items[test_item], test_ts))
+            rating = float((int(it) % 5) + 1)
+            five_core_rows.append((uid, items[int(it)], train_ts, rating))
+        five_core_rows.append((uid, items[val_item], val_ts, float((val_item % 5) + 1)))
+        five_core_rows.append((uid, items[test_item], test_ts, float((test_item % 5) + 1)))
 
         n_tr = int(len(train_idx))
         first_ts = train_ts if n_tr > 0 else val_ts
