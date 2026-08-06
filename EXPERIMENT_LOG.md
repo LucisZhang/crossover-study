@@ -277,3 +277,20 @@ Two pre-registered caveats carried into the acceptance record:
 
 Seeds 20260806 / 20260807 on rank=128, reg=0.01, alpha=10, max_iter=25, binary
 (seed 20260805 = E9 already recorded). Runs below.
+
+**T6 result — seed variance (VAL, chosen config; 3 seeds):**
+
+| seed | run_id | NDCG@10 | Recall@20 |
+|---|---|---|---|
+| 20260805 | 20260806T033333Z-acd1f81 | 0.0042542 | 0.0107023 |
+| 20260806 | 20260806T055339Z-de2000b | 0.0042440 | 0.0109077 |
+| 20260807 | 20260806T070001Z-de2000b | 0.0041511 | 0.0108160 |
+
+NDCG@10 **mean 0.0042164 ± sd 0.0000568** (1.35% of mean);
+Recall@20 **mean 0.0108087 ± sd 0.0001029** (0.95% of mean).
+Seed sd is ~2.7× smaller than the per-run bootstrap CI half-width (0.000151):
+stochastic (init/parallelism) variance is subordinate to user-sampling
+uncertainty and does not threaten grid-selection conclusions at the observed
+axis deltas (rank: 0.00033; iter: 0.000107 — the iter margin is ~2 sd, thin
+but the selection stands per the pre-declared point-estimate rule).
+Peak RSS across the two new runs: 9.54 / 8.29 GB; both exit 0, clean tails.
