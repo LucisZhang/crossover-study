@@ -1,0 +1,44 @@
+# Contract for local.gold.item_text (Phase 4, T9; UPGRADE_PLAN.md §8).
+# 5-core catalog left-joined to item_features (title/brand_norm/main_category/
+# categories) and bronze.items (features/description arrays); text sanitized.
+#
+# Row-count == distinct 5-core catalog count, and parent_asin uniqueness, are
+# NOT expressible as a contract check (the engine has no `unique` or
+# cross-table-count kind) -- both are hard-asserted in
+# features/item_text.build_item_text itself before this contract is audited.
+# empty-title-share / empty-features-share are likewise computed and written
+# there (write_dq_results, status="measured"), mirroring gold_item_features'
+# join-loss measure, because unknown_share only matches an exact sentinel
+# value and cannot express "NULL or empty array".
+name: gold_item_text
+version: 1
+table: local.gold.item_text
+
+columns:
+  - {name: parent_asin, dtype: string, nullable: false}   # item identity (D1)
+  - {name: title, dtype: string, nullable: true}
+  - {name: brand_norm, dtype: string, nullable: true}      # from item_features; NULL if item_features has no row
+  - {name: main_category, dtype: string, nullable: true}
+  - {name: categories, dtype: "array<string>", nullable: true}
+  - {name: features, dtype: "array<string>", nullable: true}
+  - {name: description, dtype: "array<string>", nullable: true}
+
+checks:
+  - id: parent_asin_non_null
+    kind: not_null
+    action: fail
+    columns: [parent_asin]
+
+  # Control-char hygiene on the scalar text columns. The engine's no_control_chars
+  # check is row-level over string columns only (rlike) -- it cannot inspect
+  # array<string> elements. features/description are sanitized in the build job
+  # itself (same _sanitize_scalar applied per array element); no contract check
+  # exists to re-verify an array column's elements are clean.
+  - id: text_hygiene
+    kind: no_control_chars
+    action: fail
+    columns: [title, brand_norm, main_category]
+
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail

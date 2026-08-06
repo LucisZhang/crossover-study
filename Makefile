@@ -8,7 +8,7 @@ export PATH := $(JAVA_HOME)/bin:$(PATH)
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -58,6 +58,20 @@ gold-features:
 	uv run python -m batch_recsys_lab.features.gold
 
 gold: gold-core gold-features
+
+# item_text (Phase 4, T9). Builds local.gold.item_text (5-core catalog x
+# item_features x bronze.items text fields), then runs the full contract audit
+# (the engine has no per-table invocation) so gold_item_text.yaml is graded.
+gold-item-text: java-check
+	uv run python -m batch_recsys_lab.features.item_text --mode build
+	uv run python -m batch_recsys_lab.contracts.run_audit
+
+# JVM-free export (Phase 4, T9): reorders local.gold.item_text to the eval
+# cache's item_ids order for the live 5-core snapshot and writes
+# data/eval/text/<snapshot>/item_text.parquet + export_manifest.json. Requires
+# `make eval-extract` to have already built the cache for the live snapshot.
+item-text-export: java-check
+	uv run python -m batch_recsys_lab.features.item_text --mode export
 
 # Contract audit (Phase 1, T8). Runs every contracts/*.yaml against its published
 # table, appends dq_results, stamps contract.name/version as Iceberg TBLPROPERTIES,

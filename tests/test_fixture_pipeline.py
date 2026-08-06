@@ -7,6 +7,7 @@ shared tmp-warehouse ``spark`` fixture (``tests/conftest.py``):
       → silver (items, then interactions)               [features.silver]
       → 5-core prune + funnel                            [features.kcore, k=5]
       → gold user_stats / item_features / popularity     [features.gold]
+      → gold item_text                                   [features.item_text]
       → contract audit over every contracts/*.yaml       [contracts.run_audit]
       → reconciliation waterfall (exact)                 [features.waterfall]
       → per-table content hashes                         [features.verify_determinism]
@@ -46,6 +47,7 @@ from pyspark.sql import functions as F
 
 from batch_recsys_lab.contracts.run_audit import run_audit
 from batch_recsys_lab.features.gold import build_gold
+from batch_recsys_lab.features.item_text import build_item_text
 from batch_recsys_lab.features.kcore import run_kcore
 from batch_recsys_lab.features.silver import build_interactions, build_items
 from batch_recsys_lab.features.verify_determinism import compute_hashes
@@ -65,6 +67,7 @@ GOLD_5CORE = "local.gold.interactions_5core"
 USER_STATS = "local.gold.user_stats"
 ITEM_FEATURES = "local.gold.item_features"
 POPULARITY = "local.gold.popularity"
+ITEM_TEXT = "local.gold.item_text"
 FUNNEL_TABLE = "local.dq.kcore_funnel"
 WATERFALL_TABLE = "local.dq.waterfall"
 DQ_RESULTS = "local.dq.dq_results"
@@ -95,6 +98,7 @@ def _load_bronze_items(spark):
         proj = df.select(
             "parent_asin", "main_category", "title", "average_rating",
             "rating_number", "price", "store", "categories",
+            "features", "description",
             F.map_from_arrays(
                 F.array(F.lit("Brand"), F.lit("Manufacturer")),
                 F.array(F.col("details")["Brand"], F.col("details")["Manufacturer"]),
@@ -160,6 +164,7 @@ def _build(spark, tmp: Path, run_id: str) -> dict:
         run_id=run_id,
     )
     build_gold(spark, run_id=run_id)
+    build_item_text(spark, run_id=run_id)
 
     return {"build_summary": build_summary, "ingest_summary": ingest_summary}
 
@@ -182,8 +187,8 @@ def _run_and_assert(spark, tmp: Path, run_id: str) -> dict[str, dict]:
         "contract audit reported a hard fail on the fixture: "
         + json.dumps(audit_summary["tables"], indent=2)
     )
-    # All six contracts were audited (nothing silently skipped).
-    assert len(audit_summary["tables"]) == 6
+    # All seven contracts were audited (nothing silently skipped).
+    assert len(audit_summary["tables"]) == 7
     assert audit_summary["skipped_tables"] == []
 
     # (2) waterfall reconciles exactly against live Iceberg counts.
