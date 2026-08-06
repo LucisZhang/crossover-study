@@ -265,3 +265,15 @@ seed=20260805** (= E9, run_id 20260806T033333Z-acd1f81): VAL NDCG@10 0.0042542.
 10 single-variable entries (E1–E10) above, each with a runs.jsonl run_id.
 Quality was capacity/convergence-bound (rank and iterations both paid);
 reg flat over two orders of magnitude; confidence variants NDCG-neutral.
+
+### T6 — 3-seed VAL variance check (chosen config)
+
+Two pre-registered caveats carried into the acceptance record:
+1. "VAL quality was still rising at rank 128 / iter 25 — this config is the
+   hardware-feasibility frontier on 16GB, not a converged optimum"
+2. The shallow>deep segment gradient (NDCG@10 monotonically declining from the
+   1-4 bucket through 20+) held across all 10 grid points — pre-registered here,
+   before TEST, as the pattern to examine in the segment analysis.
+
+Seeds 20260806 / 20260807 on rank=128, reg=0.01, alpha=10, max_iter=25, binary
+(seed 20260805 = E9 already recorded). Runs below.

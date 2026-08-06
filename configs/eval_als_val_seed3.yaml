@@ -1,0 +1,29 @@
+# ALS 3-seed VAL variance check (Phase 3, T6): chosen config, seed 20260807.
+kind: eval
+model:
+  name: als
+  params:
+    rank: 128
+    reg_param: 0.01
+    alpha: 10.0
+    max_iter: 25
+    weighting: binary
+    factors_root: data/eval/als
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: 20260807
+train:
+  checkpoint_interval: 1
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache
