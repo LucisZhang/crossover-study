@@ -177,3 +177,48 @@ checkpointing truncates lineage — at checkpointInterval=5 that retains ~36GB.
 Fix: checkpoint_interval exposed as a training-infra knob (numerically neutral,
 excluded from the param hash by design) and set to 2 for this config, bounding
 retained shuffle at ~15GB. Partial 0-byte artifact removed. Retry below.
+
+### E3 — rank=128, attempt 2 (run_id 20260805T210841Z-c82a35f)
+
+**Hypothesis:** doubling rank from 64 keeps improving VAL ranking (still
+capacity-bound at 64).
+**Result:** VAL NDCG@10 **0.00415** [0.00400, 0.00430]; Recall@20 0.01039;
+wall 1034s with checkpoint_interval=2 (disk peak stayed under budget, ~22GB free
+after). Segments 1-4: 0.00479, 5-9: 0.00458, 10-19: 0.00346, 20+: 0.00298.
+**Verdict:** confirmed — rank 128 leads rank 64 by 0.00033 (> 0.0001 tie band).
+**Rank axis winner: 128.** Model remains capacity-bound at the largest feasible
+rank on this hardware; inverted segment gradient persists.
+
+### E4 — reg_param=0.001 (run_id 20260805T215103Z-c82a35f)
+
+**Hypothesis:** at rank 128 with implicit confidence weighting, the anchor
+reg 0.01 over-regularizes; lighter reg improves VAL NDCG@10.
+**Result:** VAL NDCG@10 **0.00412** [0.00398, 0.00427]; wall 1045s.
+**Verdict:** rejected — 0.00003 below the anchor's 0.00415, inside the 0.0001
+tie band. Reg axis insensitive downward.
+
+### E5 — reg_param=0.1 (run_id 20260805T223316Z-c82a35f)
+
+**Hypothesis:** heavier reg helps generalization on the sparse 5-core matrix.
+**Result:** VAL NDCG@10 **0.00417** [0.00402, 0.00432]; wall 1034s.
+**Verdict:** tie — 0.00002 above the anchor, inside the 0.0001 band. Per the
+pre-declared rule the incumbent stands. **Reg axis winner: 0.01 (flat axis;
+quality insensitive to reg over two orders of magnitude).**
+
+### E6 — alpha=1.0 (run_id 20260805T231554Z-c82a35f)
+
+**Hypothesis:** with deduped binary interactions the anchor alpha=10 over-weights
+observed pairs; alpha=1 rebalances.
+**Result:** VAL NDCG@10 **0.00324** [0.00311, 0.00338]; Recall@20 0.00818; wall 877s.
+**Verdict:** rejected decisively — 0.00091 below the anchor. Observed-pair
+confidence needs to dominate the unobserved prior on this sparsity.
+
+### E7 — alpha=40.0 (run_id 20260805T235633Z-c82a35f)
+
+**Hypothesis:** pushing confidence higher keeps helping (monotone in alpha).
+**Result:** VAL NDCG@10 **0.00411** [0.00396, 0.00425]; Recall@20 0.01100
+(best recall of the grid); wall 1401s (+35% vs anchor).
+**Verdict:** tie on the selection metric — 0.00004 below anchor, inside the 0.0001
+band; incumbent stands and is cheaper. **Alpha axis winner: 10.** Noted: alpha=40
+trades NDCG-neutral for a real Recall@20 gain — flagged, not selected (selection
+rule is NDCG@10, pre-declared).
