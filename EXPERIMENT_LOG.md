@@ -222,3 +222,46 @@ confidence needs to dominate the unobserved prior on this sparsity.
 band; incumbent stands and is cheaper. **Alpha axis winner: 10.** Noted: alpha=40
 trades NDCG-neutral for a real Recall@20 gain — flagged, not selected (selection
 rule is NDCG@10, pre-declared).
+
+### E8 — max_iter=8 (run_id 20260806T024118Z-acd1f81)
+
+**Hypothesis:** ALS converges early on this sparsity; 8 iterations suffice.
+**Result:** VAL NDCG@10 **0.00380** [0.00366, 0.00394]; Recall@20 0.00946;
+train 1919s (checkpoint_interval=1), eval 1174s, peak RSS 9.85GB
+(/usr/bin/time -l, covers Spark train + numpy eval).
+**Verdict:** rejected — 0.00035 below the iter=15 anchor (> 0.0001 band); not yet
+converged at 8. Ops note: per-point background execution with logs/grid_E8.log +
+RSS capture adopted after two external SIGTERMs killed chained E8+E9 attempts;
+timeout hypothesis examined and not supported (all runs were background; longer
+chains completed) — source unidentified, protections retained.
+
+### E9 — max_iter=25 (run_id 20260806T033333Z-acd1f81)
+
+**Hypothesis:** 15 iterations under-converges at rank 128; more iterations help.
+**Result:** VAL NDCG@10 **0.0042542** vs anchor 0.0041470 — delta 0.000107,
+just outside the 0.0001 tie band. Recall@20 0.01070; train 2696s
+(checkpoint_interval=1), peak RSS 9.48GB. Deep segments gain most
+(20+: 0.00325 vs 0.00298; 10-19: 0.00364 vs 0.00346).
+**Verdict:** confirmed (narrowly) — **iteration axis winner: 25.** Consistent
+with capacity/convergence-bound: both larger rank and more iterations keep
+paying on this matrix.
+
+### E10 — weighting=rating (run_id 20260806T043802Z-acd1f81)
+
+**Hypothesis:** star-rating magnitude carries preference-confidence signal beyond
+mere presence; c = 1 + alpha*r (r in 1..5) beats binary c = 1 + alpha.
+**Result:** VAL NDCG@10 **0.0041710** [0.00402, 0.00432] vs binary-E9 0.0042542 —
+delta −0.0000832, within the 0.0001 tie band. Recall@20 0.01158 (best of the
+whole grid). Train+eval 4137s total, peak RSS 9.27GB.
+**Verdict:** tie on the selection metric — the simpler binary weighting stands per
+the pre-declared rule. Rating magnitude adds no NDCG@10 signal on 5-core
+Electronics (presence is the signal); its Recall@20 edge is flagged alongside
+alpha=40's, not selected.
+
+### Grid conclusion — chosen VAL config
+
+**rank=128, reg_param=0.01, alpha=10, max_iter=25, weighting=binary,
+seed=20260805** (= E9, run_id 20260806T033333Z-acd1f81): VAL NDCG@10 0.0042542.
+10 single-variable entries (E1–E10) above, each with a runs.jsonl run_id.
+Quality was capacity/convergence-bound (rank and iterations both paid);
+reg flat over two orders of magnitude; confidence variants NDCG-neutral.

@@ -1,4 +1,4 @@
-# ALS iteration sweep (Phase 3, E8): max_iter=8, rank=128, reg=0.01, alpha=10.
+# ALS confidence sweep (Phase 3, E10): weighting=rating (c=1+alpha*r, r in 1..5)
 kind: eval
 model:
   name: als
@@ -6,8 +6,8 @@ model:
     rank: 128
     reg_param: 0.01
     alpha: 10.0
-    max_iter: 8
-    weighting: binary
+    max_iter: 25
+    weighting: rating
     factors_root: data/eval/als
 protocol:
   eval_split: val
