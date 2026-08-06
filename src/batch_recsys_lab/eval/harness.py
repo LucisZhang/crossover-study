@@ -39,6 +39,8 @@ from batch_recsys_lab.eval.metrics import (
 )
 from batch_recsys_lab.eval.protocol import segment_of
 from batch_recsys_lab.models.als import ALSRecommender
+from batch_recsys_lab.models.content import ContentRecommender
+from batch_recsys_lab.models.content_blend import ContentPopBlendRecommender
 from batch_recsys_lab.models.item_knn import ItemKNNRecommender
 from batch_recsys_lab.models.popularity import PopularityRecommender
 from batch_recsys_lab.models.popularity_category import PopularityCategoryRecommender
@@ -108,6 +110,19 @@ def _build_model(model_cfg: dict, seeds: dict):
             weighting=str(params["weighting"]),
             seed=int(seed),
             factors_root=params.get("factors_root", "data/eval/als"),
+        )
+    if name == "content":
+        return ContentRecommender(
+            recipe_hash=params["recipe_hash"],
+            artifact_root=params.get("artifact_root", "data/eval/minilm"),
+        )
+    if name == "content_pop_blend":
+        return ContentPopBlendRecommender(
+            alpha=float(params["alpha"]),
+            as_of=params["as_of"],
+            window_days=int(params["window_days"]),
+            recipe_hash=params["recipe_hash"],
+            artifact_root=params.get("artifact_root", "data/eval/minilm"),
         )
     raise ValueError(f"unknown model name: {name!r}")
 
