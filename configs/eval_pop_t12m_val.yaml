@@ -1,0 +1,24 @@
+# Trailing-12-month popularity on VAL (Phase 4, T12): reference arm for the
+# content/blend campaign — same params as the TEST twin (eval_pop_t12m_test.yaml).
+kind: eval
+model:
+  name: popularity
+  params:
+    as_of: train_end
+    window_days: 365
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache

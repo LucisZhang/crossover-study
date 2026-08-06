@@ -399,3 +399,38 @@ only), evaluation follows in later Phase 4 tasks.
 Deviations: none. `torch`/`sentence-transformers`/`hnswlib` were added to a
 new `embed` dependency group (`pyproject.toml`); the default install remains
 torch-free (`uv sync` without `--group embed` does not pull torch).
+
+### T12 — Content retrieval VAL campaign + alpha grid (2026-08-06) — PRE-DECLARATION
+
+Before any run: seven configs on VAL only (`eval_pop_t12m_val.yaml`,
+`eval_content_val.yaml`, `eval_blend_val_a{10,30,50,70,90}.yaml` for
+alpha in {0.1, 0.3, 0.5, 0.7, 0.9}), all using recipe_hash `1f7878ff82bf`
+(the T10/T11 MiniLM artifact) and pop params matching the pop-t12m reference
+(`as_of: train_end`, `window_days: 365`). No TEST config exists or will be
+run in this task.
+
+**Hypothesis:** content retrieval beats trailing-12m popularity on shallow
+warm segments (1–4, 5–9), where the ALS/kNN classical-CF arms both lost to
+pop-t12m every segment (Phase 2/3) — content similarity offers a different
+signal (topical/semantic) than co-occurrence or recency, and may close some
+of the shallow-segment gap. Strict-cold (segment 0) has no content signal by
+construction (`ContentRecommender` collapses cold users to all-zero scores;
+`ContentPopBlendRecommender` degenerates to pure popularity for cold rows) —
+no improvement over pop is expected or claimed there.
+
+**Alpha selection rule (pre-declared, applied mechanically in Step 3):**
+alpha* = argmax global VAL NDCG@10 over the five-point grid {0.1, 0.3, 0.5,
+0.7, 0.9}, ties broken toward the smaller alpha. If the winning alpha sits at
+a grid edge (0.1 or 0.9) or the NDCG@10-vs-alpha curve is non-flat around the
+winner (i.e., neighboring grid points are not both clearly lower), a follow-up
+pair of configs refining +/-0.1 around the winner will be created and run,
+and this deviation from the five-point grid will be noted honestly in the
+results entry.
+
+**Protocol notes:** all seven runs are VAL-only, single-run (deterministic,
+artifact-receipted inference — content and content_pop_blend have no
+stochastic step, matching the popularity/kNN treatment in Phase 2; the
+3-seed rule that applies to ALS is inapplicable here). Bootstrap:
+n_resamples=1000, seed=20260805, matching every prior VAL/TEST config in this
+repo. Results and the alpha* decision are appended to this file in a
+subsequent entry, after the runs.

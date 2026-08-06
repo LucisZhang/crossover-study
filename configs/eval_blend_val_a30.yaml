@@ -1,0 +1,29 @@
+# content_pop_blend on VAL (Phase 4, T12 alpha grid): alpha=0.3 *
+# minmax_per_user(content) + (1-alpha) * minmax(log1p(pop)); pop params match
+# eval_pop_t12m_val.yaml (as_of=train_end, window_days=365). Cold rows
+# degenerate to pure popularity by construction.
+kind: eval
+model:
+  name: content_pop_blend
+  params:
+    alpha: 0.3
+    as_of: train_end
+    window_days: 365
+    recipe_hash: "1f7878ff82bf"
+    artifact_root: data/eval/minilm
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache
