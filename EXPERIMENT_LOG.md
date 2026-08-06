@@ -308,3 +308,58 @@ Peak RSS across the two new runs: 9.54 / 8.29 GB; both exit 0, clean tails.
    pop-t12m TEST run 20260805T172047Z-035042b; item-kNN TEST run
    20260805T185305Z-adbca99. Bootstrap: 1000 resamples, seed 20260805, same
    resample matrix both arms (eval.compare).
+
+### T7/T8 — TEST results and Phase-3 acceptance (2026-08-06)
+
+**TEST, chosen config (rank=128, reg=0.01, alpha=10, max_iter=25, binary), 3 seeds:**
+
+| seed | run_id | NDCG@10 | Recall@20 |
+|---|---|---|---|
+| 20260805 (primary) | 20260806T082441Z-2f2f26d | 0.0027501 | 0.0072037 |
+| 20260806 | 20260806T084638Z-2f2f26d | 0.0027574 | 0.0070509 |
+| 20260807 | 20260806T085913Z-2f2f26d | 0.0027202 | 0.0070388 |
+
+TEST NDCG@10 **mean 0.0027426 ± sd 0.0000197**; Recall@20 **0.0070978 ± 0.0000919**.
+
+**Paired deltas (primary seed arm, 1000 resamples, seed 20260805, n=228,153 common users):**
+
+ALS − pop-t12m, NDCG@10 per segment — the acceptance gate:
+
+| segment | delta | 95% CI | excludes zero |
+|---|---|---|---|
+| 0 (cold) | −0.00751 | [−0.00830, −0.00675] | yes |
+| 1–4 | −0.00256 | [−0.00299, −0.00216] | yes |
+| 5–9 | −0.00230 | [−0.00269, −0.00188] | yes |
+| 10–19 | −0.00257 | [−0.00313, −0.00199] | yes |
+| 20+ | −0.00146 | [−0.00209, −0.00079] | yes |
+
+Global: NDCG@10 −0.0027 [−0.0029, −0.0024]; all seven metrics negative, all CIs
+excluding zero.
+
+ALS − item-kNN: positive in every warm segment with CIs excluding zero
+(NDCG@10 global +0.0018 [+0.0016, +0.0020]); segment 0 identically zero
+(neither model can score strict-cold users).
+
+**Acceptance verdict (negative published, per the pre-declared accept clause):**
+ALS does NOT beat trailing-12m popularity on any warm segment; the deficit is
+significant everywhere. This extends the Phase-2 kNN finding to the strongest
+classical CF model at the hardware-feasibility frontier: on 2023 Electronics
+TEST with TRAIN ending 2022-06-30, recency-windowed popularity dominates
+learned static co-occurrence structure at every history depth. Mechanism
+(consistent with Phase 2): catalog churn — the 2023 ground truth concentrates
+on items whose popularity is recent, which the t12m window tracks and
+TRAIN-frozen factor structure cannot. Two effects worth the case study's
+attention: (1) ALS clearly beats kNN everywhere warm — it is the best CF
+representation tried; (2) the ALS-vs-pop deficit *shrinks* monotonically with
+history depth (−0.0026 shallow → −0.0015 at 20+) while pop's absolute quality
+also declines with depth — the crossover *direction* exists, but it does not
+reach zero within observed depths. Personalization's remaining hope in this
+lab: content retrieval (Phase 4) and the routing policy over segments.
+
+**Reproducibility:** all runs seeded and recorded; factor artifacts persisted
+with sha256 receipts echoed into runs.jsonl records; Spark ALS retraining is
+not bit-stable (float reduction order) — reproducibility is claimed via the
+persisted artifacts plus recorded seed/params, with 3-seed sd (VAL 0.0000568,
+TEST 0.0000197) bounding stochastic variance. Caveats pre-registered in T6
+apply: the chosen config is the 16GB hardware-feasibility frontier, not a
+converged optimum; the shallow>deep gradient held across all 10 grid points.
