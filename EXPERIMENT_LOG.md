@@ -294,3 +294,17 @@ uncertainty and does not threaten grid-selection conclusions at the observed
 axis deltas (rank: 0.00033; iter: 0.000107 — the iter margin is ~2 sd, thin
 but the selection stands per the pre-declared point-estimate rule).
 Peak RSS across the two new runs: 9.54 / 8.29 GB; both exit 0, clean tails.
+
+### T7 — TEST protocol pre-declaration (written and committed BEFORE any TEST run)
+
+1. **One-shot TEST.** Whatever TEST shows, there is no returning to the VAL grid
+   for another config afterward; the result is published as-is, win or negative.
+2. **Seed handling for paired deltas:** the seed **20260805** TEST run is the
+   single arm for all per-user paired-bootstrap deltas (vs pop-t12m and vs
+   item-kNN). Seeds 20260806 / 20260807 TEST runs are reported only as 3-seed
+   mean±sd stability evidence and enter no delta computation.
+3. Comparisons: ALS-vs-pop-t12m (acceptance gate: warm segments 5-9 / 10-19 /
+   20+, NDCG@10 CI excluding zero) and ALS-vs-item-kNN (secondary). Arms:
+   pop-t12m TEST run 20260805T172047Z-035042b; item-kNN TEST run
+   20260805T185305Z-adbca99. Bootstrap: 1000 resamples, seed 20260805, same
+   resample matrix both arms (eval.compare).
