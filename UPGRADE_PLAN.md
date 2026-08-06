@@ -26,6 +26,8 @@ Gaps THIS project must own: **(a) no large-scale BATCH processing** (streaming e
 ### 1.2 The one-sentence pitch
 
 > **"How much history does a user need before personalization beats popularity?"** Batch Recsys Lab ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking metrics and bootstrap CIs — and turns the measured crossover into a routing policy that knows exactly where each model stops working.
+>
+> *[Amendment 2026-08-06: the "measured crossover" claim is superseded by the Phase 3 measured outcome (see §6.4) — CF never crosses popularity at observed depths. Final pitch wording deferred to Phase 6.]*
 
 ### 1.3 Why this makes a hiring manager stop
 
@@ -175,7 +177,15 @@ Random floor; global popularity (time-windowed: trailing-12-month, not all-time 
 
 ### 6.4 The routing policy (the centerpiece finding)
 
-Fit on VAL: recommend a content/popularity blend for users with TRAIN history < n*, ALS above; choose n* (and blend weights) by maximizing segment-weighted NDCG@10. Report on TEST: hybrid vs every component, overall and per segment. Success shape: *"the hybrid matches ALS on heavy users, beats it by a measured margin on 5–9-interaction users, and never falls below popularity on cold users."* If the hybrid fails to dominate, diagnose and publish that — the site's credibility model rewards it.
+Fit on VAL: recommend a content/popularity blend for users with TRAIN history < n*, ALS above; choose n* (and blend weights) by maximizing segment-weighted NDCG@10. Report on TEST: hybrid vs every component, overall and per segment. The question Phase 4 inherits (recalibrated after the Phase 3 measured outcome below): *can content retrieval beat pop-t12m on the cold/shallow segments where CF cannot compete?* If nothing beats popularity anywhere, the shipped policy is recency-weighted popularity itself, published as such — the routing exhibit then shows *why* the null policy wins, per segment, with CIs. If the hybrid fails to dominate, diagnose and publish that — the site's credibility model rewards it.
+
+> **Measured outcome (2026-08-06, Phase 3):** ALS (rank 128, best of a 10-entry
+> single-variable VAL grid, 3 seeds) loses to pop-t12m on **every** warm segment
+> with CIs excluding zero; the deficit shrinks monotonically with history depth
+> (−0.0026 shallow → −0.0015 at 20+) but never crosses zero at observed depths.
+> ALS beats item-kNN in every warm segment — the best classical CF tried, and it
+> still loses to recency-weighted popularity. See EXPERIMENT_LOG.md Phase 3 and
+> the paired_delta records in results/runs.jsonl.
 
 ### 6.5 Honesty rules and optional reality check
 
