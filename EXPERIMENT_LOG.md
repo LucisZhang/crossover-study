@@ -363,3 +363,39 @@ persisted artifacts plus recorded seed/params, with 3-seed sd (VAL 0.0000568,
 TEST 0.0000197) bounding stochastic variance. Caveats pre-registered in T6
 apply: the chosen config is the 16GB hardware-feasibility frontier, not a
 converged optimum; the shallow>deep gradient held across all 10 grid points.
+
+### T10 — MiniLM item-embedding Step A (2026-08-06)
+
+Embedded all 368,228 5-core catalog items (T9 export, `five_core_snapshot_id`
+8184397443787800955) with `sentence-transformers/all-MiniLM-L6-v2` (HF
+revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`). Recipe
+`v1_title_brand_cat_features`: `title + " " + brand_norm + " " + main_category
++ " " + " ".join(features)` (null/empty parts skipped; `description` and
+`categories` excluded from this recipe). Step A re-verified alignment by
+recomputing the export parquet's sha256 and the parent_asin-sequence sha256
+against both `export_manifest.json` and the eval cache's `item_ids.parquet`
+directly (not trusted from the manifest alone) before embedding.
+
+Hardware/runtime (from `minilm_manifest.json`): device `mps` (Apple M4, no
+fallback needed — `mps_failure_detail: null`), batch size 256, fp32 compute
+cast to fp16 for storage, wall clock 2115.39s (~35.3 min) for 368,228 items,
+sentence-transformers 5.6.1 / transformers 5.14.1 / torch 2.13.0.
+
+Artifact: `data/eval/minilm/8184397443787800955/1f7878ff82bf/` —
+`embeddings.npy` (368228×384, float16, 270MB, sha256
+`260bf265a29083917852895b2fd006d7641d77aa7fb5daeef7e5019694792110`),
+`minilm_manifest.json` (recipe_hash `1f7878ff82bff9fb6c23b0aad5597817dd0e0e0ae0c7859abdd0c7a70efe7bc5`,
+source export parquet sha256 `a765db1e8c60890b8e5d90b1c0b23d0243a4befbba529807a39c1af9ebba799f`,
+item_ids sha256 `3dacae9d50fec59110d452cde587e91b17aa8812d9c86abce351d782cf863e9f`).
+Re-running `make embed-items` after completion printed "up to date" and
+exited in 0.77s, confirming idempotency.
+
+Sanity spot-check (cosine neighbors, k=5) for query `B00068NUO4` "Arzonb HDMI
+to HDMI Cable 6 Feet": all five nearest neighbors (sim 0.62–0.63) are other
+HDMI/Mini-HDMI/Micro-HDMI cables (QING CAOQING, Elebase ×3, CableDirect) —
+topically coherent. No metric claims made here; this is Step A (embedding
+only), evaluation follows in later Phase 4 tasks.
+
+Deviations: none. `torch`/`sentence-transformers`/`hnswlib` were added to a
+new `embed` dependency group (`pyproject.toml`); the default install remains
+torch-free (`uv sync` without `--group embed` does not pull torch).

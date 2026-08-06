@@ -15,6 +15,11 @@ dependencies = [
 dev = [
     "pytest>=8",
 ]
+embed = [
+    "torch>=2.4",
+    "sentence-transformers>=3",
+    "hnswlib>=0.8",
+]
 
 [build-system]
 requires = ["hatchling"]

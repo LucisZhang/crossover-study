@@ -8,7 +8,7 @@ export PATH := $(JAVA_HOME)/bin:$(PATH)
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -158,3 +158,12 @@ eval-als: java-check
 compare:
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/compare_*.yaml"; exit 1; }
 	uv run python -m batch_recsys_lab.eval.compare --config $(CONFIG)
+
+# MiniLM item-embedding Step A (Phase 4, T10). JVM-free: reads the T9 export
+# (data/eval/text/<snapshot>/item_text.parquet), re-verifies alignment, and
+# writes data/eval/minilm/<snapshot>/<recipe_hash_short>/embeddings.npy +
+# minilm_manifest.json. Runs under the torch-carrying `embed` dependency
+# group (default install stays torch-free). Idempotent: skips if a matching
+# artifact already exists.
+embed-items:
+	uv run --group embed python -m batch_recsys_lab.models.minilm_embed
