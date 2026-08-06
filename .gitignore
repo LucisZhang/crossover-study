@@ -8,3 +8,4 @@ __pycache__/
 derby.log
 metastore_db/
 spark-warehouse/
+logs/
