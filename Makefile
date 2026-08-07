@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-compact ops-expire ops-all clean-ops
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -199,3 +199,48 @@ ann-index:
 # extract step only.
 reproduce-headline: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.reproduce
+
+# --- Lakehouse ops exhibits (Phase 5, T20) -----------------------------------
+# Every step runs against local.ops.interactions_monthly ONLY: a disposable copy
+# of silver.interactions partitioned by months(ts). The published
+# bronze/silver/gold/dq/quarantine tables are never written, compacted or
+# expired — enforced by ops.maintenance.require_ops_table and re-asserted
+# JVM-free after every step (the runner exits non-zero if any protected snapshot
+# moved, or if free disk drops below 8GB). Each step appends ONE kind="ops"
+# record to results/runs.jsonl.
+
+ops-backfill: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step backfill
+
+#   make ops-append MONTH=2023-07
+ops-append: java-check
+	@test -n "$(MONTH)" || { echo "ERROR: set MONTH=YYYY-MM"; exit 1; }
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step append --month $(MONTH)
+
+ops-upsert: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step upsert
+
+ops-compact: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step compact
+
+ops-expire: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step expire
+
+# Full scenario in order. ONE RECSYS_RUN_ID ties all seven records together
+# (same convention as `make data`); it is exported into each sub-make.
+ops-all: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+ops-all: java-check
+	$(MAKE) ops-backfill
+	$(MAKE) ops-append MONTH=2023-07
+	$(MAKE) ops-append MONTH=2023-08
+	$(MAKE) ops-append MONTH=2023-09
+	$(MAKE) ops-upsert
+	$(MAKE) ops-compact
+	$(MAKE) ops-expire
+	@echo "make ops-all complete · RECSYS_RUN_ID=$(RECSYS_RUN_ID)"
+
+# Teardown: DROP TABLE ... PURGE + remove data/warehouse/ops. Appends no record.
+# The directory removal is guarded in code: it only ever deletes a directory
+# whose parent is exactly the warehouse root.
+clean-ops: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step clean
