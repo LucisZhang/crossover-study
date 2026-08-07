@@ -8,7 +8,7 @@ export PATH := $(JAVA_HOME)/bin:$(PATH)
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -175,3 +175,14 @@ crossover-chart:
 # artifact already exists.
 embed-items:
 	uv run --group embed python -m batch_recsys_lab.models.minilm_embed
+
+# ANN index artifact + latency/overlap receipt (Phase 4, T16). Demo-facing
+# ONLY — never used in eval metrics (CLAUDE.md invariant #4: all eval records
+# use exact full-catalog chunked matmul). Builds an hnswlib cosine index over
+# the T10 embeddings (data/eval/minilm/<snapshot>/<recipe_hash>/ann_index.bin
+# + ann_manifest.json), measures ANN-vs-exact top-10 overlap and latency over
+# a fixed 10k-user sample, and appends one kind="ann_receipt" record to
+# results/runs.jsonl. Idempotent build; `--measure` (always passed here) runs
+# the receipt regardless. No JVM/Spark gate needed.
+ann-index:
+	uv run --group embed python -m batch_recsys_lab.models.ann_index --measure

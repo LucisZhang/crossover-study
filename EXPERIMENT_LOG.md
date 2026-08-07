@@ -893,3 +893,58 @@ paired_delta appends), `configs/compare_content_vs_pop_t12m_test.yaml`,
 and the per-user parquet artifacts under `data/eval/per_user/` for the three
 new runs — left uncommitted per the task's Step 3 instruction pending owner
 review.
+
+## Phase 4 T16 — ANN index artifact + latency/overlap receipt (2026-08-07)
+
+`run_id 20260807T090857Z-97af81f`, `kind="ann_receipt"` in `results/runs.jsonl`
+(one appended record; abridged below). **Demo-facing artifact only** —
+`used_in_eval_metrics: false` is set explicitly on the record, and every
+`kind="eval"` / `kind="paired_delta"` record in this log (including all Phase
+4 headline TEST numbers) was produced by exact full-catalog ranking via
+chunked matmul, never by this ANN index (CLAUDE.md invariant #4). This index
+is not wired into `eval/harness.py` or any `Recommender` used by an eval
+config.
+
+**Artifact:** `data/eval/minilm/8184397443787800955/1f7878ff82bf/ann_index.bin`
+(592MB) + `ann_manifest.json`, sibling to the T10 embedding artifact. Built
+with `hnswlib` 0.8.0, cosine space, over the L2-normalized fp32 view of the
+368,228 x 384 MiniLM item embeddings. Parameters: `M=16`, `ef_construction=200`,
+built-index `ef_search=200`. Build wall clock: 39.8s.
+
+**Receipt measurement:** 10,000 users with `n_train > 0` sampled from the
+eval cache with fixed seed `20260805` (recorded in the manifest), content
+profile computed exactly as `content.py`'s `ContentRecommender` does
+(mean-pooled, L2-normalized TRAIN-item embeddings). For each user, exact
+top-10 (chunked brute-force cosine matmul, batched over all 10,000 users at
+once) vs ANN top-10 at `ef_search` in `{50, 100, 200}`:
+
+| ef_search | mean top-10 overlap | ANN latency median | ANN latency p95 |
+|---:|---:|---:|---:|
+| 50 | 0.7990 | 0.230 ms | 0.352 ms |
+| 100 | 0.8915 | 0.395 ms | 0.566 ms |
+| 200 | 0.9472 | 0.670 ms | 0.923 ms |
+
+Overlap at `ef=200` came in at **0.9472**, just under the informally
+expected ≥0.95 — reported honestly per the task's instruction, no tuning
+beyond the declared `{50, 100, 200}` grid.
+
+Exact latency, amortized from the same batched chunked matmul used for the
+overlap ground truth (10,000 queries in 42.7s total): 4.27 ms/query. This is
+a *throughput* number from a batch of 10,000, not a single-query call, and is
+not directly comparable to the ANN's single-threaded, one-query-at-a-time
+latency above as a "speedup ratio" without that caveat (recorded verbatim in
+the record's `receipt.exact_amortized_note`).
+
+**Idempotency:** re-running `make ann-index` without deleting the artifact
+prints `up to date: ...ann_index.bin` and skips the build (verified); the
+skip check compares the built index's manifest against the source embeddings
+sha256, `M`, and `ef_construction`.
+
+**Files:** `src/batch_recsys_lab/models/ann_index.py` (new), `Makefile`
+(`ann-index` target, `embed` group, no Java/Spark gate), this entry.
+
+**Uncommitted after this task:** `results/runs.jsonl` (1 `ann_receipt`
+append), `data/eval/minilm/8184397443787800955/1f7878ff82bf/ann_index.bin`
++ `ann_manifest.json` (gitignored `data/` artifacts, not tracked by git
+regardless), and this EXPERIMENT_LOG.md entry — left uncommitted pending
+owner review per the task's constraints.
