@@ -1,0 +1,40 @@
+# hybrid routing policy on TEST (Phase 4, T15 one-shot TEST protocol): TEST
+# twin of eval_hybrid_val.yaml — the VAL-selected policy (T13), variant B,
+# n_star=null (infinity), i.e. every user is routed to the blend. Split
+# changed to test only, all model params identical. Expected to reproduce
+# content_pop_blend(alpha=0.3) TEST run per-user exactly (assertion done
+# post-run, mirroring the T13 VAL confirmation).
+kind: eval
+model:
+  name: hybrid
+  params:
+    n_star: null
+    low:
+      name: content_pop_blend
+      params:
+        alpha: 0.3
+        as_of: train_end
+        window_days: 365
+        recipe_hash: "1f7878ff82bf"
+        artifact_root: data/eval/minilm
+    high:
+      name: popularity
+      params:
+        as_of: train_end
+        window_days: 365
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache

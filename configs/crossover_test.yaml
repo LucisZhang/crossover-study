@@ -1,0 +1,39 @@
+# Crossover chart, TEST (Phase 4, T15; plan §6.2/§9.1). TEST twin of
+# crossover_val.yaml — split/output_stem/run_ids changed only.
+# Rendered strictly from results/runs.jsonl by eval/crossover_chart.py:
+#   make crossover-chart CONFIG=configs/crossover_test.yaml
+#
+# Line selection (all TEST):
+#   blend a=0.3   <FILL AFTER T15 STEP 2>   VAL-selected alpha (T12), TEST eval_blend_test.yaml
+#   pop-t12m      20260805T172047Z-035042b  Phase 2 TEST reference run (also T7/T15 comparison arm)
+#   ALS           20260806T082441Z-2f2f26d  Phase 3 chosen config, seed 20260805 (primary paired-delta arm, T7)
+#   item-kNN      20260805T185305Z-adbca99  Phase 2 best kNN config, TEST
+#   content       <FILL AFTER T15 STEP 2>   MiniLM semantic retrieval, no popularity signal, TEST
+# Placeholders above are filled in T15 Step 3 once the content/blend TEST
+# eval runs complete. The hybrid confirming run is numerically identical to
+# the blend line (n*=inf) and is cited in the annotation, not plotted twice.
+
+runs_log: results/runs.jsonl
+split: test
+metric: "ndcg@10"
+output_stem: crossover_test
+segments: ["0", "1-4", "5-9", "10-19", "20+"]
+
+title: "How much history before personalization beats popularity? (TEST)"
+subtitle: "NDCG@10 by user history depth - full-catalog ranking, 368,228 items; bands are 95% bootstrap CIs; Amazon Electronics, TEST = 2023-01-01 -> snapshot end"
+xlabel: "User history depth (TRAIN interactions per TEST user)"
+
+annotation: "One-shot TEST confirmation of the VAL-selected policy: blend\nalpha=0.3 (n*=inf, fitted on VAL, T12/T13). See EXPERIMENT_LOG.md T15\nfor the paired-bootstrap verdict vs pop-t12m, overall and by segment."
+
+lines:
+  - label: "blend α=0.3 (content+pop)"
+    run_id: "TBD"
+    highlight: true
+  - label: "pop-t12m"
+    run_id: "20260805T172047Z-035042b"
+  - label: "ALS (rank 128, seed 20260805)"
+    run_id: "20260806T082441Z-2f2f26d"
+  - label: "item-kNN (top-50)"
+    run_id: "20260805T185305Z-adbca99"
+  - label: "content (MiniLM)"
+    run_id: "TBD"

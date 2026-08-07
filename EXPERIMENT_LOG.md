@@ -681,3 +681,84 @@ production recommender for this lab's headline TEST report is
 `content_pop_blend(alpha=0.3)`, unconditionally — the `HybridRecommender`
 machinery built here is retained (tested, registered, VAL-validated) but
 this task's VAL evidence does not support deploying a non-trivial n*."
+
+## T15 — One-shot TEST protocol — pre-declaration (2026-08-07)
+
+Written and committed BEFORE any TEST run for this task (CLAUDE.md invariant
+#1; mirrors the T7 Phase-3 one-shot TEST protocol above).
+
+**Arms (all VAL-fitted, owner-approved, no further tuning on TEST):**
+
+1. Pure content: `content`, recipe_hash `1f7878ff82bf` (T10/T11 MiniLM
+   artifact). Config: `configs/eval_content_test.yaml`.
+2. Blend: `content_pop_blend`, alpha=0.3 (T12 alpha* winner). Config:
+   `configs/eval_blend_test.yaml`.
+3. Hybrid: `hybrid`, variant B, n_star=null (T13 winner — routes every user
+   to the blend). Config: `configs/eval_hybrid_test.yaml`. Expected, and to
+   be asserted post-run, to reproduce arm 2's per-user scores exactly, as
+   confirmed on VAL in T13.
+
+**Single-run justification.** Content/blend/hybrid inference is deterministic
+over receipted, already-fitted artifacts (MiniLM embeddings, popularity
+tables) — there is no stochastic training step, matching the treatment of
+popularity and item-kNN in Phase 2 and pre-declared for these three model
+families already in the T12 pre-declaration. The 3-seed mean±sd rule
+(CLAUDE.md invariant #2) binds stochastic training only (ALS init); it does
+not apply here. One run per arm, on TEST, full stop.
+
+**Comparisons (paired bootstrap, 1000 resamples, seed 20260805, `eval.compare`,
+same resample matrix within a comparison):**
+
+- content vs pop-t12m TEST (pop-t12m TEST run `20260805T172047Z-035042b`,
+  Phase 2). Config: `configs/compare_content_vs_pop_t12m_test.yaml`.
+- blend vs pop-t12m TEST. Config: `configs/compare_blend_vs_pop_t12m_test.yaml`.
+- hybrid vs pop-t12m TEST. Config: `configs/compare_hybrid_vs_pop_t12m_test.yaml`.
+- hybrid vs its best component. Config:
+  `configs/compare_hybrid_vs_best_component_test.yaml`. **Best-component
+  resolution rule (mechanical, applied after the arms complete):** the
+  component with the higher global TEST NDCG@10 among {blend, pop-t12m} is
+  "best". T12/T13 found blend beats pop-t12m on VAL in every segment, so
+  blend is expected to resolve as best component; if pop-t12m instead wins
+  on TEST, this compare config is pointed at the pop-t12m TEST run instead.
+  Because hybrid == blend by construction (T13 confirmed exact per-user
+  equality on VAL, to be reconfirmed on TEST), if blend resolves as best
+  component this comparison is a trivial exact-zero delta — declared anyway
+  to close the §8 "hybrid >= best component" acceptance criterion formally,
+  not because a nonzero result is expected.
+
+**Config-schema note (deviation from the plan-brief's literal step order):**
+`eval.compare` configs require `a.run_id` / `b.run_id` filled in upfront —
+there is no run-id-free schema variant. The four compare configs above
+therefore cannot be created with real run_ids until after the three TEST
+eval runs (Step 2) produce them. This pre-declaration commits only the intent,
+the resolution rule, and the metric/bootstrap parameters (mirroring
+`compare_itemknn_vs_pop_t12m_test.yaml`'s structure from Phase 3); the compare
+config files themselves are created in Step 3, after the arms complete, and
+are explicitly out of scope for "no VAL iteration follows TEST" since they
+only combine already-frozen TEST run_ids — no new eval run, no model
+selection. This is noted here, before any TEST number is seen, precisely so
+it cannot be read as post-hoc rationalization.
+
+**Crossover chart.** `configs/crossover_test.yaml` (TEST twin of
+`crossover_val.yaml`) is committed with the blend/content run_ids as `"TBD"`
+placeholders, filled in Step 3 once those two TEST runs exist. Fixed lines:
+pop-t12m `20260805T172047Z-035042b` (Phase 2), item-kNN `20260805T185305Z-adbca99`
+(Phase 2, best top_n=50), ALS `20260806T082441Z-2f2f26d` (Phase 3 chosen
+config, seed 20260805 — the primary paired-delta arm per the T7 precedent,
+matching the VAL chart's seed choice).
+
+**Null-policy contingency (pre-declared now, not decided after seeing TEST).**
+If blend fails to beat pop-t12m on TEST (CI does not exclude zero in favor
+of blend, globally or in the relevant warm segments), the shipped policy for
+this lab's headline recommender is **recency-weighted popularity
+(pop-t12m)**, published as the honest outcome with a per-segment
+explanation of where and why content/blend fell short — not silently
+swapped for a different content configuration or re-tuned on TEST. This
+mirrors the Phase 3 ALS outcome: a negative result is a result, logged in
+full in `EXPERIMENT_LOG.md`, not discarded (CLAUDE.md plan-execution
+discipline).
+
+**No VAL iteration follows TEST.** Whatever the three TEST runs and four
+comparisons show, there is no return to the VAL grid (T12 alpha sweep, T13
+n* grid) for a different configuration afterward. The result — positive or
+negative — is published as-is.
