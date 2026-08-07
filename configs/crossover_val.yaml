@@ -1,0 +1,38 @@
+# Crossover chart, VAL (Phase 4, T14; plan §6.2/§9.1).
+# Rendered strictly from results/runs.jsonl by eval/crossover_chart.py:
+#   make crossover-chart CONFIG=configs/crossover_val.yaml
+# A crossover_test.yaml twin (T15) changes split/output_stem/run_ids only.
+#
+# Line selection (all VAL, chosen on VAL per invariant #1):
+#   blend a=0.3   20260806T124525Z-e056a2a  best blend alpha on VAL (pre-declared rule, T12)
+#   pop-t12m      20260806T113427Z-e056a2a  Phase 4 VAL rerun of the popularity baseline
+#   ALS           20260806T033333Z-acd1f81  Phase 3 chosen config (rank=128, iter=25, seed 20260805)
+#   item-kNN      20260805T182231Z-035042b  Phase 2 best kNN config on VAL (top_n=50)
+#   content       20260806T114617Z-e056a2a  MiniLM semantic retrieval, no popularity signal
+# The hybrid confirming run 20260807T040118Z-5e212d7 is numerically identical to
+# the blend line (n*=inf) and is cited in the annotation, not plotted twice.
+
+runs_log: results/runs.jsonl
+split: val
+metric: "ndcg@10"
+output_stem: crossover_val
+segments: ["0", "1-4", "5-9", "10-19", "20+"]
+
+title: "How much history before personalization beats popularity? (VAL)"
+subtitle: "NDCG@10 by user history depth - full-catalog ranking, 368,228 items; bands are 95% bootstrap CIs; Amazon Electronics, VAL = 2022-H2"
+xlabel: "User history depth (TRAIN interactions per VAL user)"
+
+annotation: "Selected policy: blend α=0.3 (n*=∞, fitted on VAL).\nRouting reduced to the blend at every depth - no crossover:\nno segment where pure personalization wins. Confirming\nhybrid run 20260807T040118Z-5e212d7 matches this line exactly."
+
+lines:
+  - label: "blend α=0.3 (content+pop)"
+    run_id: "20260806T124525Z-e056a2a"
+    highlight: true
+  - label: "pop-t12m"
+    run_id: "20260806T113427Z-e056a2a"
+  - label: "ALS (rank 128)"
+    run_id: "20260806T033333Z-acd1f81"
+  - label: "item-kNN (top-50)"
+    run_id: "20260805T182231Z-035042b"
+  - label: "content (MiniLM)"
+    run_id: "20260806T114617Z-e056a2a"
