@@ -223,11 +223,29 @@ def run_eval(
     run_id: str | None = None,
     manifest_path: str | Path | None = None,
     splits_path: str | Path | None = None,
+    append: bool = True,
+    expected_snapshot_ids: dict | None = None,
 ) -> dict:
     """Run one eval config end-to-end and append its record. Returns the record.
 
     ``manifest_path`` / ``splits_path`` default to the repo's committed
     ``data/MANIFEST.md`` / ``configs/splits.yaml`` (overridable for tests).
+
+    Reproduction mode (Phase 5, T18):
+
+    * ``expected_snapshot_ids`` — grade the cache against these EXACT snapshot IDs
+      (:func:`runlog.check_pinned_cache`) instead of the live tables
+      (:func:`runlog.check_stale_cache`). A snapshot-pinned re-run is deliberately
+      NOT required to match whatever the warehouse holds today.
+    * ``append=False`` — build and return the record without writing to
+      ``results_path`` (the reproduce orchestrator compares the candidate record
+      against the recorded one and appends its own ``kind="reproduce"`` record
+      instead; invariant #3 keeps ``runs.jsonl`` free of speculative eval lines).
+
+    Cache location and per-user artifact directory are overridden through the
+    loaded ``config`` dict (``config["cache_dir"]`` / ``config["per_user_dir"]``),
+    never by rewriting the config file — ``config_hash`` must stay the hash of the
+    ORIGINAL config bytes for a reproduction to be comparable at all.
     """
     t0 = time.monotonic()
 
@@ -254,7 +272,10 @@ def run_eval(
     git = runlog.git_info()
 
     # --- integrity guards (before any scoring) ---
-    runlog.check_stale_cache(manifest["snapshot_ids"], warehouse, allow_stale)
+    if expected_snapshot_ids is not None:
+        runlog.check_pinned_cache(manifest["snapshot_ids"], expected_snapshot_ids)
+    else:
+        runlog.check_stale_cache(manifest["snapshot_ids"], warehouse, allow_stale)
     runlog.check_test_dirty(eval_split, git["git_dirty"])
 
     model = _build_model(config["model"], seeds_cfg)
@@ -346,7 +367,8 @@ def run_eval(
         hardware=runlog.hardware_string(),
     )
 
-    runlog.append_record(record, results_path)
+    if append:
+        runlog.append_record(record, results_path)
     _print_summary(record)
     return record
 

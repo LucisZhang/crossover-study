@@ -1,0 +1,7 @@
+# Headline pin (Phase 5, T18). `make reproduce-headline` re-runs THIS recorded
+# run against the Iceberg snapshot IDs the run itself recorded — never against
+# whatever is live. Changing headline_run_id re-points the claim the site makes;
+# it is a deliberate, reviewed edit, not a routine one.
+headline_run_id: "20260807T055333Z-c320c79"
+results_path: "results/runs.jsonl"
+cache_repro_root: "data/eval/cache_repro"

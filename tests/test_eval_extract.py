@@ -11,13 +11,14 @@ import os
 
 os.environ.setdefault("SPARK_LOCAL_IP", "127.0.0.1")
 
+import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
 import pytest
 
-from batch_recsys_lab.eval.extract import extract
+from batch_recsys_lab.eval.extract import _read_table, _snapshot_id, extract
 from batch_recsys_lab.eval.dataset import load_dataset
 from batch_recsys_lab.features.splits import load_splits
 
@@ -185,6 +186,105 @@ def test_extract_and_dataset_round_trip(spark, toy_gold, tmp_path):
     assert manifest["n_users"] == 2
     assert "splits_file_sha256" in manifest
     assert manifest["split_pair_counts"] == {"train": 3, "val": 1, "test": 2}
+
+
+TABLES = (FIVE_CORE, USER_STATS, ITEM_FEATURES, POPULARITY)
+
+
+def _extract_kwargs():
+    return {
+        "five_core_table": FIVE_CORE,
+        "user_stats_table": USER_STATS,
+        "item_features_table": ITEM_FEATURES,
+        "popularity_table": POPULARITY,
+    }
+
+
+def test_pinned_extract_time_travels_to_the_recorded_snapshot(spark, toy_gold, tmp_path):
+    """Phase 5, T18: a pinned extract must read the snapshot the RECORD names, not
+    whatever the table holds now.
+
+    Snapshot A is captured, the 5-core table then gains a TRAIN row (snapshot B).
+    A live read/extract sees B; a pinned read/extract at A still sees A — and the
+    pinned cache is keyed by, and stamped with, A's IDs.
+    """
+    snap_a = {t: _snapshot_id(spark, t) for t in TABLES}
+    live_a = extract(spark, out=tmp_path / "a", **_extract_kwargs())
+    assert live_a["split_pair_counts"] == {"train": 3, "val": 1, "test": 2}
+
+    # --- append one TRAIN row for an existing user/item -> snapshot B ---
+    train_ts = toy_gold.train_end - 10 * DAY
+    spark.createDataFrame([("U1", "P4", train_ts, 3.0)], FIVE_CORE_DDL).writeTo(
+        FIVE_CORE
+    ).append()
+    snap_b = _snapshot_id(spark, FIVE_CORE)
+    assert snap_b != snap_a[FIVE_CORE]
+
+    # --- the read helper itself: pinned vs live ---
+    assert _read_table(spark, FIVE_CORE, snap_a).count() == 6
+    assert _read_table(spark, FIVE_CORE, None).count() == 7
+    assert _read_table(spark, FIVE_CORE).count() == 7
+
+    # A contract re-stamp after the fact must NOT leak into a pinned extract:
+    # SHOW TBLPROPERTIES has no time-travel form, so identities come from the caller.
+    _stamp_contract(spark, FIVE_CORE, "gold_interactions_5core", "9")
+
+    pinned_contracts = {t: {"name": f"c_{i}", "version": "1"} for i, t in enumerate(TABLES)}
+    pinned = extract(
+        spark,
+        out=tmp_path / "pinned",
+        pinned_snapshot_ids=snap_a,
+        pinned_contracts=pinned_contracts,
+        **_extract_kwargs(),
+    )
+    assert pinned["status"] == "built"
+    assert pinned["pinned"] is True
+    cache_dir = Path(pinned["cache_dir"])
+    # Keyed by the PINNED 5-core snapshot, not the live one.
+    assert cache_dir.name == str(snap_a[FIVE_CORE])
+    # Same content as the pre-append live extract.
+    assert pinned["split_pair_counts"] == live_a["split_pair_counts"]
+
+    manifest = json.loads((cache_dir / "cache_manifest.json").read_text())
+    assert manifest["snapshot_ids"] == snap_a
+    assert manifest["contract_identities"] == pinned_contracts
+
+    ds = load_dataset(cache_dir)
+    assert ds.train_csr.nnz == 3  # U1->{P1,P2}, U2->{P1}; the appended U1->P4 is not here
+
+    # --- a LIVE extract now sees snapshot B ---
+    live_b = extract(spark, out=tmp_path / "b", **_extract_kwargs())
+    assert live_b["split_pair_counts"]["train"] == 4
+    assert Path(live_b["cache_dir"]).name == str(snap_b)
+
+
+def test_pinned_extract_requires_complete_pins(spark, toy_gold, tmp_path):
+    snap = {t: _snapshot_id(spark, t) for t in TABLES}
+    contracts = {t: {"name": "c", "version": "1"} for t in TABLES}
+
+    with pytest.raises(ValueError, match="requires pinned_contracts"):
+        extract(
+            spark,
+            out=tmp_path / "p1",
+            pinned_snapshot_ids=snap,
+            **_extract_kwargs(),
+        )
+    with pytest.raises(ValueError, match="no snapshot id"):
+        extract(
+            spark,
+            out=tmp_path / "p2",
+            pinned_snapshot_ids={FIVE_CORE: snap[FIVE_CORE]},
+            pinned_contracts=contracts,
+            **_extract_kwargs(),
+        )
+    with pytest.raises(ValueError, match="no contract identity"):
+        extract(
+            spark,
+            out=tmp_path / "p3",
+            pinned_snapshot_ids=snap,
+            pinned_contracts={FIVE_CORE: contracts[FIVE_CORE]},
+            **_extract_kwargs(),
+        )
 
 
 def test_extract_idempotent(spark, toy_gold, tmp_path, capsys):

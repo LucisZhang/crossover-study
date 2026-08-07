@@ -34,6 +34,17 @@ Cache layout, ``<out>/<interactions_5core_snapshot_id>/``::
 The cache is idempotent and keyed by the ``interactions_5core`` snapshot ID: if
 the directory already exists and its manifest's snapshot IDs all match the live
 tables, extraction is skipped (exit 0, "cache up to date").
+
+**Pinned (time-travel) mode** — Phase 5, T18. Passing ``pinned_snapshot_ids``
+(plus ``pinned_contracts``) switches every table read to Iceberg time travel
+(``spark.read.option("snapshot-id", sid).table(name)``) so the cache is rebuilt
+from the exact snapshots a recorded run used, regardless of what the live tables
+now hold. In pinned mode the live snapshot IDs are never fetched, the cache dir
+is keyed by the PINNED ``interactions_5core`` snapshot, and the contract
+name/version identities come from the caller (the recorded record's
+``contracts``) rather than live ``TBLPROPERTIES`` — because ``SHOW
+TBLPROPERTIES`` has no time-travel form, so a live read would silently stamp
+today's contract version onto a historical extract. Live mode is untouched.
 """
 
 from __future__ import annotations
@@ -90,6 +101,25 @@ def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _read_table(spark: SparkSession, table: str, snapshot_ids: dict[str, int] | None = None):
+    """Read ``table`` live, or time-travelled to a pinned snapshot.
+
+    ``snapshot_ids`` is ``None``/empty in live mode -> plain ``spark.table``
+    (byte-for-byte the previous behavior). Otherwise the table MUST have an entry
+    in the mapping: a silent fallback to the live table is exactly the failure
+    this mode exists to prevent, so a missing key raises.
+    """
+    if not snapshot_ids:
+        return spark.table(table)
+    sid = snapshot_ids.get(table)
+    if sid is None:
+        raise KeyError(
+            f"pinned snapshot id missing for table {table!r}; pinned tables are "
+            f"{sorted(snapshot_ids)}"
+        )
+    return spark.read.option("snapshot-id", str(int(sid))).table(table)
+
+
 def _save_string_column(values: list[str], name: str, out_dir: Path) -> None:
     table = pa.table({name: pa.array(values, type=pa.string())})
     pq.write_table(table, out_dir / f"{name}s.parquet")
@@ -131,26 +161,39 @@ def _cache_up_to_date(cache_dir: Path, live_snapshot_ids: dict[str, int]) -> boo
     return all(cached.get(t) == sid for t, sid in live_snapshot_ids.items())
 
 
-def _build_item_index(spark: SparkSession, item_features_table: str, five_core_table: str, out_dir: Path) -> tuple[list[str], int, int]:
+def _build_item_index(
+    spark: SparkSession,
+    item_features_table: str,
+    five_core_table: str,
+    out_dir: Path,
+    snapshot_ids: dict[str, int] | None = None,
+) -> tuple[list[str], int, int]:
     # Catalog order = sorted ascending parent_asin from item_features. This
     # ordering IS the global deterministic tie-break used downstream (rank ties,
     # top-K argpartition ties) — every consumer of item_idx must derive it from
     # this exact sort.
     rows = (
-        spark.table(item_features_table)
+        _read_table(spark, item_features_table, snapshot_ids)
         .select("parent_asin")
         .distinct()
         .orderBy("parent_asin")
         .collect()
     )
     item_ids = [r["parent_asin"] for r in rows]
-    n_5core_distinct = spark.table(five_core_table).select("parent_asin").distinct().count()
+    n_5core_distinct = (
+        _read_table(spark, five_core_table, snapshot_ids).select("parent_asin").distinct().count()
+    )
     _save_string_column(item_ids, "item_id", out_dir)
     return item_ids, len(item_ids), n_5core_distinct
 
 
-def _build_user_index(spark: SparkSession, user_stats_table: str, out_dir: Path) -> list[str]:
-    df = spark.table(user_stats_table).orderBy("user_id")
+def _build_user_index(
+    spark: SparkSession,
+    user_stats_table: str,
+    out_dir: Path,
+    snapshot_ids: dict[str, int] | None = None,
+) -> list[str]:
+    df = _read_table(spark, user_stats_table, snapshot_ids).orderBy("user_id")
     rows = df.select("user_id", "n_train", "n_val", "n_test").collect()
     user_ids = [r["user_id"] for r in rows]
     n_train = np.array([r["n_train"] for r in rows], dtype=np.int32)
@@ -170,9 +213,16 @@ def _build_pairs(
     user_ids: list[str],
     item_ids: list[str],
     out_dir: Path,
+    snapshot_ids: dict[str, int] | None = None,
 ) -> dict[str, int]:
     """Join 5-core rows to the user/item indexes; save (user_idx, item_idx) pairs
-    per split via Arrow-backed toPandas (never a Python row-by-row collect)."""
+    per split via Arrow-backed toPandas (never a Python row-by-row collect).
+
+    NOTE (determinism, T18): the ROW ORDER of the saved pair arrays is a Spark
+    shuffle artifact, not semantics. Downstream it is order-invariant for TRAIN
+    (COO->CSR sorts) and for GT membership (``dataset._build_gt`` sorts by user);
+    only the within-user GT item order can vary, which reproduce.py checks for
+    explicitly (order-normalized cache digest) rather than assuming."""
     user_idx_df = spark.createDataFrame(
         [(uid, i) for i, uid in enumerate(user_ids)], "user_id string, user_idx int"
     )
@@ -180,7 +230,9 @@ def _build_pairs(
         [(iid, i) for i, iid in enumerate(item_ids)], "parent_asin string, item_idx int"
     )
 
-    base = spark.table(five_core_table).select("user_id", "parent_asin", "ts", "rating")
+    base = _read_table(spark, five_core_table, snapshot_ids).select(
+        "user_id", "parent_asin", "ts", "rating"
+    )
     label = splits.split_label("ts")
     labeled = base.withColumn("split", label)
 
@@ -211,6 +263,7 @@ def _build_popularity_vectors(
     splits: SplitConfig,
     item_ids: list[str],
     out_dir: Path,
+    snapshot_ids: dict[str, int] | None = None,
 ) -> None:
     from pyspark.sql import functions as F
 
@@ -225,7 +278,9 @@ def _build_popularity_vectors(
     # to UTC), never by comparing collected Python datetimes: ``collect()`` can
     # hand back naive local-tz instants (see features/gold.py tests), which would
     # make an instant-equality check offset-fragile.
-    df = spark.table(popularity_table).select("as_of", "window_days", "parent_asin", "n_interactions")
+    df = _read_table(spark, popularity_table, snapshot_ids).select(
+        "as_of", "window_days", "parent_asin", "n_interactions"
+    )
     label_col = F.lit(None).cast("string")
     for boundary, label in as_of_to_label.items():
         label_col = F.when(F.col("as_of") == F.lit(boundary).cast("timestamp"), F.lit(label)).otherwise(
@@ -252,10 +307,20 @@ def _build_popularity_vectors(
         _save_npy(vec, out_dir, f"pop_{label}_{w}")
 
 
-def _build_item_categories(spark: SparkSession, item_features_table: str, item_ids: list[str], out_dir: Path) -> None:
+def _build_item_categories(
+    spark: SparkSession,
+    item_features_table: str,
+    item_ids: list[str],
+    out_dir: Path,
+    snapshot_ids: dict[str, int] | None = None,
+) -> None:
     item_pos = {iid: i for i, iid in enumerate(item_ids)}
     n_items = len(item_ids)
-    rows = spark.table(item_features_table).select("parent_asin", "main_category").collect()
+    rows = (
+        _read_table(spark, item_features_table, snapshot_ids)
+        .select("parent_asin", "main_category")
+        .collect()
+    )
 
     # "__unknown__" is always code 0, deterministic regardless of row order, so a
     # NULL/missing main_category never depends on collect() ordering.
@@ -293,44 +358,79 @@ def extract(
     item_features_table: str = ITEM_FEATURES,
     popularity_table: str = POPULARITY,
     splits_path: str | Path = SPLITS_PATH,
+    pinned_snapshot_ids: dict[str, int] | None = None,
+    pinned_contracts: dict[str, dict] | None = None,
 ) -> dict:
     """Build (or skip, if up to date) the snapshot-keyed eval cache. Returns a
-    summary dict; the CLI prints it as the last stdout line."""
+    summary dict; the CLI prints it as the last stdout line.
+
+    ``pinned_snapshot_ids`` (with ``pinned_contracts``) switches to time-travel
+    mode — see the module docstring. Both must cover all four tables.
+    """
     start = time.perf_counter()
     splits = load_splits(splits_path)
+    tables = (five_core_table, user_stats_table, item_features_table, popularity_table)
 
-    live_snapshot_ids = _fetch_snapshot_ids(
-        spark, five_core_table, user_stats_table, item_features_table, popularity_table
-    )
+    pinned = pinned_snapshot_ids is not None
+    if pinned:
+        snapshot_ids = {}
+        for table in tables:
+            if table not in pinned_snapshot_ids:
+                raise ValueError(
+                    f"pinned extract: no snapshot id for {table!r} (have "
+                    f"{sorted(pinned_snapshot_ids)})"
+                )
+            snapshot_ids[table] = int(pinned_snapshot_ids[table])
+        if pinned_contracts is None:
+            raise ValueError(
+                "pinned extract requires pinned_contracts: SHOW TBLPROPERTIES has no "
+                "time-travel form, so contract identities must come from the recorded "
+                "run, not from today's live table properties."
+            )
+        for table in tables:
+            if table not in pinned_contracts:
+                raise ValueError(
+                    f"pinned extract: no contract identity for {table!r} (have "
+                    f"{sorted(pinned_contracts)})"
+                )
+        read_snapshots: dict[str, int] | None = snapshot_ids
+    else:
+        snapshot_ids = _fetch_snapshot_ids(
+            spark, five_core_table, user_stats_table, item_features_table, popularity_table
+        )
+        read_snapshots = None
+
     cache_root = Path(out)
-    cache_dir = cache_root / str(live_snapshot_ids[five_core_table])
+    cache_dir = cache_root / str(snapshot_ids[five_core_table])
 
-    if _cache_up_to_date(cache_dir, live_snapshot_ids):
+    if _cache_up_to_date(cache_dir, snapshot_ids):
         print(f"cache up to date: {cache_dir}")
-        return {"status": "up_to_date", "cache_dir": str(cache_dir)}
+        return {"status": "up_to_date", "cache_dir": str(cache_dir), "pinned": pinned}
 
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     item_ids, catalog_size, n_5core_distinct = _build_item_index(
-        spark, item_features_table, five_core_table, cache_dir
+        spark, item_features_table, five_core_table, cache_dir, read_snapshots
     )
-    user_ids = _build_user_index(spark, user_stats_table, cache_dir)
-    split_counts = _build_pairs(spark, five_core_table, splits, user_ids, item_ids, cache_dir)
-    _build_popularity_vectors(spark, popularity_table, splits, item_ids, cache_dir)
-    _build_item_categories(spark, item_features_table, item_ids, cache_dir)
+    user_ids = _build_user_index(spark, user_stats_table, cache_dir, read_snapshots)
+    split_counts = _build_pairs(
+        spark, five_core_table, splits, user_ids, item_ids, cache_dir, read_snapshots
+    )
+    _build_popularity_vectors(
+        spark, popularity_table, splits, item_ids, cache_dir, read_snapshots
+    )
+    _build_item_categories(spark, item_features_table, item_ids, cache_dir, read_snapshots)
 
-    contract_identities = {
-        five_core_table: _contract_identity(spark, five_core_table),
-        user_stats_table: _contract_identity(spark, user_stats_table),
-        item_features_table: _contract_identity(spark, item_features_table),
-        popularity_table: _contract_identity(spark, popularity_table),
-    }
+    if pinned:
+        contract_identities = {t: dict(pinned_contracts[t]) for t in tables}
+    else:
+        contract_identities = {t: _contract_identity(spark, t) for t in tables}
     splits_bytes = Path(splits_path).read_bytes()
 
     manifest = {
         "schema_version": CACHE_SCHEMA_VERSION,
         "created_ts": datetime.now(timezone.utc).isoformat(),
-        "snapshot_ids": live_snapshot_ids,
+        "snapshot_ids": snapshot_ids,
         "contract_identities": contract_identities,
         "catalog_size": catalog_size,
         "n_5core_distinct_items": n_5core_distinct,
@@ -343,6 +443,7 @@ def extract(
     summary = {
         "status": "built",
         "cache_dir": str(cache_dir),
+        "pinned": pinned,
         "catalog_size": catalog_size,
         "n_users": len(user_ids),
         "split_pair_counts": split_counts,
@@ -360,7 +461,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", default="data/eval/cache")
     parser.add_argument("--master", default="local[10]")
     parser.add_argument("--driver-memory", default="8g")
+    parser.add_argument(
+        "--pinned-record",
+        default=None,
+        help=(
+            "path to a JSON file carrying 'iceberg_snapshots' and 'contracts' "
+            "(i.e. a results/runs.jsonl record). Switches every table read to "
+            "Iceberg time travel at those snapshot IDs."
+        ),
+    )
     args = parser.parse_args(argv)
+
+    pinned_snapshot_ids = pinned_contracts = None
+    if args.pinned_record:
+        rec = json.loads(Path(args.pinned_record).read_text())
+        pinned_snapshot_ids = rec["iceberg_snapshots"]
+        pinned_contracts = rec["contracts"]
 
     from batch_recsys_lab.spark_session import get_spark
 
@@ -371,7 +487,12 @@ def main(argv: list[str] | None = None) -> int:
         driver_memory=args.driver_memory,
     )
     try:
-        summary = extract(spark, out=args.out)
+        summary = extract(
+            spark,
+            out=args.out,
+            pinned_snapshot_ids=pinned_snapshot_ids,
+            pinned_contracts=pinned_contracts,
+        )
     finally:
         spark.stop()
 

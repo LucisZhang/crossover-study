@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -189,3 +189,13 @@ embed-items:
 # the receipt regardless. No JVM/Spark gate needed.
 ann-index:
 	$(CAFFEINATE) uv run --group embed python -m batch_recsys_lab.models.ann_index --measure
+
+# Snapshot-pinned reproduction of the recorded headline eval (Phase 5, T18).
+# Reads configs/headline.yaml -> the pinned run_id, rebuilds the eval cache by
+# Iceberg TIME TRAVEL at that record's snapshot IDs (never the live tables),
+# re-runs the ORIGINAL config, diffs the candidate record against the recorded
+# one field by field, and appends one kind="reproduce" record. Refuses a dirty
+# tree; exits non-zero unless the verdict is byte_exact. Needs the JVM for the
+# extract step only.
+reproduce-headline: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.reproduce

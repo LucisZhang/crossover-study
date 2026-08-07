@@ -35,6 +35,7 @@ from batch_recsys_lab.eval import runlog
 from batch_recsys_lab.eval.compare import compare
 from batch_recsys_lab.eval.extract import extract
 from batch_recsys_lab.eval.harness import run_eval
+from batch_recsys_lab.eval.reproduce import diff_records, json_roundtrip
 from batch_recsys_lab.features.splits import load_splits
 
 pytestmark = pytest.mark.spark
@@ -326,6 +327,35 @@ def test_harness_smoke(spark, synthetic_gold, tmp_path, monkeypatch):
             assert d["delta"] == 0.0
 
     # compare appended exactly one line (append-only)
+    assert len(results.read_text().splitlines()) == 4
+
+    # --- T18: append=False + pinned-cache guard replaces the live stale check ---
+    # Same cache, same config, same seeds -> every deterministic record field must
+    # be identical to the already-appended run, and NOTHING may be written.
+    pinned_ids = rec_pop1["iceberg_snapshots"]
+    rec_pinned = run_eval(
+        pop_cfg,
+        config_path=tmp_path / "pop.yaml",
+        results_path=results,
+        run_id="pinned1",
+        append=False,
+        expected_snapshot_ids=pinned_ids,
+    )
+    assert len(results.read_text().splitlines()) == 4, "append=False must not write"
+    assert diff_records(json_roundtrip(rec_pop1), rec_pinned) == []
+
+    # A wrong pin refuses BEFORE scoring, and never consults the live warehouse.
+    bad_pin = dict(pinned_ids)
+    bad_pin[next(iter(bad_pin))] = 1
+    with pytest.raises(RuntimeError, match="Pinned-cache guard"):
+        run_eval(
+            pop_cfg,
+            config_path=tmp_path / "pop.yaml",
+            results_path=results,
+            run_id="pinned2",
+            append=False,
+            expected_snapshot_ids=bad_pin,
+        )
     assert len(results.read_text().splitlines()) == 4
 
     # --- git-dirty TEST-refusal guard (monkeypatch git_info to a dirty tree) ---

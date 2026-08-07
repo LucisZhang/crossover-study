@@ -179,6 +179,35 @@ def check_stale_cache(
             )
 
 
+def check_pinned_cache(
+    manifest_snapshot_ids: dict[str, int],
+    expected_snapshot_ids: dict[str, int],
+) -> None:
+    """Verify a cache was built from an EXACT set of snapshot IDs (Phase 5, T18).
+
+    The pinned counterpart of :func:`check_stale_cache`: a snapshot-pinned
+    reproduction must not be graded against the LIVE tables (they may legitimately
+    have moved on), it must be graded against the snapshot IDs the reproduced
+    record itself carries. Requires exact set equality — an extra or missing table
+    is as much a failure as a differing ID.
+    """
+    cached = {str(t): int(s) for t, s in (manifest_snapshot_ids or {}).items()}
+    expected = {str(t): int(s) for t, s in (expected_snapshot_ids or {}).items()}
+    if cached == expected:
+        return
+    diffs = [
+        f"{t}: cache={cached.get(t)} expected={expected.get(t)}"
+        for t in sorted(set(cached) | set(expected))
+        if cached.get(t) != expected.get(t)
+    ]
+    raise RuntimeError(
+        "Pinned-cache guard: the cache was not built from the pinned snapshot IDs "
+        "("
+        + "; ".join(diffs)
+        + "). Rebuild it with a pinned extract before reproducing."
+    )
+
+
 # --- record assembly / append ------------------------------------------------
 
 
