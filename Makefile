@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -248,6 +248,32 @@ ops-all: java-check
 	$(MAKE) ops-compact
 	$(MAKE) ops-expire
 	@echo "make ops-all complete · RECSYS_RUN_ID=$(RECSYS_RUN_ID)"
+
+# --- Lineage table (Phase 5, T24) --------------------------------------------
+# Per-stage rows/bytes/wall-clock, assembled STRICTLY by reading back artifacts
+# earlier runs already committed: data/MANIFEST.md, data/ingest_summary.jsonl,
+# data/build_summary.jsonl, Iceberg snapshot summaries (JVM-free — no java-check,
+# no Spark, no caffeinate: this reads metadata JSON and a ~34-row parquet), and
+# results/runs.jsonl. Nothing is re-measured or re-run; a runtime that was never
+# persisted stays null and is footnoted. Exits non-zero, naming what is missing,
+# if any expected stage cannot be assembled, and a partial table is never written.
+#
+# The ops chain contributes ONE ROW PER kind="ops" RECORD, in log order — the
+# compaction exhibit deliberately runs compact/expire more than once and includes
+# a measured no-op, so repeats are labelled from their own record data
+# (ops.compact[noop] vs ops.compact[30->1], ops.expire[retain=2,deleted=3]) and
+# never collapsed. --expect-ops is a FLOOR (default: backfill, append x3, upsert,
+# fragment, compact, expire); extra records are enumerated, never an error.
+#
+# `lineage` writes results/lineage.json + results/lineage.md AND appends one
+# kind="lineage" record, so the committed artifact and the record that attests to
+# its sha256 land in one deliberate invocation. `lineage-check` grades
+# completeness and writes nothing.
+lineage:
+	uv run python -m batch_recsys_lab.ops.lineage --append-record
+
+lineage-check:
+	uv run python -m batch_recsys_lab.ops.lineage --check-only
 
 # Teardown: DROP TABLE ... PURGE + remove data/warehouse/ops. Appends no record.
 # The directory removal is guarded in code: it only ever deletes a directory
