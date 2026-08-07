@@ -7,6 +7,9 @@ export PATH := $(JAVA_HOME)/bin:$(PATH)
 # Force Spark's driver to bind loopback: this host cannot resolve its own hostname
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
+# Prevents macOS sleep from killing long Spark runs; expands empty where
+# caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
+CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
 .PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index
 
@@ -42,20 +45,20 @@ fixture:
 
 # Silver builds (Phase 1, T3). Items first: interactions' FK measure reads silver.items.
 silver-items:
-	uv run python -m batch_recsys_lab.features.silver --table items
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver --table items
 
 silver-interactions:
-	uv run python -m batch_recsys_lab.features.silver --table interactions
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver --table interactions
 
 silver: silver-items silver-interactions
 
 # Gold builds (Phase 1, T6/T7). gold-core = iterative 5-core prune; gold-features
 # = user_stats + item_features + popularity projections off the 5-core table.
 gold-core:
-	uv run python -m batch_recsys_lab.features.kcore
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.kcore
 
 gold-features:
-	uv run python -m batch_recsys_lab.features.gold
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.gold
 
 gold: gold-core gold-features
 
@@ -63,26 +66,26 @@ gold: gold-core gold-features
 # item_features x bronze.items text fields), then runs the full contract audit
 # (the engine has no per-table invocation) so gold_item_text.yaml is graded.
 gold-item-text: java-check
-	uv run python -m batch_recsys_lab.features.item_text --mode build
-	uv run python -m batch_recsys_lab.contracts.run_audit
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.item_text --mode build
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.contracts.run_audit
 
 # JVM-free export (Phase 4, T9): reorders local.gold.item_text to the eval
 # cache's item_ids order for the live 5-core snapshot and writes
 # data/eval/text/<snapshot>/item_text.parquet + export_manifest.json. Requires
 # `make eval-extract` to have already built the cache for the live snapshot.
 item-text-export: java-check
-	uv run python -m batch_recsys_lab.features.item_text --mode export
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.item_text --mode export
 
 # Contract audit (Phase 1, T8). Runs every contracts/*.yaml against its published
 # table, appends dq_results, stamps contract.name/version as Iceberg TBLPROPERTIES,
 # prints a table×check matrix, and exits non-zero on any status=='fail'.
 contracts-audit:
-	uv run python -m batch_recsys_lab.contracts.run_audit
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.contracts.run_audit
 
 # Reconciliation waterfall (Phase 1, T4b). Asserts raw→bronze→silver→gold sums
 # exactly against live Iceberg counts; publishes MANIFEST section + waterfall.json.
 waterfall:
-	uv run python -m batch_recsys_lab.features.waterfall
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.waterfall
 
 # Deterministic rebuild (Phase 1, T8; §8 acceptance #4). ONE run id per `make data`
 # invocation ties every step's dq_results/waterfall/funnel rows together: generated
@@ -113,7 +116,7 @@ data-verify:
 # idempotent: skips (exit 0) if the cache for the live 5-core snapshot already
 # exists. Step A of the two-process eval design (see eval/extract.py docstring).
 eval-extract: java-check
-	uv run python -m batch_recsys_lab.eval.extract
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.extract
 
 # Eval scoring (Phase 2, T5). Step B: pure numpy/scipy, no Spark. Scores one
 # config's model over the snapshot-keyed cache and APPENDS one record to
@@ -124,16 +127,16 @@ eval-extract: java-check
 eval: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
 eval:
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_*.yaml"; exit 1; }
-	uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
 
 # The four TEST baselines in sequence (Phase 2, T7): random, trailing-12m pop,
 # all-time pop, per-category pop. One RECSYS_RUN_ID ties the batch together.
 eval-baselines: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
 eval-baselines:
-	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_random_test.yaml
-	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_t12m_test.yaml
-	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_alltime_test.yaml
-	uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_category_test.yaml
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_random_test.yaml
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_t12m_test.yaml
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_alltime_test.yaml
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config configs/eval_pop_category_test.yaml
 
 # ALS Step A (Phase 2, T2/T3): train Spark MLlib ALS once and persist factor
 # artifacts under data/eval/als/<snapshot>/<param_hash>/. Requires JVM (java-check).
@@ -141,7 +144,7 @@ eval-baselines:
 #   make als-train CONFIG=configs/eval_als_val_rank64.yaml
 als-train: java-check
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_als_*.yaml"; exit 1; }
-	uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
 
 # ALS train + score under ONE RECSYS_RUN_ID (Phase 2, T2/T3): Step A persists the
 # factors, then Step B (pure numpy, no Spark) scores the SAME config and appends
@@ -150,8 +153,8 @@ als-train: java-check
 eval-als: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
 eval-als: java-check
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_als_*.yaml"; exit 1; }
-	uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
-	uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
 
 # Paired-bootstrap delta between two eval runs (Phase 2, T5). Pure numpy.
 #   make compare CONFIG=configs/compare_als_vs_itemknn_val.yaml
@@ -174,7 +177,7 @@ crossover-chart:
 # group (default install stays torch-free). Idempotent: skips if a matching
 # artifact already exists.
 embed-items:
-	uv run --group embed python -m batch_recsys_lab.models.minilm_embed
+	$(CAFFEINATE) uv run --group embed python -m batch_recsys_lab.models.minilm_embed
 
 # ANN index artifact + latency/overlap receipt (Phase 4, T16). Demo-facing
 # ONLY — never used in eval metrics (CLAUDE.md invariant #4: all eval records
@@ -185,4 +188,4 @@ embed-items:
 # results/runs.jsonl. Idempotent build; `--measure` (always passed here) runs
 # the receipt regardless. No JVM/Spark gate needed.
 ann-index:
-	uv run --group embed python -m batch_recsys_lab.models.ann_index --measure
+	$(CAFFEINATE) uv run --group embed python -m batch_recsys_lab.models.ann_index --measure
