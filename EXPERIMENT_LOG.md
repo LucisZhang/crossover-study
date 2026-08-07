@@ -434,3 +434,120 @@ stochastic step, matching the popularity/kNN treatment in Phase 2; the
 n_resamples=1000, seed=20260805, matching every prior VAL/TEST config in this
 repo. Results and the alpha* decision are appended to this file in a
 subsequent entry, after the runs.
+
+## T12 — Content retrieval VAL campaign + alpha grid — results (2026-08-07)
+
+All seven runs completed (356,362 VAL users, full-catalog ranking,
+368,228-item catalog, bootstrap n=1000 seed=20260805, `recipe_hash
+1f7878ff82bf`). The `blend_val_a70` background attempt referenced in the T12
+pre-declaration died mid-run once (machine sleep) and was re-run clean; the
+run_id below is the completed re-run. No refinement configs were needed (see
+alpha-rule trace below) — the five-point grid plus the two fixed reference
+arms (pop, content) is the full and final run set for this task.
+
+### Full run table
+
+| run | run_id | global NDCG@10 [95% CI] | global Recall@20 |
+|---|---|---|---:|
+| pop-t12m | `20260806T113427Z-e056a2a` | 0.010338 [0.010112, 0.010565] | 0.030979 |
+| content | `20260806T114617Z-e056a2a` | 0.001104 [0.001031, 0.001178] | 0.003452 |
+| blend α=0.1 | `20260806T121032Z-e056a2a` | 0.011000 [0.010758, 0.011232] | 0.031827 |
+| blend α=0.3 | `20260806T124525Z-e056a2a` | 0.011515 [0.011258, 0.011761] | 0.032186 |
+| blend α=0.5 | `20260806T142905Z-e056a2a` | 0.010566 [0.010321, 0.010805] | 0.028286 |
+| blend α=0.7 | `20260807T003340Z-e056a2a` | 0.007702 [0.007477, 0.007914] | 0.019506 |
+| blend α=0.9 | `20260807T015331Z-e056a2a` | 0.003554 [0.003400, 0.003683] | 0.008702 |
+
+Grid shape: NDCG@10 rises 0.1→0.3, then falls monotonically 0.3→0.5→0.7→0.9
+— a single interior peak at α=0.3, consistent with a signal (content) that
+helps at low weight and hurts as it dominates the blend.
+
+### Per-segment NDCG@10 (segments 0 / 1–4 / 5–9 / 10–19 / 20+)
+
+| run | 0 (cold) | 1–4 | 5–9 | 10–19 | 20+ |
+|---|---:|---:|---:|---:|---:|
+| pop-t12m | 0.010677 | 0.011719 | 0.010530 | 0.009133 | 0.007021 |
+| content | 0.0 | 0.001767 | 0.001132 | 0.000495 | 0.000291 |
+| blend α=0.1 | 0.010677 | 0.012450 | 0.011285 | 0.009780 | 0.007319 |
+| blend α=0.3 | 0.010677 | 0.012825 | 0.011965 | 0.010344 | 0.007718 |
+| blend α=0.5 | 0.010677 | 0.011002 | 0.011209 | 0.009917 | 0.007631 |
+| blend α=0.7 | 0.010677 | 0.008347 | 0.008200 | 0.006594 | 0.004553 |
+| blend α=0.9 | 0.010677 | 0.004246 | 0.003557 | 0.002200 | 0.001339 |
+
+Every blend run's segment-0 (strict cold) NDCG@10 is exactly 0.010677 —
+identical, to full float precision, to the pop-t12m segment-0 value at every
+alpha from 0.1 to 0.9. This is the expected mechanical degeneration
+(`ContentPopBlendRecommender` falls back to pure popularity for users with no
+TRAIN history, since `ContentRecommender` returns all-zero content scores for
+them) and confirms the blend implementation behaves as designed for cold
+users, independent of alpha.
+
+### Alpha* selection — rule application trace
+
+Pre-declared rule (T12 pre-declaration, this file): alpha* = argmax global
+VAL NDCG@10 over {0.1, 0.3, 0.5, 0.7, 0.9}, ties toward smaller alpha; if the
+winner sits at a grid edge, or the curve is non-flat around the winner
+(neighbors not *both* clearly lower), run a +/-0.1 refinement pair.
+
+1. **Argmax:** α=0.3, NDCG@10 = 0.011515 [0.011258, 0.011761] — highest of
+   the five points, and not a tie (next-best α=0.1 at 0.011000, gap
+   0.000515, far outside any tie band used elsewhere in this repo).
+2. **Edge check:** α=0.3 is interior to {0.1, 0.5, 0.7, 0.9} — not 0.1 or
+   0.9. Edge clause does not apply.
+3. **Non-flat/neighbor check:** "clearly lower" is operationalized here as
+   non-overlapping 95% bootstrap CIs (the CI-based standard used throughout
+   this repo's VAL/TEST comparisons, e.g. Phase 2/3 tie bands). Neighbor
+   α=0.1: CI upper 0.011232 < α=0.3 CI lower 0.011258 — non-overlapping,
+   clearly lower. Neighbor α=0.5: CI upper 0.010805 < α=0.3 CI lower
+   0.011258 — non-overlapping, clearly lower. Both immediate neighbors are
+   clearly below the winner by this standard.
+4. **Verdict:** refinement clause does **not** trigger. **alpha* = 0.3**,
+   selected on the five-point grid as pre-declared, no +/-0.1 refinement
+   configs created or run.
+
+### Verdict vs the pre-declared hypothesis
+
+**Hypothesis (restated):** content retrieval beats trailing-12m popularity
+on shallow warm segments (1–4, 5–9), where ALS/kNN both lost to pop-t12m
+everywhere (Phase 2/3).
+
+**Content alone vs pop (eyeball, no formal delta — paired CIs come at
+TEST):** rejected, and not narrowly. On segment 1–4, content NDCG@10
+(0.001767) is roughly 6.6x *below* pop (0.011719); on segment 5–9, content
+(0.001132) is roughly 9.3x below pop (0.010530). Pure content retrieval,
+as embedded here (MiniLM title/brand/category/features recipe,
+`recipe_hash 1f7878ff82bf`), does not come close to matching co-purchase
+recency signal on its own in either shallow-warm segment — semantic/topical
+similarity to a user's history is a much weaker ranking signal than recent
+popularity for this catalog and this recipe.
+
+**Blend(α=0.3) vs pop (eyeball):** the picture changes once content is
+blended at a modest weight. Segment 1–4: blend 0.012825 vs pop 0.011719 —
+blend visibly higher. Segment 5–9: blend 0.011965 vs pop 0.010530 — blend
+visibly higher, and by a larger absolute margin than segment 1–4. Globally,
+blend α=0.3's CI [0.011258, 0.011761] sits entirely above pop's CI
+[0.010112, 0.010565] — no overlap at all between the two 95% intervals, the
+strongest eyeball signal in this campaign. (This is an unpaired CI
+comparison and is explicitly not a formal claim of a nonzero delta; the
+pre-declared paired-bootstrap protocol for that claim is reserved for
+TEST, matching the T7 ALS precedent.)
+
+**Overall verdict:** the *pure* content-retrieval half of the hypothesis is
+rejected — content alone is a weak signal here, weaker even than the
+already-weak classical-CF arms on a per-segment basis. But the *blended*
+half is directionally supported: a small content weight (α=0.3) lifts VAL
+NDCG@10 over pop-t12m in exactly the segments named in the hypothesis
+(1–4, 5–9), and the improvement is visible well past the CI-overlap
+threshold used for alpha selection above. This reframes Phase 4's live
+finding — content is useful as a *complement* to recency-popularity, not as
+a standalone competitor to it, unlike what was hypothesized. Whether this
+survives a formal paired TEST comparison (blend α=0.3 vs pop-t12m, per a T7-
+style pre-declared protocol) is the open question carried into the next
+task.
+
+**Logged finding — strict-cold content collapse:** as pre-declared, content
+and every blend arm score identically to pop on segment 0 (cold users, no
+TRAIN history) — 0.010677 NDCG@10 across the board, confirming the by-
+construction fallback to pure popularity for that segment. No content or
+blend arm can improve over popularity for strict-cold users under this
+recommender design; any cold-start gain would have to come from a different
+mechanism (e.g. onboarding signal, not history-based content similarity).
