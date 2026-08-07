@@ -948,3 +948,29 @@ append), `data/eval/minilm/8184397443787800955/1f7878ff82bf/ann_index.bin`
 + `ann_manifest.json` (gitignored `data/` artifacts, not tracked by git
 regardless), and this EXPERIMENT_LOG.md entry — left uncommitted pending
 owner review per the task's constraints.
+
+## Phase 5 T19 — reproduce-headline, first run (2026-08-07)
+
+**Hypothesis:** the headline blend(α=0.3) TEST record
+`20260807T055333Z-c320c79` is byte-exactly reproducible from its recorded
+Iceberg snapshot IDs (time-travel extract) on a clean tree at current HEAD.
+
+**Protocol:** `make reproduce-headline` (T18 plumbing): pinned extract via
+`snapshot-id` read option into `data/eval/cache_repro/8184397443787800955/`,
+re-score `configs/eval_blend_test.yaml` (config sha256 verified unchanged),
+compare all deterministic record fields; runs.jsonl append-only.
+
+**Result:** `verdict=byte_exact` (record `20260807T153823Z-9a9fb4c`,
+reproduces `20260807T055333Z-c320c79`). Field-level diff: empty. Receipts:
+cache files sha256 == original live cache (strict, per-file); order-normalized
+pair digests match; MiniLM artifact hashes match; per-user parquet arrays
+identical. The pair-array shuffle-order nondeterminism flagged in T18 did
+**not** materialize — reproduction is bitwise, not merely order-normalized.
+Eval wall clock 2615s.
+
+**Ops note:** the first invocation was refused mid-run by the TEST
+dirty-guard — a parallel agent's git worktree under `.claude/worktrees/`
+appeared as an untracked path. The guard behaved correctly; fix was
+gitignoring agent worktrees (9a9fb4c). The pinned extract from that aborted
+invocation (~90s) was reused by the recording run (`extract=0.0s` in the
+record reflects the cache hit, not a free extract).
