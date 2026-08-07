@@ -989,3 +989,15 @@ to its month's source count, one file per append, snapshot chain contiguous
 (each record's snapshot_before == predecessor's snapshot_after). Four
 `kind="ops"` records appended; gold/silver snapshots asserted unchanged in
 every step's epilogue; disk ≥43GB throughout.
+
+## Phase 5 T22 — late-data MERGE upsert (2026-08-07)
+
+`MERGE INTO local.ops.interactions_monthly` on `(user_id, parent_asin, ts)`:
+**inserted 11,959 = exactly the T21 holdout** (the late arrivals land),
+matched-and-updated 4,645 (deterministic 20‰ sample, `rating := 5.0` as
+visible UPDATE evidence — a row-count reconciliation claim, not content
+equality with silver). Post-merge total 43,365,424 = 43,353,465 + 11,959,
+`reconciles_with_source=true` against the full silver slice. Copy-on-write
+rewrite confined to the affected 2023-05/06 partitions (net file count
+unchanged at 298). 19.1s. One `kind="ops"` record; gold/silver snapshots
+unchanged; disk 45GB.
