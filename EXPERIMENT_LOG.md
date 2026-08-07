@@ -762,3 +762,134 @@ discipline).
 comparisons show, there is no return to the VAL grid (T12 alpha sweep, T13
 n* grid) for a different configuration afterward. The result — positive or
 negative — is published as-is.
+
+## T15 — One-shot TEST results and Phase 4 verdict (2026-08-07)
+
+All three TEST runs completed (228,153 TEST users, full-catalog ranking,
+368,228-item catalog, bootstrap n=1000 seed=20260805). One eval process at a
+time, per protocol; the content and blend runs completed in this task's
+session, the hybrid run was executed under the same protocol after a
+mid-campaign hand-off (no config changed, no VAL iteration occurred).
+
+**TEST results, global + per-segment NDCG@10 (95% bootstrap CI):**
+
+| arm | run_id | global | seg 0 (cold) | seg 1-4 | seg 5-9 | seg 10-19 | seg 20+ |
+|---|---|---|---|---|---|---|---|
+| pop-t12m | `20260805T172047Z-035042b` | 0.005404 [0.005209, 0.005635] | 0.007505 [0.006715, 0.008247] | 0.005821 [0.005488, 0.006218] | 0.005225 [0.004895, 0.005575] | 0.005107 [0.004569, 0.005651] | 0.003711 [0.003181, 0.004245] |
+| content | `20260807T050054Z-c320c79` | 0.000886 [0.000806, 0.000968] | 0.000000 [0.000000, 0.000000] | 0.001458 [0.001293, 0.001658] | 0.000809 [0.000679, 0.000942] | 0.000492 [0.000337, 0.000666] | 0.000307 [0.000162, 0.000477] |
+| blend α=0.3 | `20260807T055333Z-c320c79` | 0.005726 [0.005524, 0.005948] | 0.007505 [0.006715, 0.008247] | 0.006227 [0.005889, 0.006622] | 0.005504 [0.005178, 0.005837] | 0.005426 [0.004888, 0.005967] | 0.004095 [0.003563, 0.004623] |
+| hybrid (n*=∞) | `20260807T082125Z-c320c79` | 0.005726 [0.005524, 0.005948] | 0.007505 [0.006715, 0.008247] | 0.006227 [0.005889, 0.006622] | 0.005504 [0.005178, 0.005837] | 0.005426 [0.004888, 0.005967] | 0.004095 [0.003563, 0.004623] |
+
+Hybrid's per-arm numbers are bit-identical to blend's at every segment and
+globally, reconfirming the T13 composition assertion (n*=∞ routes every
+user to the blend) on TEST, not just VAL.
+
+**Paired-bootstrap deltas (1000 resamples, seed 20260805, n=228,153 common
+users), NDCG@10, `excludes_zero` flags:**
+
+*content − pop-t12m:*
+
+| segment | delta | 95% CI | excludes zero |
+|---|---|---|---|
+| global | −0.004518 | [−0.004756, −0.004315] | yes |
+| 0 (cold) | −0.007505 | [−0.008304, −0.006754] | yes |
+| 1–4 | −0.004363 | [−0.004770, −0.003973] | yes |
+| 5–9 | −0.004416 | [−0.004806, −0.004042] | yes |
+| 10–19 | −0.004616 | [−0.005158, −0.004100] | yes |
+| 20+ | −0.003404 | [−0.003996, −0.002903] | yes |
+
+Pure content loses to pop-t12m everywhere on TEST, badly — including the
+cold segment, where `ContentRecommender` collapses to all-zero scores by
+construction (no content signal at all for strict-cold users) and the
+1–4/5–9 shallow-warm segments the T12 hypothesis specifically targeted. The
+§8 cold-segment criterion (content beating pop-t12m in segments 0/1-4/5-9)
+**does not hold** for the pure-content arm on TEST — it never held on VAL
+either (T12); pure content is not a competitive standalone arm.
+
+*blend − pop-t12m (the Phase 4 acceptance gate):*
+
+| segment | delta | 95% CI | excludes zero |
+|---|---|---|---|
+| global | +0.000322 | [+0.000200, +0.000449] | yes |
+| 0 (cold) | +0.000000 | [+0.000000, +0.000000] | no (exact zero — blend degenerates to pure popularity for cold rows by construction) |
+| 1–4 | +0.000407 | [+0.000174, +0.000641] | yes |
+| 5–9 | +0.000279 | [+0.000075, +0.000487] | yes |
+| 10–19 | +0.000319 | [+0.000023, +0.000583] | yes |
+| 20+ | +0.000384 | [+0.000102, +0.000706] | yes |
+
+The blend beats pop-t12m on TEST globally and in every warm segment
+(1-4/5-9/10-19/20+), CI excluding zero in every case. Segment 0 shows an
+exact zero delta, not a failure to beat pop — `ContentPopBlendRecommender`
+degenerates to pure popularity for cold users by construction (no content
+profile exists), so a zero delta there is the expected, correct behavior,
+not a miss against the §8 cold-segment criterion (which was about *content*
+closing the shallow-segment gap, not about the blend improving on cold
+users it has no additional signal for). On the shallow-warm segments the
+§8 criterion cares about most (1-4, 5-9) the blend does beat pop-t12m with
+CI excluding zero.
+
+*hybrid − pop-t12m:* identical to blend − pop-t12m in every row (hybrid ==
+blend by construction under n*=∞); not reproduced again here.
+
+*hybrid − best component:*
+
+Best-component resolution (mechanical rule from the pre-declaration):
+blend global TEST NDCG@10 = 0.005726 > pop-t12m global TEST NDCG@10 =
+0.005404, so **best component = blend**. The comparison resolves to hybrid
+vs blend, and — as pre-declared — is the trivial exact-zero case: delta =
++0.000000, CI = [0.000000, 0.000000], `excludes_zero=false` at every
+segment and globally. This is not a failure; it is the expected numerical
+identity, and it closes the §8 "hybrid ≥ best component" acceptance
+criterion (hybrid is tied with, and therefore not worse than, its best
+component, by construction).
+
+**Chart:** `results/figures/crossover_test.png` (and `.svg`), rendered by
+`make crossover-chart CONFIG=configs/crossover_test.yaml`. Confirmed
+legible: blend α=0.3 (highlighted) tracks visibly above pop-t12m at every
+history depth from 1-4 through 20+, converging with pop-t12m only at
+segment 0 (cold, no content signal); ALS sits well below both, roughly
+flat/declining with depth; item-kNN and content cluster together far below
+pop-t12m and the blend across the whole depth range — the pattern matches
+the VAL chart (T14) with tighter TEST CIs.
+
+**Phase 4 verdict (§6.4-as-amended):**
+
+The blend (`content_pop_blend`, alpha=0.3, VAL-selected in T12) **beats
+pop-t12m on TEST**, both globally (delta +0.000322, CI excludes zero) and
+in every non-cold segment (1-4, 5-9, 10-19, 20+ — all CIs exclude zero in
+favor of the blend). It does not (and cannot, by construction) improve on
+pop-t12m in the strict-cold segment, where it degenerates to pure
+popularity. This TEST result confirms the VAL finding (T12) on the frozen
+split, one shot, no iteration.
+
+The hybrid routing policy (`HybridRecommender`, n*=∞, T13's VAL-selected
+variant B) **is ≥ its best component** on TEST — trivially, since it
+reduces mechanically to the blend at every user. There is no finite
+history-depth threshold at which routing to a different arm (ALS or raw
+content) would help: both lose to pop-t12m and to the blend at every
+measured depth, on both VAL and now TEST. The "routing policy" that ships
+from this lab is therefore not a depth-conditional router in the sense
+originally scoped by §6.4 — it is the single global policy
+`content_pop_blend(alpha=0.3)`, unconditionally, with the `HybridRecommender`
+machinery retained (tested, VAL- and now TEST-confirmed to compose
+correctly) but not exercising any non-trivial routing in this lab's
+headline result.
+
+The pre-declared **null-policy contingency does not trigger**: blend beat
+pop-t12m on TEST, so the shipped policy is the blend, not recency-weighted
+popularity alone. Pure content, evaluated as a standalone arm for
+completeness, is confirmed a clear loser on TEST (as on VAL) — it
+contributes only as a blended signal, never as a recommender in its own
+right, and the §8 cold-segment hope that content alone would close the gap
+is not supported by TEST evidence either.
+
+**Uncommitted after this task:** `results/runs.jsonl` (3 eval appends + 4
+paired_delta appends), `configs/compare_content_vs_pop_t12m_test.yaml`,
+`configs/compare_blend_vs_pop_t12m_test.yaml`,
+`configs/compare_hybrid_vs_pop_t12m_test.yaml`,
+`configs/compare_hybrid_vs_best_component_test.yaml`,
+`configs/crossover_test.yaml` (filled run_ids), `results/figures/crossover_test.png`,
+`results/figures/crossover_test.svg`, this EXPERIMENT_LOG.md results entry,
+and the per-user parquet artifacts under `data/eval/per_user/` for the three
+new runs — left uncommitted per the task's Step 3 instruction pending owner
+review.
