@@ -1053,3 +1053,21 @@ prose, never measured. The file cannot be corrected: `dataset_manifest_hash`
 reproduce comparison; editing it would break reproduction permanently. The
 lineage table uses the machine ledger; the prose line is superseded by this
 note.
+
+## Phase 5 T25 — second reproduce-headline, post-churn + phase acceptance (2026-08-08)
+
+`make reproduce-headline` re-run after the warehouse absorbed the full ops
+chain (~40 new snapshots on `local.ops.interactions_monthly`: backfill, 3
+appends, MERGE upsert, fragmentation's 30 slice-appends + delete, 2
+compactions, 3 expiries): **verdict=byte_exact again** (record
+`20260807T164622Z-3e2c665` reproduces `20260807T055333Z-c320c79`), empty
+field diff, strict cache sha256 match, per-user arrays identical, clean
+tree. Time travel against the pinned snapshot IDs means the headline number
+cannot move while the catalog evolves — demonstrated, not asserted.
+
+**Phase 5 acceptance:** (1) reproduce-headline succeeds from the pinned
+snapshot — two byte_exact records, one before any ops mutation and one
+after; (2) ops metrics logged — 11 `kind="ops"` records with before/after
+snapshots/files/bytes/rows, exact reconciliations throughout; (3) lineage
+table complete — 24 stages, completeness check green, artifacts committed.
+Full suite + CI smoke: 249 passed / 0 failed at the phase-final tree.
