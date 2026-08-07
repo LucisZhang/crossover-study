@@ -187,6 +187,12 @@ Fit on VAL: recommend a content/popularity blend for users with TRAIN history < 
 > still loses to recency-weighted popularity. See EXPERIMENT_LOG.md Phase 3 and
 > the paired_delta records in results/runs.jsonl.
 
+> **Measured outcome (2026-08-07, Phase 4):** blend(α=0.3) (content/popularity
+> blend as a gentle re-ranker) beats pop-t12m globally and in every non-cold
+> segment on the one-shot TEST run with CIs excluding zero; no finite n* beats
+> blend-everywhere on VAL, so the shipped policy is blend applied uniformly —
+> not a history-depth router. See EXPERIMENT_LOG.md Phase 4 and results/runs.jsonl.
+
 ### 6.5 Honesty rules and optional reality check
 
 Single-variable experiment discipline; failed hypotheses logged; TEST frozen; no headline without a CI. **Offline-vs-online gap stated in the case study body** (not buried): offline ranking wins do not establish click/revenue lift; missing-not-at-random feedback, popularity feedback loops, and no counterfactual correction are all acknowledged; nothing here is an A/B result. Optional stretch: the **single-node reality check** — rebuild silver in DuckDB, publish both runtimes and an honest paragraph on when Spark is and isn't the right tool.
