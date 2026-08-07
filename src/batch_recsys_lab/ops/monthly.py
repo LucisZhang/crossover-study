@@ -33,6 +33,19 @@ Date semantics: ``backfill_end`` is an INCLUSIVE calendar date, applied as the
 exclusive timestamp bound ``ts < <backfill_end + 1 day> 00:00:00`` so the whole
 of the final day is included (``ts <= TIMESTAMP '2023-06-30'`` would silently
 drop all but the first instant of 2023-06-30).
+
+Fragmentation (T23b)
+--------------------
+:func:`fragment_month` exists because the compaction exhibit had nothing to
+compact: the backfill writes each ``months(ts)`` partition in one shot, so the
+43.4M-row table carried exactly ONE data file per partition and
+``rewrite_data_files`` was a measured no-op. Fragmentation simulates what a real
+micro-batch ingestion pipeline produces — one small file per arrival batch — by
+deleting one month and re-appending exactly the same rows one calendar day at a
+time. It is content-preserving by construction: the row set is a copy of the
+month's own pre-delete content, not a re-derivation from ``source``, so it
+survives the T22 MERGE's rating updates and the holdout inserts without having
+to replay their predicates.
 """
 
 from __future__ import annotations
@@ -41,12 +54,14 @@ import time
 from datetime import date, datetime, timedelta
 
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
 
 from batch_recsys_lab.ops.maintenance import (
     ensure_ops_namespace,
     require_ops_table,
     table_exists,
 )
+from batch_recsys_lab.ops.snapshot_metrics import files_stats
 
 SILVER_INTERACTIONS = "local.silver.interactions"
 OPS_MONTHLY = "local.ops.interactions_monthly"
@@ -66,6 +81,15 @@ LATE_WINDOW_START = "2023-05-01"
 # Deterministic holdout share, in parts per thousand (see module docstring).
 HOLDOUT_PERMILLE = 50
 HASH_MODULUS = 1000
+
+# Fragmentation (T23b): the design string recorded verbatim in the ops record,
+# and the suffix of the durable scratch copy the day slices are read back from.
+FRAGMENT_DESIGN = (
+    "delete month, re-append in daily slices from a materialized scratch copy "
+    "— simulated micro-batch ingestion for the compaction exhibit"
+)
+FRAGMENT_SCRATCH_SUFFIX = "__fragment_scratch"
+FRAGMENT_SLICE_GRANULARITY = "day"
 
 
 # --- predicate builders (the strings recorded verbatim in the ops record) -----
@@ -113,11 +137,36 @@ def holdout_predicate(
     )
 
 
-def month_predicate(month: str) -> str:
-    """``ts`` inside calendar month ``YYYY-MM``."""
+def _month_bounds(month: str) -> tuple[date, date]:
+    """``("2023-06")`` -> ``(2023-06-01, 2023-07-01)`` (end exclusive)."""
     start = datetime.strptime(month, "%Y-%m").date()
     end = date(start.year + (start.month // 12), (start.month % 12) + 1, 1)
+    return start, end
+
+
+def month_predicate(month: str) -> str:
+    """``ts`` inside calendar month ``YYYY-MM`` — aligned to the ``months(ts)``
+    partition boundary, so a DELETE with it is a whole-partition drop."""
+    start, end = _month_bounds(month)
     return f"{TS_COL} >= {_ts_literal(start)} AND {TS_COL} < {_ts_literal(end)}"
+
+
+def day_predicate(day: date) -> str:
+    """``ts`` inside one calendar day (the fragmentation slice predicate)."""
+    return (
+        f"{TS_COL} >= {_ts_literal(day)} "
+        f"AND {TS_COL} < {_ts_literal(day + timedelta(days=1))}"
+    )
+
+
+def month_days(month: str) -> list[date]:
+    """Every calendar day of ``YYYY-MM``, ascending."""
+    start, end = _month_bounds(month)
+    days, cur = [], start
+    while cur < end:
+        days.append(cur)
+        cur += timedelta(days=1)
+    return days
 
 
 # --- helpers ------------------------------------------------------------------
@@ -291,5 +340,168 @@ def append_month(
         "rows_before": int(rows_before),
         "rows_after": int(rows_after),
         "reconciles_with_source": bool(rows_after - rows_before == month_source_rows),
+        "wall_clock_s": round(time.perf_counter() - start, 3),
+    }
+
+
+# --- fragmentation (T23b) -----------------------------------------------------
+
+
+def scratch_table_name(table: str) -> str:
+    """Name of the durable scratch copy used to fragment ``table``.
+
+    Derived from the target so two ops tables can be fragmented independently,
+    and guarded like every other name this package writes.
+    """
+    return require_ops_table(require_ops_table(table) + FRAGMENT_SCRATCH_SUFFIX)
+
+
+def fragment_month(
+    spark: SparkSession,
+    table: str = OPS_MONTHLY,
+    source: str = SILVER_INTERACTIONS,
+    month: str = "2023-06",
+    scratch_table: str | None = None,
+) -> dict:
+    """Rewrite one month of ``table`` as one small data file per calendar day.
+
+    Procedure (each step is content-preserving, and the two row-count identities
+    are re-checked before anything is dropped):
+
+    1. **Materialize** the month's CURRENT rows into a durable Iceberg scratch
+       table (``<table>__fragment_scratch``), and verify the copy is complete.
+       Durable, not ``DataFrame.cache()``: a cached DataFrame is a best-effort
+       accelerator, and its lineage — a scan of the very rows step 2 deletes —
+       is what Spark recomputes if a block is evicted. Losing that race would
+       silently drop the month.
+    2. **Delete** the month with the partition-aligned
+       :func:`month_predicate`, i.e. a whole-``months(ts)``-partition drop.
+    3. **Re-append** the scratch rows one calendar day at a time, each slice
+       ``repartition(1)``-ed so it lands as exactly one data file. Days with no
+       rows are skipped (an empty append would still be a snapshot, and could
+       write an empty file).
+    4. **Verify** the total row count and the month's row count are both back to
+       their pre-delete values, then drop the scratch table. On failure the
+       scratch table is deliberately LEFT IN PLACE — it is the only remaining
+       copy of the month.
+
+    ``source`` is accepted for call-signature symmetry with the other steps and
+    is recorded for provenance; it is NOT read. Re-deriving the month from
+    ``source`` would have to replay the backfill holdout AND the T22 MERGE's
+    ``rating := 5.0`` updates to reproduce post-merge state — error-prone in a
+    way that copying the table's own rows is not.
+    """
+    require_ops_table(table)
+    scratch = scratch_table_name(table) if scratch_table is None else scratch_table
+    require_ops_table(scratch)
+    if scratch == table:
+        raise ValueError(f"scratch table must differ from the target table ({table!r})")
+
+    start = time.perf_counter()
+    if not table_exists(spark, table):
+        raise RuntimeError(
+            f"{table} does not exist — run the backfill step before fragmenting."
+        )
+
+    pred = month_predicate(month)
+    cols = spark.table(table).columns
+    rows_before_total = spark.table(table).count()
+    rows_month = spark.table(table).where(pred).count()
+    if rows_month == 0:
+        raise ValueError(
+            f"{table} has no rows in {month} ({pred}) — nothing to fragment."
+        )
+    files_before = files_stats(spark, table)["file_count"]
+
+    # 1. durable scratch copy, verified complete BEFORE the delete.
+    ensure_ops_namespace(spark, scratch.rsplit(".", 1)[0])
+    spark.sql(f"DROP TABLE IF EXISTS {scratch} PURGE")
+    spark.table(table).where(pred).select(*cols).writeTo(scratch).create()
+    scratch_rows = spark.table(scratch).count()
+    if scratch_rows != rows_month:
+        raise RuntimeError(
+            f"fragment aborted BEFORE deleting anything: scratch copy of {month} has "
+            f"{scratch_rows} rows, expected {rows_month}."
+        )
+
+    # Slice sizes come from one pass over the scratch copy; empty days are skipped.
+    day_counts = {
+        r["d"]: int(r["n"])
+        for r in spark.table(scratch)
+        .groupBy(F.to_date(F.col(TS_COL)).alias("d"))
+        .count()
+        .withColumnRenamed("count", "n")
+        .collect()
+    }
+    days = [d for d in month_days(month) if day_counts.get(d, 0) > 0]
+    slice_rows = [day_counts[d] for d in days]
+    if sum(slice_rows) != rows_month:
+        raise RuntimeError(
+            f"fragment aborted BEFORE deleting anything: day slices cover "
+            f"{sum(slice_rows)} rows, expected {rows_month} — a row's ts falls "
+            f"outside the calendar days of {month}."
+        )
+
+    # 2. partition-aligned delete.
+    delete_sql = f"DELETE FROM {table} WHERE {pred}"
+    spark.sql(delete_sql)
+    rows_after_delete = spark.table(table).count()
+    if rows_after_delete != rows_before_total - rows_month:
+        raise RuntimeError(
+            f"DELETE removed {rows_before_total - rows_after_delete} rows, expected "
+            f"{rows_month}. The month's rows are preserved in {scratch}."
+        )
+    files_after_delete = files_stats(spark, table)["file_count"]
+
+    # 3. one append (= one data file) per non-empty calendar day.
+    scratch_df = spark.table(scratch)
+    for day in days:
+        (
+            scratch_df.where(day_predicate(day))
+            .select(*cols)
+            .repartition(1)
+            .writeTo(table)
+            .append()
+        )
+
+    # 4. verify, then drop the scratch copy.
+    rows_after_total = spark.table(table).count()
+    rows_month_after = spark.table(table).where(pred).count()
+    if rows_after_total != rows_before_total:
+        raise RuntimeError(
+            f"fragment changed the table row count: {rows_before_total} -> "
+            f"{rows_after_total}. The month's rows are preserved in {scratch}."
+        )
+    if rows_month_after != rows_month:
+        raise RuntimeError(
+            f"fragment changed {month}'s row count: {rows_month} -> {rows_month_after}. "
+            f"The month's rows are preserved in {scratch}."
+        )
+    files_after = files_stats(spark, table)["file_count"]
+    spark.sql(f"DROP TABLE IF EXISTS {scratch} PURGE")
+
+    files_added = files_after - files_after_delete
+    return {
+        "source": source,
+        "table": table,
+        "month": month,
+        "month_predicate": pred,
+        "delete_sql": delete_sql,
+        "scratch_table": scratch,
+        "fragmentation_design": FRAGMENT_DESIGN,
+        "slice_granularity": FRAGMENT_SLICE_GRANULARITY,
+        "rows_month": int(rows_month),
+        "n_slices": len(days),
+        "slice_rows_min": int(min(slice_rows)),
+        "slice_rows_max": int(max(slice_rows)),
+        "days_in_month": len(month_days(month)),
+        "files_added": int(files_added),
+        "files_before": int(files_before),
+        "files_after_delete": int(files_after_delete),
+        "files_after": int(files_after),
+        "one_file_per_slice": bool(files_added == len(days)),
+        "rows_before_total": int(rows_before_total),
+        "rows_after_total": int(rows_after_total),
+        "rows_preserved": bool(rows_after_total == rows_before_total),
         "wall_clock_s": round(time.perf_counter() - start, 3),
     }

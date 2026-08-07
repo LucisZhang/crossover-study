@@ -1,6 +1,7 @@
 """Ops scenario runner: one step, one ``kind="ops"`` record (Phase 5, T20).
 
-    python -m batch_recsys_lab.ops.run_scenario --step backfill|append|upsert|compact|expire
+    python -m batch_recsys_lab.ops.run_scenario \
+        --step backfill|append|upsert|fragment|compact|expire
 
 Every step follows the same shape: capture the before-state (snapshot id, file
 count/bytes, row count), run exactly one operation against ``local.ops.*``,
@@ -48,7 +49,7 @@ DEFAULT_RESULTS = "results/runs.jsonl"
 DEFAULT_WAREHOUSE = "data/warehouse"
 MIN_DISK_GB = 8.0
 
-STEPS = ("backfill", "append", "upsert", "compact", "expire")
+STEPS = ("backfill", "append", "upsert", "fragment", "compact", "expire")
 
 
 class ProtectedTableMoved(RuntimeError):
@@ -195,6 +196,32 @@ def run_step(
             "backfill_window_rows": m["backfill_window_rows"],
             "source_backfill_window_rows": m["source_backfill_window_rows"],
             "reconciles_with_source": m["reconciles_with_source"],
+        }
+
+    elif step == "fragment":
+        if not month:
+            raise ValueError("--month YYYY-MM is required for the fragment step")
+        m = monthly.fragment_month(spark, table=table, source=source, month=month)
+        params |= {
+            "month": m["month"],
+            "month_predicate": m["month_predicate"],
+            "delete_sql": m["delete_sql"],
+            "scratch_table": m["scratch_table"],
+            "slice_granularity": m["slice_granularity"],
+            "fragmentation_design": m["fragmentation_design"],
+        }
+        extras = {
+            "month": m["month"],
+            "n_slices": m["n_slices"],
+            "rows_month": m["rows_month"],
+            "files_added": m["files_added"],
+            "files_after_delete": m["files_after_delete"],
+            "slice_rows_min": m["slice_rows_min"],
+            "slice_rows_max": m["slice_rows_max"],
+            "one_file_per_slice": m["one_file_per_slice"],
+            "rows_before_total": m["rows_before_total"],
+            "rows_after_total": m["rows_after_total"],
+            "rows_preserved": m["rows_preserved"],
         }
 
     elif step == "compact":
@@ -353,7 +380,9 @@ def clean(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="batch_recsys_lab.ops.run_scenario")
     parser.add_argument("--step", required=True, choices=[*STEPS, "clean"])
-    parser.add_argument("--month", default=None, help="YYYY-MM (append step)")
+    parser.add_argument(
+        "--month", default=None, help="YYYY-MM (append and fragment steps)"
+    )
     parser.add_argument("--results", default=DEFAULT_RESULTS)
     parser.add_argument("--warehouse", default=DEFAULT_WAREHOUSE)
     parser.add_argument("--table", default=monthly.OPS_MONTHLY)

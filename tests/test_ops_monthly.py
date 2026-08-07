@@ -12,8 +12,8 @@ os.environ.setdefault("SPARK_LOCAL_IP", "127.0.0.1")
 
 import pytest
 
-from batch_recsys_lab.ops import monthly
-from batch_recsys_lab.ops.snapshot_metrics import table_metadata_for
+from batch_recsys_lab.ops import maintenance, monthly
+from batch_recsys_lab.ops.snapshot_metrics import files_stats, table_metadata_for
 from conftest import warehouse_of
 
 pytestmark = pytest.mark.spark
@@ -25,12 +25,31 @@ HOLDOUT_PERMILLE = 200  # fixture-scale: 200/1000 of ~122 late-window rows
 TABLE = "local.ops.monthly_under_test"
 TABLE_REPEAT = "local.ops.monthly_repeat"
 
+# Fragmentation (T23b) runs on its own backfilled copies so it cannot perturb
+# the tables the backfill/append tests above assert on.
+TABLE_FRAG_A = "local.ops.monthly_frag_a"
+TABLE_FRAG_B = "local.ops.monthly_frag_b"
+FRAG_MONTH = "2023-03"  # inside the backfill window, outside the holdout window
+
 
 def _identity_set(df):
     return {
         (r["user_id"], r["parent_asin"], r["ts"])
         for r in df.select("user_id", "parent_asin", "ts").collect()
     }
+
+
+def _day_counts(spark, table, month):
+    """``{date: rows}`` for one month — the fragmentation slice profile."""
+    rows = (
+        spark.table(table)
+        .where(monthly.month_predicate(month))
+        .selectExpr("to_date(ts) AS d")
+        .groupBy("d")
+        .count()
+        .collect()
+    )
+    return {r["d"]: int(r["count"]) for r in rows}
 
 
 @pytest.fixture(scope="module")
@@ -134,3 +153,128 @@ def test_monthly_writers_refuse_non_ops_tables(ops_source):
             monthly.create_backfill(None, source=ops_source, table=table)
         with pytest.raises(ValueError, match="may only write tables under"):
             monthly.append_month(None, table=table, month="2023-07")
+        # fragment_month deletes rows, so it carries the same guard.
+        with pytest.raises(ValueError, match="may only write tables under"):
+            monthly.fragment_month(None, table=table, month=FRAG_MONTH)
+        with pytest.raises(ValueError, match="may only write tables under"):
+            monthly.scratch_table_name(table)
+        # ...and it cannot be talked into writing its scratch copy elsewhere.
+        with pytest.raises(ValueError, match="may only write tables under"):
+            monthly.fragment_month(
+                None, table=TABLE_FRAG_A, month=FRAG_MONTH, scratch_table=table
+            )
+
+
+# --- fragmentation (T23b) -----------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def frag_backfilled(spark, ops_source):
+    monthly.create_backfill(
+        spark,
+        source=ops_source,
+        table=TABLE_FRAG_A,
+        backfill_end=BACKFILL_END,
+        late_window_start=LATE_START,
+        holdout_permille=HOLDOUT_PERMILLE,
+    )
+    return TABLE_FRAG_A
+
+
+@pytest.fixture(scope="module")
+def fragmented(spark, ops_source, frag_backfilled):
+    """Before-state + the fragment result, so the assertions can compare."""
+    before = {
+        "total": spark.table(TABLE_FRAG_A).count(),
+        "month": spark.table(TABLE_FRAG_A)
+        .where(monthly.month_predicate(FRAG_MONTH))
+        .count(),
+        "files": files_stats(spark, TABLE_FRAG_A)["file_count"],
+        "ids": _identity_set(spark.table(TABLE_FRAG_A)),
+        "day_counts": _day_counts(spark, TABLE_FRAG_A, FRAG_MONTH),
+    }
+    res = monthly.fragment_month(
+        spark, table=TABLE_FRAG_A, source=ops_source, month=FRAG_MONTH
+    )
+    return before, res
+
+
+def test_fragment_preserves_every_row(spark, fragmented):
+    before, res = fragmented
+    assert before["month"] > 0
+    assert res["rows_before_total"] == before["total"]
+    assert res["rows_after_total"] == before["total"]
+    assert res["rows_month"] == before["month"]
+    assert res["rows_preserved"] is True
+
+    # ...and the table itself agrees, row-for-row, not just in aggregate.
+    assert spark.table(TABLE_FRAG_A).count() == before["total"]
+    assert (
+        spark.table(TABLE_FRAG_A).where(monthly.month_predicate(FRAG_MONTH)).count()
+        == before["month"]
+    )
+    assert _identity_set(spark.table(TABLE_FRAG_A)) == before["ids"]
+    assert _day_counts(spark, TABLE_FRAG_A, FRAG_MONTH) == before["day_counts"]
+
+
+def test_fragment_adds_one_file_per_non_empty_day(spark, fragmented):
+    before, res = fragmented
+    non_empty_days = len(before["day_counts"])
+    assert non_empty_days > 1, "fixture month must span several days"
+    assert res["n_slices"] == non_empty_days
+    assert res["n_slices"] <= res["days_in_month"]
+    assert res["files_added"] == res["n_slices"]
+    assert res["one_file_per_slice"] is True
+
+    # Fragmentation is the point: strictly more files than before.
+    assert res["files_after"] > res["files_before"]
+    assert files_stats(spark, TABLE_FRAG_A)["file_count"] == res["files_after"]
+
+    # The scratch copy is dropped once the row counts have been verified.
+    assert not maintenance.table_exists(spark, res["scratch_table"])
+    assert res["scratch_table"] == TABLE_FRAG_A + "__fragment_scratch"
+
+
+def test_fragment_is_deterministic(spark, ops_source, fragmented):
+    """Identical input fragmented twice -> identical rows and identical slices."""
+    _, res_a = fragmented
+    monthly.create_backfill(
+        spark,
+        source=ops_source,
+        table=TABLE_FRAG_B,
+        backfill_end=BACKFILL_END,
+        late_window_start=LATE_START,
+        holdout_permille=HOLDOUT_PERMILLE,
+    )
+    res_b = monthly.fragment_month(
+        spark, table=TABLE_FRAG_B, source=ops_source, month=FRAG_MONTH
+    )
+
+    assert _identity_set(spark.table(TABLE_FRAG_B)) == _identity_set(
+        spark.table(TABLE_FRAG_A)
+    )
+    assert _day_counts(spark, TABLE_FRAG_B, FRAG_MONTH) == _day_counts(
+        spark, TABLE_FRAG_A, FRAG_MONTH
+    )
+    for key in ("rows_month", "n_slices", "files_added", "slice_rows_min", "slice_rows_max"):
+        assert res_b[key] == res_a[key], key
+
+
+def test_compact_after_fragment_puts_the_files_back(spark, fragmented):
+    """The exhibit's payoff: bin-packing has real work only post-fragmentation."""
+    _, res = fragmented
+    rows_before = spark.table(TABLE_FRAG_A).count()
+    ids_before = _identity_set(spark.table(TABLE_FRAG_A))
+    files_before = files_stats(spark, TABLE_FRAG_A)["file_count"]
+
+    out = maintenance.compact(
+        spark, TABLE_FRAG_A, options={"min-input-files": "2"}
+    )
+    files_after = files_stats(spark, TABLE_FRAG_A)["file_count"]
+
+    assert out["rewritten_files"] >= res["n_slices"]
+    assert out["added_files"] < out["rewritten_files"]
+    assert out["failed_files"] == 0
+    assert files_after < files_before
+    assert spark.table(TABLE_FRAG_A).count() == rows_before
+    assert _identity_set(spark.table(TABLE_FRAG_A)) == ids_before

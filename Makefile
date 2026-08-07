@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-compact ops-expire ops-all clean-ops
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -219,6 +219,16 @@ ops-append: java-check
 
 ops-upsert: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step upsert
+
+# Stage the compaction exhibit: the backfill writes one file per months(ts)
+# partition, so rewrite_data_files had nothing to bin-pack (measured no-op).
+# `ops-fragment` deletes one month and re-appends the SAME rows one calendar day
+# at a time (one small file each) — simulated micro-batch ingestion. Row counts
+# are asserted unchanged; the month is staged in a durable scratch table first.
+#   make ops-fragment MONTH=2023-06
+ops-fragment: java-check
+	@test -n "$(MONTH)" || { echo "ERROR: set MONTH=YYYY-MM"; exit 1; }
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step fragment --month $(MONTH)
 
 ops-compact: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step compact

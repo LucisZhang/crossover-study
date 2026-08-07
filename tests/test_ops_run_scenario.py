@@ -144,7 +144,7 @@ def test_backfill_record_shape_and_single_append(spark, ops_source, tmp_path):
 
 @pytest.mark.spark
 def test_each_step_appends_exactly_one_record(spark, ops_source, tmp_path):
-    """append -> upsert -> compact -> expire on top of the backfill above."""
+    """append -> upsert -> fragment -> compact -> expire on top of the backfill."""
     results = tmp_path / "runs.jsonl"
     kwargs = _kwargs(spark, ops_source)
 
@@ -153,6 +153,9 @@ def test_each_step_appends_exactly_one_record(spark, ops_source, tmp_path):
         spark, "append", results=results, month="2023-07", **kwargs
     )
     run_scenario.run_and_record(spark, "upsert", results=results, **kwargs)
+    run_scenario.run_and_record(
+        spark, "fragment", results=results, month="2023-03", **kwargs
+    )
     run_scenario.run_and_record(
         spark,
         "compact",
@@ -163,18 +166,19 @@ def test_each_step_appends_exactly_one_record(spark, ops_source, tmp_path):
     run_scenario.run_and_record(spark, "expire", results=results, retain_last=2, **kwargs)
 
     records = [json.loads(ln) for ln in results.read_text().splitlines()]
-    assert len(records) == 5
+    assert len(records) == 6
     assert [r["scenario"] for r in records] == [
         "backfill",
         "append",
         "upsert",
+        "fragment",
         "compact",
         "expire",
     ]
     assert all(REQUIRED_KEYS <= set(r) for r in records)
     assert all(r["kind"] == "ops" for r in records)
 
-    _, appended, upserted, compacted, expired = records
+    _, appended, upserted, fragmented, compacted, expired = records
 
     assert appended["month"] == "2023-07"
     assert appended["month_source_rows"] == appended["rows_after"] - appended["rows_before"]
@@ -185,11 +189,25 @@ def test_each_step_appends_exactly_one_record(spark, ops_source, tmp_path):
     assert upserted["reconciles_with_source"] is True
     assert "MERGE INTO" in upserted["params"]["merge_sql"]
 
-    # Bin-packing on this fixture may find nothing to do (one file per month
-    # partition already); the strict "file count decreases" claim is proved on a
-    # deliberately fragmented table in test_ops_maintenance.py. What must hold
-    # here is that compaction never adds files and never changes content.
-    assert compacted["files_after"] <= compacted["files_before"]
+    # Fragmentation preserves content and multiplies files — it is what gives the
+    # compact step below something real to bin-pack.
+    assert fragmented["month"] == "2023-03"
+    assert fragmented["rows_after"] == fragmented["rows_before"]
+    assert fragmented["rows_before_total"] == fragmented["rows_before"]
+    assert fragmented["rows_after_total"] == fragmented["rows_after"]
+    assert fragmented["rows_preserved"] is True
+    assert fragmented["n_slices"] > 1
+    assert fragmented["files_added"] == fragmented["n_slices"]
+    assert fragmented["files_after"] > fragmented["files_before"]
+    assert "DELETE FROM" in fragmented["params"]["delete_sql"]
+    assert fragmented["params"]["slice_granularity"] == "day"
+    assert "simulated micro-batch ingestion" in fragmented["params"][
+        "fragmentation_design"
+    ]
+
+    # Compaction never adds files and never changes content — and after the
+    # fragment step it has real work, so the file count strictly drops.
+    assert compacted["files_after"] < compacted["files_before"]
     assert compacted["rows_after"] == compacted["rows_before"]
     assert compacted["params"]["procedure"] == "rewrite_data_files"
 
@@ -201,6 +219,8 @@ def test_each_step_appends_exactly_one_record(spark, ops_source, tmp_path):
     # Snapshot chaining across the whole scenario.
     assert appended["snapshot_before"] == records[0]["snapshot_after"]
     assert upserted["snapshot_before"] == appended["snapshot_after"]
+    assert fragmented["snapshot_before"] == upserted["snapshot_after"]
+    assert compacted["snapshot_before"] == fragmented["snapshot_after"]
 
 
 @pytest.mark.spark
