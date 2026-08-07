@@ -124,6 +124,18 @@ def _build_model(model_cfg: dict, seeds: dict):
             recipe_hash=params["recipe_hash"],
             artifact_root=params.get("artifact_root", "data/eval/minilm"),
         )
+    if name == "hybrid":
+        # Deferred import — policy.hybrid imports this module's _build_model,
+        # so importing HybridRecommender at module level here would create a
+        # harness<->policy import cycle.
+        from batch_recsys_lab.policy.hybrid import HybridRecommender
+
+        return HybridRecommender(
+            n_star=params.get("n_star"),
+            low=params["low"],
+            high=params["high"],
+            seeds=seeds,
+        )
     raise ValueError(f"unknown model name: {name!r}")
 
 

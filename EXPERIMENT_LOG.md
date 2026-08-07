@@ -599,3 +599,85 @@ T15, not a failure of this task.
 
 Grid results and the applied winner trace are appended below this line
 after running `uv run python -m batch_recsys_lab.policy.select`.
+
+### T13 — grid results (2026-08-07)
+
+Ran `uv run python -m batch_recsys_lab.policy.select --config configs/policy_select_val.yaml`.
+
+| variant | n_star | seg 0 | seg 1-4 | seg 5-9 | seg 10-19 | seg 20+ | objective |
+|---|---|---:|---:|---:|---:|---:|---:|
+| A (blend/ALS) | 1   | 0.010677 | 0.004801 | 0.004695 | 0.003640 | 0.003247 | 0.005412 |
+| A (blend/ALS) | 5   | 0.010677 | 0.012825 | 0.004695 | 0.003640 | 0.003247 | 0.007017 |
+| A (blend/ALS) | 10  | 0.010677 | 0.012825 | 0.011965 | 0.003640 | 0.003247 | 0.008471 |
+| A (blend/ALS) | 20  | 0.010677 | 0.012825 | 0.011965 | 0.010344 | 0.003247 | 0.009812 |
+| A (blend/ALS) | inf | 0.010677 | 0.012825 | 0.011965 | 0.010344 | 0.007718 | 0.010706 |
+| B (blend/pop) | 1   | 0.010677 | 0.011719 | 0.010530 | 0.009133 | 0.007021 | 0.009816 |
+| B (blend/pop) | 5   | 0.010677 | 0.012825 | 0.010530 | 0.009133 | 0.007021 | 0.010037 |
+| B (blend/pop) | 10  | 0.010677 | 0.012825 | 0.011965 | 0.009133 | 0.007021 | 0.010324 |
+| B (blend/pop) | 20  | 0.010677 | 0.012825 | 0.011965 | 0.010344 | 0.007021 | 0.010566 |
+| B (blend/pop) | inf | 0.010677 | 0.012825 | 0.011965 | 0.010344 | 0.007718 | 0.010706 |
+
+Full grid + winner also written to `results/policy_select_val.json` (not
+committed as part of the pre-declaration commit — CLAUDE.md's append-only
+invariant applies to `results/runs.jsonl`; this JSON is a derived selection
+artifact, regenerable by rerunning `policy.select`).
+
+**Rule trace:** argmax objective = 0.010706, achieved by both A/n*=inf and
+B/n*=inf (tie — n*=inf makes the `high` component irrelevant, since every
+user routes to `low`=blend, so both variants collapse to the identical
+composed vector and tie exactly). Winner rule: ties -> prefer variant B ->
+**winner = variant B, n_star=inf**.
+
+**Interpretation:** every ALS/pop `high` arm strictly *reduces* the
+objective relative to n_star=inf, monotonically as n_star shrinks from inf
+toward 1, for both variants (variant A drops fastest — ALS's segment-1-4/
+5-9/10-19/20+ NDCG@10 are all far below blend's, consistent with Phase 3's
+"ALS loses to pop-t12m everywhere" finding compounding here). Variant B's
+descent is shallower (pop-t12m is a much stronger `high` arm than ALS) but
+still monotonically worse than n*=inf at every finite grid point. **The
+routing policy on VAL reduces to "blend α=0.3 everywhere"** — i.e. no
+finite n* improves on running the single blended recommender for every
+user, at any history depth. This confirms the "likely outcome" flagged in
+the pre-declaration and in the task brief: a legitimate, publishable
+simplification for T15 ("the crossover this lab measured for classical CF
+never re-opens once a content signal is blended in at modest weight; the
+routing policy that would have exploited a crossover has nothing to route
+between on VAL").
+
+### T13 — confirming run + composition assertion (2026-08-07)
+
+Ran `caffeinate -is make eval CONFIG=configs/eval_hybrid_val.yaml` (winning
+cell: variant B, n_star=null, i.e. `hybrid(low=content_pop_blend(alpha=0.3),
+high=popularity(train_end, 365d))` routing every user to `low`). Result:
+run_id `20260807T040118Z-5e212d7`, artifact
+`data/eval/per_user/20260807T040118Z-5e212d7_hybrid.parquet`, global VAL
+ndcg@10=0.0115 [0.0113, 0.0118] — matches the blend α=0.3 VAL run
+(`20260806T124525Z-e056a2a`, ndcg@10=0.011515 [0.011258, 0.011761]) within
+bootstrap noise as expected for an n*=inf hybrid.
+
+**Composition-vs-actual assertion:** compared the hybrid run's per-user
+artifact against the blend α=0.3 artifact directly (inner-joined on
+`user_id`, both cover the identical 356,362 VAL users — set equality
+holds). Every per-user metric column (`recall@10/20/50`, `ndcg@10/20`,
+`mrr`, `hitrate@10`, `novelty@10`) and the `top50` list column match
+**exactly**, `rtol=0 atol=0`:
+
+- max abs diff = 0.0 for every metric column (numpy `array_equal` True on
+  all 356,362 rows for each)
+- `top50` mismatches: 0 / 356,362 users
+
+This confirms `HybridRecommender` with `n_star=null` composes to *exactly*
+the low-arm's scores with no numerical drift, end to end through the real
+harness (fit -> score_batch -> mask -> rank -> metrics -> artifact write) —
+not just at the toy-fixture level tested in `tests/test_policy.py`.
+
+**T13 conclusion:** the VAL-selected routing policy is variant B with
+n_star=inf, which is mechanically identical to running
+`content_pop_blend(alpha=0.3)` alone. No finite n* improves on the blend at
+any measured history depth on VAL; ALS and pop-t12m both lose to the blend
+in every warm segment (0/1-4/5-9/10-19/20+), so there is nothing left for a
+history-depth router to route between. This is carried into T15 as: "the
+production recommender for this lab's headline TEST report is
+`content_pop_blend(alpha=0.3)`, unconditionally — the `HybridRecommender`
+machinery built here is retained (tested, registered, VAL-validated) but
+this task's VAL evidence does not support deploying a non-trivial n*."
