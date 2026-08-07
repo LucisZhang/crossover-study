@@ -1027,3 +1027,29 @@ nothing.
 Six `kind="ops"` records this task (no-op compact, no-op-ish expire,
 fragment, compact, expire@2, expire@1). Gold/silver snapshots asserted
 unchanged in every epilogue; disk ≥45GB throughout.
+
+## Phase 5 T24 — per-stage lineage table (2026-08-08)
+
+`make lineage` (JVM-free): 24 stages, `complete: true`, zero problems —
+raw download → bronze (reviews/items) → silver → gold (5-core funnel,
+user_stats, item_features, popularity, item_text) → eval extract cache →
+headline eval → reproduce → the full 11-record ops chain (one row per ops
+record, semantic labels: `ops.compact[noop]` vs `ops.compact[30->1]`,
+`ops.expire[retain=1,deleted=30]`). Every number sourced from a named
+machine ledger (ingest/build summaries, kcore funnel table, Iceberg
+metadata.json snapshot summaries, runs.jsonl); completeness enforced by a
+check that fails the build, not a hope. Committed as `results/lineage.json`
+(sha256:2291697090d9…) + human `results/lineage.md` + one `kind="lineage"`
+record.
+
+Nullable runtimes are footnoted `runtime_not_persisted_at_build` (gold
+feature builds, item_text, extract cache, raw download) — re-running stages
+to re-measure was rejected: it would churn live snapshots for zero
+evidentiary gain. **Ledger discrepancy found and NOT fixed by design:**
+`data/MANIFEST.md`'s prose line "Ingest wall-clock: reviews=509s, items=926s"
+contradicts the machine ledger (350.1s / 105.5s) — it was operator-supplied
+prose, never measured. The file cannot be corrected: `dataset_manifest_hash`
+(sha256 of MANIFEST.md) is part of every eval record and of the byte-exact
+reproduce comparison; editing it would break reproduction permanently. The
+lineage table uses the machine ledger; the prose line is superseded by this
+note.

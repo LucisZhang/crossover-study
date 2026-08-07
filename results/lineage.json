@@ -1,0 +1,635 @@
+{
+  "schema_version": 1,
+  "expected_ops": [
+    "backfill",
+    "append",
+    "append",
+    "append",
+    "upsert",
+    "fragment",
+    "compact",
+    "expire"
+  ],
+  "ops_observed": {
+    "append": 3,
+    "backfill": 1,
+    "compact": 2,
+    "expire": 3,
+    "fragment": 1,
+    "upsert": 1
+  },
+  "ops_records": 11,
+  "stages_count": 24,
+  "complete": true,
+  "problems": [],
+  "footnotes": {
+    "runtime_not_persisted_at_build": "Wall clock is null because this stage never wrote a runtime to any ledger. It is deliberately NOT recovered by re-running: re-running a gold build would move Iceberg snapshots that recorded eval records cite, and re-running the extract would overwrite the snapshot-keyed cache the headline run was scored against."
+  },
+  "stages": [
+    {
+      "stage": "raw_download",
+      "layer": "raw",
+      "table": "data/raw/ (2 files: Electronics.jsonl.gz, meta_Electronics.jsonl.gz)",
+      "rows_in": null,
+      "rows_out": null,
+      "bytes": 7787339046,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": null,
+      "source_of_truth": {
+        "bytes": "data/MANIFEST.md § Files"
+      },
+      "required": [
+        "bytes"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "bronze.reviews",
+      "layer": "bronze",
+      "table": "local.bronze.reviews",
+      "rows_in": 43886944,
+      "rows_out": 43886944,
+      "bytes": 1980910011,
+      "wall_clock_s": 350.137,
+      "wall_clock_source": "data/ingest_summary.jsonl",
+      "snapshot_id": 8762010073867551489,
+      "source_of_truth": {
+        "rows": "data/ingest_summary.jsonl",
+        "wall_clock_s": "data/ingest_summary.jsonl",
+        "bytes": "iceberg:local.bronze.reviews@reviews/metadata/v2.metadata.json",
+        "snapshot_id": "iceberg:local.bronze.reviews@reviews/metadata/v2.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "bronze.items",
+      "layer": "bronze",
+      "table": "local.bronze.items",
+      "rows_in": 1610012,
+      "rows_out": 1610012,
+      "bytes": 1116629631,
+      "wall_clock_s": 105.498,
+      "wall_clock_source": "data/ingest_summary.jsonl",
+      "snapshot_id": 5777158505586620094,
+      "source_of_truth": {
+        "rows": "data/ingest_summary.jsonl",
+        "wall_clock_s": "data/ingest_summary.jsonl",
+        "bytes": "iceberg:local.bronze.items@items/metadata/v2.metadata.json",
+        "snapshot_id": "iceberg:local.bronze.items@items/metadata/v2.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "silver.items",
+      "layer": "silver",
+      "table": "local.silver.items",
+      "rows_in": 1610012,
+      "rows_out": 1610012,
+      "bytes": 116636407,
+      "wall_clock_s": 12.553,
+      "wall_clock_source": "data/build_summary.jsonl (run 20260805T143256Z-7406fc1)",
+      "snapshot_id": 7760402325430157555,
+      "source_of_truth": {
+        "rows": "data/build_summary.jsonl",
+        "wall_clock_s": "data/build_summary.jsonl",
+        "bytes": "iceberg:local.silver.items@items/metadata/v4.metadata.json",
+        "snapshot_id": "iceberg:local.silver.items@items/metadata/v4.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "silver.interactions",
+      "layer": "silver",
+      "table": "local.silver.interactions",
+      "rows_in": 43886944,
+      "rows_out": 43365424,
+      "bytes": 1458626689,
+      "wall_clock_s": 316.413,
+      "wall_clock_source": "data/build_summary.jsonl (run 20260805T143256Z-7406fc1)",
+      "snapshot_id": 884031112460958161,
+      "source_of_truth": {
+        "rows": "data/build_summary.jsonl",
+        "wall_clock_s": "data/build_summary.jsonl",
+        "bytes": "iceberg:local.silver.interactions@interactions/metadata/v4.metadata.json",
+        "snapshot_id": "iceberg:local.silver.interactions@interactions/metadata/v4.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "gold.interactions_5core",
+      "layer": "gold",
+      "table": "local.gold.interactions_5core",
+      "rows_in": 43365424,
+      "rows_out": 15473536,
+      "bytes": 398232550,
+      "wall_clock_s": 1195.95,
+      "wall_clock_source": "iceberg:local.dq.kcore_funnel (run 20260805T143256Z-7406fc1, 17 iterations)",
+      "snapshot_id": 8184397443787800955,
+      "source_of_truth": {
+        "rows_in": "iceberg:local.dq.kcore_funnel (run 20260805T143256Z-7406fc1, 17 iterations)",
+        "rows_out": "iceberg:local.gold.interactions_5core@interactions_5core/metadata/v3.metadata.json",
+        "bytes": "iceberg:local.gold.interactions_5core@interactions_5core/metadata/v3.metadata.json",
+        "wall_clock_s": "iceberg:local.dq.kcore_funnel (run 20260805T143256Z-7406fc1, 17 iterations)",
+        "snapshot_id": "iceberg:local.gold.interactions_5core@interactions_5core/metadata/v3.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "gold.user_stats",
+      "layer": "gold",
+      "table": "local.gold.user_stats",
+      "rows_in": 15473536,
+      "rows_out": 1641026,
+      "bytes": 56750502,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 7656304543449163695,
+      "source_of_truth": {
+        "rows_in": "iceberg:local.gold.interactions_5core",
+        "rows_out": "iceberg:local.gold.user_stats@user_stats/metadata/v3.metadata.json",
+        "bytes": "iceberg:local.gold.user_stats@user_stats/metadata/v3.metadata.json",
+        "snapshot_id": "iceberg:local.gold.user_stats@user_stats/metadata/v3.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "gold.item_features",
+      "layer": "gold",
+      "table": "local.gold.item_features",
+      "rows_in": 15473536,
+      "rows_out": 368228,
+      "bytes": 24304585,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 5841387267286613743,
+      "source_of_truth": {
+        "rows_in": "iceberg:local.gold.interactions_5core",
+        "rows_out": "iceberg:local.gold.item_features@item_features/metadata/v3.metadata.json",
+        "bytes": "iceberg:local.gold.item_features@item_features/metadata/v3.metadata.json",
+        "snapshot_id": "iceberg:local.gold.item_features@item_features/metadata/v3.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "gold.popularity",
+      "layer": "gold",
+      "table": "local.gold.popularity",
+      "rows_in": 15473536,
+      "rows_out": 1223106,
+      "bytes": 9448726,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 1565243784354530213,
+      "source_of_truth": {
+        "rows_in": "iceberg:local.gold.interactions_5core",
+        "rows_out": "iceberg:local.gold.popularity@popularity/metadata/v3.metadata.json",
+        "bytes": "iceberg:local.gold.popularity@popularity/metadata/v3.metadata.json",
+        "snapshot_id": "iceberg:local.gold.popularity@popularity/metadata/v3.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "gold.item_text",
+      "layer": "gold",
+      "table": "local.gold.item_text",
+      "rows_in": 368228,
+      "rows_out": 368228,
+      "bytes": 184444918,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 5993316986525394173,
+      "source_of_truth": {
+        "rows_in": "iceberg:local.gold.item_features (= distinct 5-core catalog)",
+        "rows_out": "iceberg:local.gold.item_text@item_text/metadata/v2.metadata.json",
+        "bytes": "iceberg:local.gold.item_text@item_text/metadata/v2.metadata.json",
+        "snapshot_id": "iceberg:local.gold.item_text@item_text/metadata/v2.metadata.json"
+      },
+      "required": [
+        "rows_in",
+        "rows_out",
+        "bytes",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "eval_extract_cache",
+      "layer": "cache",
+      "table": "data/eval/cache/8184397443787800955",
+      "rows_in": null,
+      "rows_out": null,
+      "bytes": 258576184,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 8184397443787800955,
+      "source_of_truth": {
+        "bytes": "on-disk file sizes under data/eval/cache/8184397443787800955",
+        "snapshot_id": "data/eval/cache/8184397443787800955/cache_manifest.json"
+      },
+      "required": [
+        "bytes",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "headline_eval",
+      "layer": "eval",
+      "table": "data/eval/per_user/20260807T055333Z-c320c79_content_pop_blend.parquet",
+      "rows_in": null,
+      "rows_out": 228153,
+      "bytes": 24595024,
+      "wall_clock_s": 1235.911,
+      "wall_clock_source": "results/runs.jsonl kind=eval run_id=20260807T055333Z-c320c79",
+      "snapshot_id": 8184397443787800955,
+      "source_of_truth": {
+        "rows_out": "runs.jsonl run_id=20260807T055333Z-c320c79 protocol.n_users",
+        "wall_clock_s": "runs.jsonl run_id=20260807T055333Z-c320c79 wall_clock_s",
+        "bytes": "on-disk size of data/eval/per_user/20260807T055333Z-c320c79_content_pop_blend.parquet",
+        "snapshot_id": "runs.jsonl run_id=20260807T055333Z-c320c79 iceberg_snapshots"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "reproduce_headline",
+      "layer": "eval",
+      "table": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/per_user/20260807T153816Z-9a9fb4c_content_pop_blend.parquet",
+      "rows_in": null,
+      "rows_out": 228153,
+      "bytes": 24595024,
+      "wall_clock_s": 2615.464,
+      "wall_clock_source": "results/runs.jsonl kind=reproduce run_id=20260807T153823Z-9a9fb4c (extract_wall_clock_s + eval_wall_clock_s)",
+      "snapshot_id": null,
+      "source_of_truth": {
+        "rows_out": "runs.jsonl run_id=20260807T153823Z-9a9fb4c per_user_compare_detail.n_rows_repro",
+        "wall_clock_s": "runs.jsonl run_id=20260807T153823Z-9a9fb4c",
+        "bytes": "on-disk size of /Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/per_user/20260807T153816Z-9a9fb4c_content_pop_blend.parquet"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.backfill",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 0,
+      "rows_out": 43216395,
+      "bytes": 1339269361,
+      "wall_clock_s": 48.083,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b",
+      "snapshot_id": 4021089265629704947,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.append[2023-07]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43216395,
+      "rows_out": 43295105,
+      "bytes": 1341861209,
+      "wall_clock_s": 6.343,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b",
+      "snapshot_id": 155573714918408125,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.append[2023-08]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43295105,
+      "rows_out": 43349842,
+      "bytes": 1343680159,
+      "wall_clock_s": 6.033,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b",
+      "snapshot_id": 5575621046782304416,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.append[2023-09]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43349842,
+      "rows_out": 43353465,
+      "bytes": 1343811464,
+      "wall_clock_s": 5.934,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b",
+      "snapshot_id": 8905353604697481203,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.upsert",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43353465,
+      "rows_out": 43365424,
+      "bytes": 1344148137,
+      "wall_clock_s": 19.127,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6",
+      "snapshot_id": 2050513946378268697,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6 rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6 rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6 bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6 wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6 snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.compact[noop]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344148137,
+      "wall_clock_s": 0.089,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505",
+      "snapshot_id": 2050513946378268697,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505 rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505 rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505 bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505 wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505 snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.expire[retain=2,deleted=0]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344148137,
+      "wall_clock_s": 2.378,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505",
+      "snapshot_id": 2050513946378268697,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505 rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505 rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505 bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505 wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505 snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.fragment[2023-06]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344359047,
+      "wall_clock_s": 13.484,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff",
+      "snapshot_id": 5189449370629050757,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.compact[30->1]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344043731,
+      "wall_clock_s": 2.201,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff",
+      "snapshot_id": 6414963768630265414,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.expire[retain=2,deleted=3]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344043731,
+      "wall_clock_s": 3.051,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff",
+      "snapshot_id": 6414963768630265414,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    },
+    {
+      "stage": "ops.expire[retain=1,deleted=30]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344043731,
+      "wall_clock_s": 3.144,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff",
+      "snapshot_id": 6414963768630265414,
+      "source_of_truth": {
+        "rows_in": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff rows_before",
+        "rows_out": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff rows_after",
+        "bytes": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff bytes_after",
+        "wall_clock_s": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff wall_clock_s",
+        "snapshot_id": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff snapshot_after"
+      },
+      "required": [
+        "rows_out",
+        "bytes",
+        "wall_clock_s",
+        "snapshot_id"
+      ],
+      "missing": [],
+      "complete": true
+    }
+  ]
+}
