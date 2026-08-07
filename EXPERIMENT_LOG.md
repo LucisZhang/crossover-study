@@ -1001,3 +1001,29 @@ equality with silver). Post-merge total 43,365,424 = 43,353,465 + 11,959,
 rewrite confined to the affected 2023-05/06 partitions (net file count
 unchanged at 298). 19.1s. One `kind="ops"` record; gold/silver snapshots
 unchanged; disk 45GB.
+
+## Phase 5 T23 — compaction before/after + snapshot expiry (2026-08-07)
+
+**Measured no-op first (published, not hidden):** on the freshly built ops
+table, `rewrite_data_files` with defaults rewrote **0 files** — monthly-batch
+ingestion at this scale yields exactly 1 well-formed file per `months(ts)`
+partition (298 partitions, 298 files, verified via the `.files` metadata
+table), and bin-packing never combines across partitions. The "small-file
+problem" on this table is partition granularity, not intra-partition
+fragmentation. The no-op compact/expire records stay in the log.
+
+**Staged exhibit (simulated micro-batch ingestion):** `fragment` step —
+2023-06 (93,827 rows) materialized to a durable scratch table, deleted
+(partition-aligned), re-appended as 30 daily slices → 30 one-file appends
+(298→327 files), totals byte-identical before/after (asserted). Then
+`compact`: rewrote exactly those 30 files into 1 (327→298; 3.3MB → 3.0MB for
+the partition; rows identical). Then expiry in two teachable stages:
+`retain_last=2` deleted 32 manifest lists but only 3 data files — the 30
+compaction predecessors stayed pinned by the retained pre-compact snapshot —
+and a follow-up `retain_last=1` reclaimed exactly those 30
+(`deleted_data_files=30`). Retention pins files; compaction alone frees
+nothing.
+
+Six `kind="ops"` records this task (no-op compact, no-op-ish expire,
+fragment, compact, expire@2, expire@1). Gold/silver snapshots asserted
+unchanged in every epilogue; disk ≥45GB throughout.
