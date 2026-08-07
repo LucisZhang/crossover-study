@@ -974,3 +974,18 @@ appeared as an untracked path. The guard behaved correctly; fix was
 gitignoring agent worktrees (9a9fb4c). The pinned extract from that aborted
 invocation (~90s) was reused by the recording run (`extract=0.0s` in the
 record reflects the cache hit, not a free extract).
+
+## Phase 5 T21 — ops backfill + monthly incremental appends (2026-08-07)
+
+`local.ops.interactions_monthly` created from the FULL `silver.interactions`
+(43,228,354 rows — the earlier ~18M estimate was wrong; dedup only removed
+~0.7M from bronze's 43.89M), partitioned by `months(ts)`, backfilled through
+2023-06-30 minus a deterministic late-arrival holdout
+(`pmod(xxhash64(user_id, parent_asin, ts), 1000) < 50` over 2023-05/06):
+**43,216,395 rows written = source − 11,959 holdout, exact.** 295 data
+files, 1.34 GB, 48s. Then three incremental appends — 2023-07: 78,710,
+2023-08: 54,737, 2023-09: 3,623 rows — each snapshot's added-records equal
+to its month's source count, one file per append, snapshot chain contiguous
+(each record's snapshot_before == predecessor's snapshot_after). Four
+`kind="ops"` records appended; gold/silver snapshots asserted unchanged in
+every step's epilogue; disk ≥43GB throughout.
