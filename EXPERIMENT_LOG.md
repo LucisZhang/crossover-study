@@ -551,3 +551,51 @@ construction fallback to pure popularity for that segment. No content or
 blend arm can improve over popularity for strict-cold users under this
 recommender design; any cold-start gain would have to come from a different
 mechanism (e.g. onboarding signal, not history-based content similarity).
+
+## T13 — Routing-policy n* selection rule — pre-declaration (2026-08-07)
+
+VAL-only task (UPGRADE_PLAN.md §6.4/§8, T13). This section is written and
+committed *before* `policy.select` is run against the grid below — the rule
+is fixed first so the eventual winner cannot be picked to fit the result.
+
+**Objective (owner-approved):** segment-weighted NDCG@10 = the *unweighted*
+mean of the five segment mean-NDCG@10 values (segments 0 / 1-4 / 5-9 / 10-19
+/ 20+), i.e. each segment counts equally regardless of its user count. This
+matches the crossover/segment framing used throughout Phase 2-4 rather than
+a user-count-weighted global mean.
+
+**Inputs (all VAL, per `configs/policy_select_val.yaml`):**
+- blend α=0.3 (T12 winner): run_id `20260806T124525Z-e056a2a`
+- ALS chosen config (Phase 3: rank=128, reg=0.01, alpha=10, max_iter=25,
+  binary, seed=20260805): run_id `20260806T033333Z-acd1f81`
+- pop-t12m (as_of=train_end, window_days=365): run_id `20260806T113427Z-e056a2a`
+
+**Grid:** 2 variants x 5 n_star values = 10 cells.
+- Variant A: low=blend α=0.3, high=ALS chosen config
+- Variant B: low=blend α=0.3, high=pop-t12m
+- n_star grid: {1, 5, 10, 20, inf}. Routing convention: `n_train[u] < n_star`
+  -> scored by `low`; `n_train[u] >= n_star` -> scored by `high`. n_star=inf
+  routes every user to `low` (hybrid degenerates to the blend everywhere).
+  The grid values are chosen to align exactly with the frozen segment bucket
+  edges (0 / 1-4 / 5-9 / 10-19 / 20+), so routing can be read off each
+  user's `segment` label with no need to reload raw `n_train` — no bucket
+  straddles a grid edge.
+
+**Winner rule (fixed before computation):** argmax objective over the 10
+cells. Ties -> prefer variant B (pop-t12m as the warm/high component, since
+Phase 3 found ALS loses to pop-t12m in every segment on VAL/TEST — a tie
+should not be broken toward the demonstrably weaker warm-arm candidate);
+among remaining ties, prefer the n_star closest to infinity (more blend
+coverage = simpler policy, consistent with the "hybrid reduces to the
+blend" outcome flagged as a legitimate, publishable result in the task
+brief).
+
+**Prior expectation (not binding, stated only to be checked against the
+result, not to bias it):** T12 found blend α=0.3 beats both pop-t12m and (by
+Phase 3's ALS-loses-everywhere finding) ALS in every warm segment on VAL, so
+the likely outcome is variant B, n_star=inf (blend everywhere) — "hybrid
+reduces to the blend" would be a legitimate, publishable simplification for
+T15, not a failure of this task.
+
+Grid results and the applied winner trace are appended below this line
+after running `uv run python -m batch_recsys_lab.policy.select`.

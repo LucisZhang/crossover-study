@@ -1,0 +1,23 @@
+# n* / hybrid-variant selection on VAL (Phase 4, T13). Inputs are the three
+# per-user VAL artifacts named in the T13 task: blend a30 (winner of T12's
+# alpha grid), ALS at the Phase 3 chosen config, and pop-t12m (reference /
+# variant-B "warm" arm). No TEST artifact is referenced anywhere in this file.
+run_ids:
+  blend_a30: "20260806T124525Z-e056a2a"
+  als_chosen: "20260806T033333Z-acd1f81"
+  pop_t12m: "20260806T113427Z-e056a2a"
+
+# n* grid (aligned to the segment_of bucket edges 0/1-4/5-9/10-19/20+, so
+# routing by n_train < n_star is exact at segment granularity for every value
+# below). null means "route everyone to the low/blend arm" (blend everywhere).
+n_star_grid: [1, 5, 10, 20, null]
+
+variants:
+  A: {low: blend_a30, high: als_chosen}
+  B: {low: blend_a30, high: pop_t12m}
+
+objective: segment_weighted_ndcg10_unweighted_mean
+metric: "ndcg@10"
+
+results_path: results/runs.jsonl
+output_path: results/policy_select_val.json
