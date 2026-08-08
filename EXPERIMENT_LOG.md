@@ -1236,3 +1236,54 @@ things inspected were aggregates: per-segment stratum sizes and the
 already-recorded per-segment `hitrate@10`. No individual user's row, ranking or
 metric was examined, and the amended rule was fixed before the v2 selection ran
 — so which 30 users appear is still decided by the seed, not by how they look.
+
+## Phase 6 T36 — offline/static + traceability verification of the assembled demo (2026-08-09)
+
+Run against the FULLY assembled demo/ (all six exhibits, search payload
+31.9MB + vendored model 47.6MB in place via `make demo-assets`).
+
+**Static scan** (`make demo-offline-check`, verify_offline.py): CLEAN.
+Zero external URLs in executable positions across demo/ excluding vendor;
+README citation anchors reported-allowed; demo/vendor/ exemption printed
+with justification (171 URL literals inside library code, never fetched:
+allowRemoteModels=false, local wasmPaths — authoritative proof below). One
+REAL violation found on the first run and fixed at the source: a marketing
+URL inside an items_meta.json product title; export_search now strips URL
+substrings from display titles (descriptive class, no evidence value
+touched).
+
+**Runtime proof** (headless Chrome 151, clean profile, DNS black-holed via
+--host-resolver-rules="MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", netlog
+captured):
+1. Page load: all 8 data files loaded, 0 placeholder sections, 27
+   page-initiated requests ALL loopback with bodies returned; the only
+   non-loopback attempts were Chrome-internal Google endpoints, every one
+   DNS-black-holed with zero bytes transferred.
+2. Live-search activation (temporary same-origin harness, deleted after):
+   transformers.min.js + ort wasm (21.6MB) + quantized MiniLM onnx
+   (23.0MB) + tokenizer + int8 payload all fetched from 127.0.0.1 only;
+   in-tab inference completed; quantization-parity receipt: overlap@10 =
+   9/10 vs the recorded Python reference — inside the expected 8-10 band
+   (export-side mean 9.83/10).
+
+**Defect found by this proof and fixed:** the vendored
+transformers.web.min.js variant dynamically imports bare specifiers
+(onnxruntime-common/onnxruntime-web) that no browser can resolve without
+an import map — activation failed with a TypeError. Switched the vendored
+module to the fully-bundled transformers.min.js from the SAME hash-pinned
+tarball (207714c3…, hash re-verified on re-download; integrity unchanged —
+per-member extraction from a verified archive). This is exactly the class
+of failure a static scan cannot catch and the black-holed runtime run
+exists to catch.
+
+**Traceability**: `make demo-verify` (full mode, per-user parquets read):
+OK — 4,617 manifest entries, 6,756 numeric leaves, 28 run_ids, every leaf
+re-resolves exactly. `make demo-verify-record` (CI mode): OK. Full suite:
+376 passed.
+
+**Phase 6 acceptance status after T36:** criterion 1 (fully static/
+offline) and criterion 2 (every displayed number traces to a results-log
+record via the receipts drawer) demonstrated by the commands above.
+Criterion 3 (case study reviewed against §10 checklists) lands with T37
+final copy after Checkpoint 2. Next: Checkpoint 2 — demo presented to the
+owner for review before final case-study copy.

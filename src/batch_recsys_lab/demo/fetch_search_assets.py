@@ -500,7 +500,7 @@ def build_vendor_manifest(cfg: dict, wanted: list[dict], table: dict, installed:
         "transformers_js": {
             "package": "@huggingface/transformers",
             "version": tj["version"],
-            "module": f"{tj['install_subdir']}/transformers.web.min.js",
+            "module": f"{tj['install_subdir']}/transformers.min.js",
             "wasm_paths": f"{tj['install_subdir']}/",
             "tarball_sha256": f"sha256:{table[tj['tarball']]['sha256']}",
         },

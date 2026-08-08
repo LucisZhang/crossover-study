@@ -189,8 +189,8 @@ def test_the_repo_readme_table_is_parseable_and_names_exactly_what_the_config_wa
 def _tarball(path: Path) -> dict[str, str]:
     """A stand-in transformers tarball with the members the config extracts."""
     members = {
-        "package/dist/transformers.web.min.js": b"export const env = {};\n",
-        "package/dist/transformers.web.min.js.map": b"{}\n",
+        "package/dist/transformers.min.js": b"export const env = {};\n",
+        "package/dist/transformers.min.js.map": b"{}\n",
         "package/dist/ort-wasm-simd-threaded.jsep.mjs": b"export default 1;\n",
         "package/dist/ort-wasm-simd-threaded.jsep.wasm": b"\0asm\x01\0\0\0",
         "package/LICENSE": b"Apache-2.0\n",
@@ -236,7 +236,7 @@ def install_fixture(tmp_path):
             "url": tgz.as_uri(),
             "install_subdir": "transformers",
             "extract": {
-                "package/dist/transformers.web.min.js": "transformers.web.min.js",
+                "package/dist/transformers.min.js": "transformers.min.js",
                 "package/dist/ort-wasm-simd-threaded.jsep.wasm": "ort-wasm-simd-threaded.jsep.wasm",
                 "package/LICENSE": "LICENSE",
             },
@@ -283,14 +283,14 @@ def test_verified_install_writes_the_tree_and_a_manifest(install_fixture):
     assert fetch.verified_install(f["cfg"], allow_file=True) == 0
 
     vendor = f["vendor"]
-    assert (vendor / "transformers/transformers.web.min.js").exists()
+    assert (vendor / "transformers/transformers.min.js").exists()
     assert (vendor / "transformers/ort-wasm-simd-threaded.jsep.wasm").exists()
     assert (vendor / "models/Xenova/all-MiniLM-L6-v2/onnx/model_quantized.onnx").exists()
     assert not (vendor / ".staging").exists()
 
     vm = json.loads((vendor / "vendor_manifest.json").read_text())
     assert vm["model"]["dtype"] == "q8"
-    assert vm["transformers_js"]["module"] == "transformers/transformers.web.min.js"
+    assert vm["transformers_js"]["module"] == "transformers/transformers.min.js"
     # search.js states its size warning from this number, so it must be real.
     assert vm["total_bytes"] == sum(
         p.stat().st_size for p in vendor.rglob("*") if p.is_file() and p.name != "vendor_manifest.json"

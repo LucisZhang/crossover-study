@@ -66,8 +66,13 @@ transformers_js:
   url: "https://registry.npmjs.org/@huggingface/transformers/-/transformers-3.8.1.tgz"
   install_subdir: "transformers"
   extract: # tarball member -> path under vendor_dir/install_subdir
-    "package/dist/transformers.web.min.js": "transformers.web.min.js"
-    "package/dist/transformers.web.min.js.map": "transformers.web.min.js.map"
+    # transformers.min.js is the FULLY BUNDLED browser build (onnxruntime-web
+    # inlined). The lighter transformers.web.min.js dynamically imports the bare
+    # specifiers "onnxruntime-common"/"onnxruntime-web", which a browser cannot
+    # resolve without an import map — activation failed at runtime with exactly
+    # that TypeError under the T36 offline proof. Both live in the same
+    # hash-pinned tarball, so integrity is unchanged.
+    "package/dist/transformers.min.js": "transformers.min.js"
     "package/dist/ort-wasm-simd-threaded.jsep.mjs": "ort-wasm-simd-threaded.jsep.mjs"
     "package/dist/ort-wasm-simd-threaded.jsep.wasm": "ort-wasm-simd-threaded.jsep.wasm"
     "package/LICENSE": "LICENSE"
