@@ -1,0 +1,46 @@
+# n* TEST grid recomposition (Phase 6, T27). Pure recomposition of the per-user
+# outputs already recorded by the one-shot TEST runs below — no re-scoring, no
+# refitting, no new ground-truth consultation (frozen-TEST invariant #1).
+#
+# Canonical TEST run_ids, identical to configs/crossover_test.yaml.
+run_ids:
+  blend_a30: "20260807T055333Z-c320c79"
+  als_chosen: "20260806T082441Z-2f2f26d"
+  pop_t12m: "20260805T172047Z-035042b"
+
+# n* grid, aligned to the frozen segment edges 0 / 1-4 / 5-9 / 10-19 / 20+ so
+# "n_train < n_star" is constant inside every bucket and routing reads off the
+# artifact `segment` column exactly. null = infinity = low arm everywhere;
+# 0 = high arm everywhere. n_star=2 is deliberately excluded (it straddles the
+# 1-4 bucket and would need the eval cache, breaking artifact-only provenance).
+n_star_grid: [0, 1, 5, 10, 20, null]
+
+variants:
+  A: {low: blend_a30, high: als_chosen}
+  B: {low: blend_a30, high: pop_t12m}
+
+metrics: ["ndcg@10", "recall@20"]
+
+# Hard identity anchors: the degenerate cells must reproduce the recorded
+# floats of their source eval records bit-for-bit.
+identity_checks:
+  inf_reference: blend_a30
+  zero_reference:
+    A: als_chosen
+    B: pop_t12m
+
+# Same bootstrap protocol as the eval records being recomposed.
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+
+split: test
+expected_n_users: 228153
+
+# VAL-only selection this grid is the TEST-side exhibit for (invariant #1:
+# n* was chosen on VAL, never on TEST).
+val_selection:
+  output: results/policy_select_val.json
+  winner: "B/inf"
+
+results_path: results/runs.jsonl
