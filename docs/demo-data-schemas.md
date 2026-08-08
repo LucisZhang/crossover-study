@@ -11,7 +11,7 @@ Status of each schema:
 | `crossover.json` | **FROZEN** (shipped) | `demo/export_crossover.py` | T26 |
 | `receipts.json` | **FROZEN** (shipped) | `demo/export_receipts.py` | T26 |
 | `policy_grid.json` | **SHIPPED** | `demo/export_policy_grid.py` | T27 |
-| `shoppers.json` | AGREED (not yet written) | `demo/export_shoppers.py` | T28 |
+| `shoppers.json` | **SHIPPED** | `demo/export_shoppers.py` | T28 |
 | `dq.json` | AGREED (not yet written) | `demo/export_dq.py` | T29 |
 | `lineage.json` | AGREED (not yet written) | `demo/export_lineage.py` | T30 |
 | `timetravel.json` | AGREED (not yet written) | `demo/export_lineage.py` | T30 |
@@ -240,8 +240,9 @@ its SHA-256 (see `configs/demo_export.yaml → artifacts.policy_select_val`).
         "low_share": 1.0,
         "global":   { "<metric>": { "value": …, "ci_lo": …, "ci_hi": … } },
         "segments": { "<segment>": { "n_users": …, "<metric>": { "value": …, "ci_lo": …, "ci_hi": … } } },
-        // present on every "0" and "inf" cell (both variants), not just B/inf:
-        // A/0 anchors to the ALS record, B/0 to pop-t12m, both "inf" cells to blend
+        // OPTIONAL: present ONLY on "0" and "inf" cells (both variants), absent on 1/5/10/20 —
+        // A/0 anchors to the ALS record, B/0 to pop-t12m, both "inf" cells to blend;
+        // consumers must guard for absence on intermediate positions
         "identity": { "equals_run_id": "20260807T055333Z-c320c79", "asserted": true }
       }
     }
@@ -256,38 +257,85 @@ its SHA-256 (see `configs/demo_export.yaml → artifacts.policy_select_val`).
 }
 ```
 
-## `shoppers.json` — AGREED (T28, exhibit 3: pick-a-shopper)
+## `shoppers.json` — SHIPPED (T28, exhibit 3: pick-a-shopper)
 
-Metrics and rankings come from the per-user parquets (`per_user_artifact`
-source kind); titles, prices and timelines are **descriptive** — presence is
-checked, values are not matched against the log.
+Written by `demo/export_shoppers.py` from the pre-declared 30-user selection
+(`demo/select_shoppers.py`) and the read-only gold pull
+(`demo/shopper_history_job.py`). Metrics and rankings come from the per-user
+parquets (`per_user_artifact` source kind); titles, prices and timelines are
+**descriptive** — presence is checked, values are not matched against the log.
 
 ```jsonc
 {
   "schema_version": 1,
-  "seed": 20260805,
+  "generated_by": "batch_recsys_lab.demo.export_shoppers",
   "segments": ["0","1-4","5-9","10-19","20+"],
   "models": ["blend","pop_t12m","als","item_knn","content"],
-  "run_ids": { "blend": "…", … },                   // the runs the rankings come from
+  "model_labels": { "blend": "blend α=0.3 (content+pop)", … },  // descriptive
+  "seed": 20260805,                                  // curation seed (descriptive)
+  "curation_rule": { "rule_id": "phase6-t28-v2-stratified", "declared_in": "…",
+                     "per_segment": 6, "drawn_from_hit_stratum": 2,
+                     "drawn_from_miss_stratum": 4,
+                     "min_test_ground_truth_items": 2, "note": "…" },
   "shopper_order": ["a1b2c3d4e5f6", …],             // 30 ids, 6 per segment
+  "n_train_note": "…",                               // trace-class disclosure
+  "run_ids": { "blend": "…", … },                   // traced; the runs the rankings come from
+  "headline_run_id": "20260807T055333Z-c320c79",
+  "iceberg_snapshots": { "local.gold.interactions_5core": 8184397443787800955, … },  // traced
+
+  // curation disclosure: the exhibit over-samples blend hits ~50x, and says so
+  // with the recorded per-segment hit rate next to the draw counts.
+  "curation": {
+    "5-9": { "eval_users": 80202,                                   // traced (record)
+             "blend_hitrate@10": { "value": …, "ci_lo": …, "ci_hi": … },  // traced (record)
+             "drawn": { "from_hit_stratum": 2, "from_miss_stratum": 4,
+                        "candidate_pool": …, "hit_stratum_size": …,
+                        "miss_stratum_size": …, "pool_fallback_to_all_users": false,
+                        "attempts": 1 } }                            // descriptive
+  },
+
   "shoppers": {
     "a1b2c3d4e5f6": {
       "shopper_id": "a1b2c3d4e5f6",                 // hmac_sha256(salt,user_id)[:12]
-      "segment": "5-9",
-      "n_train": 7,                                 // traced (per-user parquet / record)
-      "history": [ { "item_id": …, "title": …, "ts": …, "rating": … } ],   // descriptive subtree
-      "test_purchases": [ { "item_id": …, "title": … } ],                  // descriptive subtree
+      "segment": "5-9",                             // TRACED (per-user parquet column)
+      "n_train": 7,                                 // descriptive — see below
+      "history": [ { "item_id": …, "title": …, "brand": …, "price_usd": …,
+                     "main_category": …, "ts": …, "rating": … } ],   // descriptive subtree
+      "test_purchases": [ { …same shape… } ],                        // descriptive subtree
       "recommendations": {
         "blend": {
-          "cold_collapse": false,        // true ⇒ render "empty by design"
-          "ndcg@10": …, "recall@20": …,  // traced to the per-user parquet
-          "top10": [ { "rank": 1, "item_id": …, "title": …, "hit": true } ]
+          "run_id": "…",                 // traced (record)
+          "cold_collapse": false,        // true ⇒ render "empty by design", no top10 key
+          "ndcg@10": …, "recall@20": …, "hitrate@10": …,   // traced (per-user parquet)
+          "top10": [ { "rank": 1, "item_id": …, "title": …, "brand": …,
+                       "price_usd": …, "main_category": …, "hit": true,
+                       "catalog_index": 305546 } ]   // catalog_index TRACED, rest descriptive
         }
       }
     }
   }
 }
 ```
+
+Notes for the JS:
+
+* `top10` is **absent** (not empty) when `cold_collapse` is true — ALS and
+  item-kNN for `n_train == 0` users. Render the by-design empty state; their
+  zero `ndcg@10` / `recall@20` / `hitrate@10` are real and should still show.
+* `catalog_index` is the traced leaf; `item_id` is that index resolved through
+  the eval cache's `item_ids.parquet` (catalog order) and is descriptive, as are
+  `rank`, titles, brands, prices and categories.
+* **`n_train` is descriptive, not traced** (deviation from this file's earlier
+  AGREED draft, taken by T28): the manifest has exactly three source kinds and
+  none can express "`gold.user_stats` at the pinned snapshot". Its traced proxy
+  is `segment` — the per-user parquet column that *is* `n_train` bucketed — and
+  the exporter asserts `gold.user_stats.n_train == eval-cache n_train ==
+  len(history)` and `segment_of(n_train) == segment` before writing, so a wrong
+  `n_train` aborts the export rather than shipping. Same class as the titles.
+* Added since the AGREED draft (additive only): `model_labels`,
+  `curation_rule`, `curation`, `n_train_note`, `headline_run_id`,
+  `iceberg_snapshots`, per-arm `run_id` and `hitrate@10`, per-item `brand` /
+  `price_usd` / `main_category`, and `top10[].catalog_index`.
 
 ## `dq.json` — AGREED (T29, exhibit 4: DQ dashboard)
 

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batch Recsys Lab — exhibits</title>
+<meta name="description" content="Static, offline exhibits for Batch Recsys Lab: crossover explorer, pick-a-shopper, semantic search, data-quality dashboard, pipeline lineage, receipts.">
+<!--
+  Zero external references by construction: no CDN, no webfont, no analytics,
+  no favicon fetch. Everything this page loads is a relative path under demo/.
+  The offline check (make demo-offline-check, T36) enforces it mechanically.
+
+  Header/lede copy here is deliberately factual and minimal. The final project
+  pitch and all narrative prose are owned by T32 (checkpoint 1) and T37.
+-->
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+
+<a class="skip" href="#sec-crossover">Skip to the exhibits</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Batch Recsys Lab</h1>
+      <p class="brand-sub">43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg
+        lakehouse; popularity, item-kNN, ALS, content and blend evaluated under a frozen temporal
+        split with full-catalog ranking and bootstrap CIs.</p>
+    </div>
+    <nav class="site-nav" aria-label="Exhibits">
+      <a href="#sec-crossover">1 · Crossover</a>
+      <a href="#sec-shoppers">2 · Pick a shopper</a>
+      <a href="#sec-search">3 · Semantic search</a>
+      <a href="#sec-dq">4 · Data quality</a>
+      <a href="#sec-lineage">5 · Lineage</a>
+      <a href="#sec-receipts">6 · Receipts</a>
+    </nav>
+    <div id="data-status"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="exhibit" id="sec-crossover" aria-labelledby="h-crossover">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 1</span>
+      <h2 id="h-crossover">Crossover explorer</h2>
+      <p class="lede">How much history does a user need before personalization beats popularity?
+        One line per model across the five frozen history-depth segments, 95% bootstrap CI bands,
+        and the n* slider that shows what the routing threshold would have bought at every recorded
+        grid position. Every number is clickable — it opens the results-log record it came from.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-crossover">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-shoppers" aria-labelledby="h-shoppers">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 2</span>
+      <h2 id="h-shoppers">Pick a shopper</h2>
+      <p class="lede">Real TEST users (IDs re-hashed), six per segment: their TRAIN timeline, then
+        each model's top-10 side by side with held-out TEST purchases badged as hits. Cold-start
+        users are included on purpose.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-shoppers">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-search" aria-labelledby="h-search">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 3</span>
+      <h2 id="h-search">Live semantic search</h2>
+      <p class="lede">Query embedding computed in your browser against a precomputed int8 payload
+        for the most popular items — no request leaves the machine. Falls back to precomputed
+        example queries when the assets are not installed.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-search">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-dq" aria-labelledby="h-dq">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 4</span>
+      <h2 id="h-dq">Data-quality dashboard</h2>
+      <p class="lede">The raw→gold reconciliation waterfall with a reason for every dropped row,
+        the contract pass/fail matrix, and the quarantine ledger.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-dq">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-lineage" aria-labelledby="h-lineage">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 5</span>
+      <h2 id="h-lineage">Pipeline lineage</h2>
+      <p class="lede">Bronze→silver→gold, per-stage rows in/out, bytes, runtime and the Iceberg
+        snapshot chain — with a time-travel toggle between the pinned snapshot and today's tables.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-lineage">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-receipts" aria-labelledby="h-receipts">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 6</span>
+      <h2 id="h-receipts">Receipts</h2>
+      <p class="lede">The drawer behind every number on this page.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-receipts">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>Static and offline: this page makes no non-loopback network request. Serve it with
+      <code>make demo-serve</code>. See <code>demo/README.md</code> for the traceability rule and
+      the <code>file://</code> caveat.</p>
+    <p class="muted">Dataset: Amazon Reviews 2023 (Hou et al. 2024), Electronics category, research
+      license — the raw data is never redistributed here.</p>
+  </div>
+</footer>
+
+<aside class="receipts-drawer" id="receipts-drawer" role="dialog" aria-label="Results-log receipt" hidden></aside>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
