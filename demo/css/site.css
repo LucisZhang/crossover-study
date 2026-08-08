@@ -279,6 +279,26 @@ main { padding: 8px 0 40px; }
   body.drawer-open .wrap { margin-right: calc(var(--drawer-w) / 2); transition: margin-right 120ms ease; }
 }
 
+/* -------------------------------------------------------------- lineage */
+
+.lineage-table-cell code { white-space: nowrap; }
+.lineage-row-ops { background: #fbf7ef; }
+.foot-ref { color: var(--muted); }
+code.mono { font-family: var(--mono); }
+
+.layer-badge {
+  display: inline-block; font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 1px 7px; border-radius: 9px; border: 1px solid var(--grid); color: var(--ink2);
+  background: #f6f5f1; white-space: nowrap;
+}
+.layer-raw { border-color: var(--baseline); color: var(--muted); background: #f2f1ec; }
+.layer-bronze { border-color: #c9895c; color: #8a4f1f; background: #fbf1e7; }
+.layer-silver { border-color: #9fa6ad; color: #495158; background: #f1f3f4; }
+.layer-gold { border-color: #d8b647; color: #8a6c0d; background: #fbf6e2; }
+.layer-cache { border-color: #9fc4d9; color: #2c6480; background: #eef6fa; }
+.layer-eval { border-color: var(--accent); color: var(--accent); background: #eef4fd; }
+.layer-ops { border-color: #c79fd9; color: #6a3688; background: #f7eefb; }
+
 /* --------------------------------------------------------------- footer */
 
 .site-foot {
