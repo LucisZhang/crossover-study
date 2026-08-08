@@ -1,0 +1,1342 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_dq",
+  "record_run_id": "20260808T122329Z-6e9c66b",
+  "artifact_sha256": {
+    "waterfall": "sha256:ff5d3983d8111a1c9dd8df1b16b155d22034ab9fba10f67fb336b167813ee126",
+    "dq_raw": "sha256:93d09e94e752361effec5a2071acc123c49949eacdf9c8ed3b17343843a3cc5d"
+  },
+  "artifact_path": {
+    "waterfall": "results/dq/waterfall.json",
+    "dq_raw": "results/dq/dq_raw.json"
+  },
+  "audit_run_id": "20260806T104111Z-5df9906",
+  "audit_run_ts": "2026-08-06T10:41:12.105063+00:00",
+  "build_run_id": "20260805T143256Z-7406fc1",
+  "headline_run_id": "20260807T055333Z-c320c79",
+  "iceberg_snapshots": {
+    "local.gold.interactions_5core": 8184397443787800955,
+    "local.gold.item_features": 5841387267286613743,
+    "local.gold.popularity": 1565243784354530213,
+    "local.gold.user_stats": 7656304543449163695
+  },
+  "table_snapshots": {
+    "local.dq.dq_results": 5773615139187912564,
+    "local.dq.kcore_funnel": 3180400616661769631,
+    "local.dq.waterfall": 6981461550824696597,
+    "local.gold.item_features": 5841387267286613743,
+    "local.quarantine.interactions": 600269372414732988,
+    "local.quarantine.items": 3613873469199912067,
+    "local.silver.items": 7760402325430157555
+  },
+  "waterfall": {
+    "stages": [
+      {
+        "stage": "reviews:raw->bronze",
+        "dataset": "reviews",
+        "stage_from": "raw",
+        "stage_to": "bronze",
+        "target_table": "local.bronze.reviews",
+        "rows_in": 43886944,
+        "rows_out": 43886944,
+        "target_count": 43886944,
+        "sum_ok": true,
+        "count_ok": true,
+        "delta": 0,
+        "reason": "none",
+        "matches_ledger": true,
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 43886944,
+            "share_of_rows_in": 1.0
+          },
+          {
+            "reason": "corrupt",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          }
+        ]
+      },
+      {
+        "stage": "reviews:bronze->silver",
+        "dataset": "reviews",
+        "stage_from": "bronze",
+        "stage_to": "silver",
+        "target_table": "local.silver.interactions",
+        "rows_in": 43886944,
+        "rows_out": 43365424,
+        "target_count": 43365424,
+        "sum_ok": true,
+        "count_ok": true,
+        "delta": 521520,
+        "reason": "exact_duplicate",
+        "matches_ledger": true,
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 43365424,
+            "share_of_rows_in": 0.9881167392288696
+          },
+          {
+            "reason": "quarantine:rating_domain",
+            "rows": 2,
+            "share_of_rows_in": 4.557163971134559e-08
+          },
+          {
+            "reason": "exact_duplicate",
+            "rows": 477968,
+            "share_of_rows_in": 0.010890892744776214
+          },
+          {
+            "reason": "superseded_by_later_review",
+            "rows": 43550,
+            "share_of_rows_in": 0.0009923224547145502
+          }
+        ]
+      },
+      {
+        "stage": "reviews:silver->gold",
+        "dataset": "reviews",
+        "stage_from": "silver",
+        "stage_to": "gold",
+        "target_table": "local.gold.interactions_5core",
+        "rows_in": 43365424,
+        "rows_out": 15473536,
+        "target_count": 15473536,
+        "sum_ok": true,
+        "count_ok": true,
+        "delta": 27891888,
+        "reason": "kcore_pruned",
+        "matches_ledger": true,
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 15473536,
+            "share_of_rows_in": 0.35681735753350413
+          },
+          {
+            "reason": "kcore_pruned",
+            "rows": 27891888,
+            "share_of_rows_in": 0.6431826424664959
+          }
+        ]
+      },
+      {
+        "stage": "items:raw->bronze",
+        "dataset": "items",
+        "stage_from": "raw",
+        "stage_to": "bronze",
+        "target_table": "local.bronze.items",
+        "rows_in": 1610012,
+        "rows_out": 1610012,
+        "target_count": 1610012,
+        "sum_ok": true,
+        "count_ok": true,
+        "delta": 0,
+        "reason": "none",
+        "matches_ledger": true,
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 1610012,
+            "share_of_rows_in": 1.0
+          },
+          {
+            "reason": "corrupt",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          }
+        ]
+      },
+      {
+        "stage": "items:bronze->silver",
+        "dataset": "items",
+        "stage_from": "bronze",
+        "stage_to": "silver",
+        "target_table": "local.silver.items",
+        "rows_in": 1610012,
+        "rows_out": 1610012,
+        "target_count": 1610012,
+        "sum_ok": true,
+        "count_ok": true,
+        "delta": 0,
+        "reason": "none",
+        "matches_ledger": true,
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 1610012,
+            "share_of_rows_in": 1.0
+          },
+          {
+            "reason": "exact_duplicate",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          },
+          {
+            "reason": "superseded_by_later_review",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          }
+        ]
+      }
+    ],
+    "reconciles": true,
+    "ledger_rows_checked": 13,
+    "run_id": "20260805T143256Z-7406fc1"
+  },
+  "contract_matrix": {
+    "local.gold.interactions_5core": {
+      "rating_domain": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "allowed_values",
+        "column": "rating",
+        "threshold": null
+      },
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "keys_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": null,
+        "threshold": null
+      },
+      "ts_range": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "range",
+        "column": "ts",
+        "threshold": null
+      },
+      "schema__asin": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "asin",
+        "threshold": null
+      },
+      "schema__helpful_vote": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "helpful_vote",
+        "threshold": null
+      },
+      "schema__parent_asin": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__rating": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "rating",
+        "threshold": null
+      },
+      "schema__ts": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "ts",
+        "threshold": null
+      },
+      "schema__user_id": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "user_id",
+        "threshold": null
+      },
+      "schema__verified_purchase": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "verified_purchase",
+        "threshold": null
+      }
+    },
+    "local.gold.item_features": {
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "parent_asin_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "price_nonneg": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "range",
+        "column": "price_usd",
+        "threshold": null
+      },
+      "schema__average_rating": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "average_rating",
+        "threshold": null
+      },
+      "schema__brand_norm": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "brand_norm",
+        "threshold": null
+      },
+      "schema__categories": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "categories",
+        "threshold": null
+      },
+      "schema__main_category": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "main_category",
+        "threshold": null
+      },
+      "schema__parent_asin": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__price_usd": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "price_usd",
+        "threshold": null
+      },
+      "schema__rating_number": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "rating_number",
+        "threshold": null
+      },
+      "schema__title": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "title",
+        "threshold": null
+      }
+    },
+    "local.gold.item_text": {
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "text_hygiene": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_control_chars",
+        "column": null,
+        "threshold": null
+      },
+      "parent_asin_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__brand_norm": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "brand_norm",
+        "threshold": null
+      },
+      "schema__categories": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "categories",
+        "threshold": null
+      },
+      "schema__description": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "description",
+        "threshold": null
+      },
+      "schema__features": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "features",
+        "threshold": null
+      },
+      "schema__main_category": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "main_category",
+        "threshold": null
+      },
+      "schema__parent_asin": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__title": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "title",
+        "threshold": null
+      }
+    },
+    "local.gold.popularity": {
+      "window_days_domain": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "allowed_values",
+        "column": "window_days",
+        "threshold": null
+      },
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "parent_asin_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "n_interactions_min1": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "range",
+        "column": "n_interactions",
+        "threshold": null
+      },
+      "schema__as_of": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "as_of",
+        "threshold": null
+      },
+      "schema__n_interactions": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "n_interactions",
+        "threshold": null
+      },
+      "schema__n_unique_users": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "n_unique_users",
+        "threshold": null
+      },
+      "schema__parent_asin": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__window_days": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "window_days",
+        "threshold": null
+      }
+    },
+    "local.gold.user_stats": {
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "user_id_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": "user_id",
+        "threshold": null
+      },
+      "n_total_min5": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "range",
+        "column": "n_total",
+        "threshold": null
+      },
+      "schema__first_ts": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "first_ts",
+        "threshold": null
+      },
+      "schema__last_ts": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "last_ts",
+        "threshold": null
+      },
+      "schema__n_test": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "n_test",
+        "threshold": null
+      },
+      "schema__n_total": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "n_total",
+        "threshold": null
+      },
+      "schema__n_train": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "n_train",
+        "threshold": null
+      },
+      "schema__n_val": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "n_val",
+        "threshold": null
+      },
+      "schema__tenure_days": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "tenure_days",
+        "threshold": null
+      },
+      "schema__user_id": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "user_id",
+        "threshold": null
+      }
+    },
+    "local.silver.interactions": {
+      "rating_domain": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "allowed_values",
+        "column": "rating",
+        "threshold": null
+      },
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "keys_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": null,
+        "threshold": null
+      },
+      "item_fk": {
+        "status": "measured",
+        "measured": 0.0,
+        "violations": 0,
+        "kind": "orphan_rate",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "ts_range": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "range",
+        "column": "ts",
+        "threshold": null
+      },
+      "schema__asin": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "asin",
+        "threshold": null
+      },
+      "schema__helpful_vote": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "helpful_vote",
+        "threshold": null
+      },
+      "schema__parent_asin": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__rating": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "rating",
+        "threshold": null
+      },
+      "schema__ts": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "ts",
+        "threshold": null
+      },
+      "schema__user_id": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "user_id",
+        "threshold": null
+      },
+      "schema__verified_purchase": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "verified_purchase",
+        "threshold": null
+      }
+    },
+    "local.silver.items": {
+      "price_sentinel": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "forbidden_values",
+        "column": "price_usd",
+        "threshold": null
+      },
+      "no_dead_columns": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_all_null",
+        "column": null,
+        "threshold": null
+      },
+      "text_hygiene": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "no_control_chars",
+        "column": null,
+        "threshold": null
+      },
+      "key_non_null": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "not_null",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "price_nonneg": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "range",
+        "column": "price_usd",
+        "threshold": null
+      },
+      "schema__average_rating": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "average_rating",
+        "threshold": null
+      },
+      "schema__brand_norm": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "brand_norm",
+        "threshold": null
+      },
+      "schema__categories": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "categories",
+        "threshold": null
+      },
+      "schema__main_category": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "main_category",
+        "threshold": null
+      },
+      "schema__parent_asin": {
+        "status": "measured",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "parent_asin",
+        "threshold": null
+      },
+      "schema__price_usd": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "price_usd",
+        "threshold": null
+      },
+      "schema__rating_number": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "rating_number",
+        "threshold": null
+      },
+      "schema__store": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "store",
+        "threshold": null
+      },
+      "schema__title": {
+        "status": "pass",
+        "measured": null,
+        "violations": 0,
+        "kind": "schema_conformance",
+        "column": "title",
+        "threshold": null
+      },
+      "brand_unknown_share": {
+        "status": "measured",
+        "measured": 0.04545183514160143,
+        "violations": 73178,
+        "kind": "unknown_share",
+        "column": "brand_norm",
+        "threshold": null
+      }
+    }
+  },
+  "contract_tables": {
+    "local.gold.interactions_5core": {
+      "contract_name": "gold_interactions_5core",
+      "contract_version": 1,
+      "total_rows": 15473536,
+      "counts": {
+        "pass": 7,
+        "measured": 4,
+        "fail": 0
+      }
+    },
+    "local.gold.item_features": {
+      "contract_name": "gold_item_features",
+      "contract_version": 1,
+      "total_rows": 368228,
+      "counts": {
+        "pass": 9,
+        "measured": 2,
+        "fail": 0
+      }
+    },
+    "local.gold.item_text": {
+      "contract_name": "gold_item_text",
+      "contract_version": 1,
+      "total_rows": 368228,
+      "counts": {
+        "pass": 9,
+        "measured": 1,
+        "fail": 0
+      }
+    },
+    "local.gold.popularity": {
+      "contract_name": "gold_popularity",
+      "contract_version": 1,
+      "total_rows": 1223106,
+      "counts": {
+        "pass": 4,
+        "measured": 5,
+        "fail": 0
+      }
+    },
+    "local.gold.user_stats": {
+      "contract_name": "gold_user_stats",
+      "contract_version": 1,
+      "total_rows": 1641026,
+      "counts": {
+        "pass": 3,
+        "measured": 8,
+        "fail": 0
+      }
+    },
+    "local.silver.interactions": {
+      "contract_name": "silver_interactions",
+      "contract_version": 1,
+      "total_rows": 43365424,
+      "counts": {
+        "pass": 7,
+        "measured": 5,
+        "fail": 0
+      }
+    },
+    "local.silver.items": {
+      "contract_name": "silver_items",
+      "contract_version": 1,
+      "total_rows": 1610012,
+      "counts": {
+        "pass": 12,
+        "measured": 3,
+        "fail": 0
+      }
+    }
+  },
+  "headline_counts": {
+    "raw_reviews_rows": 43886944,
+    "bronze_reviews_rows": 43886944,
+    "silver_interactions_rows": 43365424,
+    "bronze_to_silver_dropped_rows": 521520,
+    "exact_duplicate_rows": 477968,
+    "superseded_by_later_review_rows": 43550,
+    "quarantined_interaction_rows": 2,
+    "quarantine_ledger_rows": 2,
+    "kcore_pruned_rows": 27891888,
+    "gold_interactions_5core_rows": 15473536,
+    "raw_items_rows": 1610012,
+    "silver_items_rows": 1610012
+  },
+  "contract_summary": {
+    "tables": 7,
+    "checks": 79,
+    "pass": 51,
+    "measured": 28,
+    "fail": 0,
+    "any_fail": false,
+    "by_kind_status": {
+      "allowed_values": {
+        "pass": 3
+      },
+      "forbidden_values": {
+        "pass": 1
+      },
+      "no_all_null": {
+        "pass": 7
+      },
+      "no_control_chars": {
+        "pass": 2
+      },
+      "not_null": {
+        "pass": 7
+      },
+      "orphan_rate": {
+        "measured": 1
+      },
+      "range": {
+        "pass": 6
+      },
+      "schema_conformance": {
+        "measured": 26,
+        "pass": 25
+      },
+      "unknown_share": {
+        "measured": 1
+      }
+    },
+    "failing": []
+  },
+  "quarantine": {
+    "build_run_id": "20260805T143256Z-7406fc1",
+    "total_rows": 2,
+    "by_reason": [
+      {
+        "table": "local.quarantine.interactions",
+        "reason": "rating_domain",
+        "rows": 2,
+        "share": 1.0,
+        "share_of_input": 4.557163971134559e-08
+      }
+    ],
+    "tables": {
+      "local.quarantine.interactions": {
+        "rows": 2,
+        "rows_all_runs": 2,
+        "by_primary_reason": [
+          {
+            "reason": "rating_domain",
+            "rows": 2
+          }
+        ],
+        "by_violation_reason": [
+          {
+            "reason": "rating_domain",
+            "rows": 2
+          }
+        ],
+        "snapshot_id": 600269372414732988
+      },
+      "local.quarantine.items": {
+        "rows": 0,
+        "rows_all_runs": 0,
+        "by_primary_reason": [],
+        "by_violation_reason": [],
+        "snapshot_id": 3613873469199912067
+      }
+    }
+  },
+  "measured_rates": {
+    "unknown_brand_share": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104111Z-5df9906",
+      "is_selected_audit": true,
+      "table": "local.silver.items",
+      "check_id": "brand_unknown_share",
+      "rows": 73178,
+      "denominator": 1610012,
+      "rate": 0.04545183514160143,
+      "details": {
+        "sentinel": "unknown"
+      }
+    },
+    "item_fk_orphan_rate": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104111Z-5df9906",
+      "is_selected_audit": true,
+      "table": "local.silver.interactions",
+      "check_id": "item_fk",
+      "rows": 0,
+      "denominator": 43365424,
+      "rate": 0.0,
+      "details": {
+        "ref_table": "local.silver.items",
+        "ref_column": "parent_asin",
+        "denominator": 43365424
+      }
+    },
+    "price_unparseable_share": {
+      "source": "contract_ledger",
+      "run_id": "20260805T143256Z-7406fc1",
+      "is_selected_audit": false,
+      "table": "local.silver.items",
+      "check_id": "price_unparseable",
+      "rows": 316,
+      "denominator": 1610012,
+      "rate": 0.00019627182902984573,
+      "details": {
+        "regex": "^\\$?\\d+(\\.\\d+)?$"
+      }
+    },
+    "brand_from_manufacturer_share": {
+      "source": "contract_ledger",
+      "run_id": "20260805T143256Z-7406fc1",
+      "is_selected_audit": false,
+      "table": "local.silver.items",
+      "check_id": "brand_source_share",
+      "rows": 384785,
+      "denominator": 1610012,
+      "rate": 0.2389951130799025,
+      "details": {
+        "from_brand": 1153897,
+        "from_manufacturer": 384785,
+        "from_none": 71330
+      }
+    },
+    "gold_item_features_join_loss": {
+      "source": "contract_ledger",
+      "run_id": "20260805T143256Z-7406fc1",
+      "is_selected_audit": false,
+      "table": "local.gold.item_features",
+      "check_id": "gold_item_features_join_loss",
+      "rows": 0,
+      "denominator": 368228,
+      "rate": 0.0,
+      "details": {
+        "orphan_items": 0,
+        "catalog_items": 368228
+      }
+    },
+    "gold_item_text_empty_title_share": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104051Z-5df9906",
+      "is_selected_audit": false,
+      "table": "local.gold.item_text",
+      "check_id": "gold_item_text_empty_title_share",
+      "rows": 0,
+      "denominator": 368228,
+      "rate": 0.0,
+      "details": {
+        "null_title": 0,
+        "rows": 368228
+      }
+    },
+    "gold_item_text_empty_features_share": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104051Z-5df9906",
+      "is_selected_audit": false,
+      "table": "local.gold.item_text",
+      "check_id": "gold_item_text_empty_features_share",
+      "rows": 58654,
+      "denominator": 368228,
+      "rate": 0.15928718076843695,
+      "details": {
+        "empty_features": 58654,
+        "rows": 368228
+      }
+    },
+    "null_price_share::local.gold.item_features": {
+      "source": "dq_export_job",
+      "run_id": null,
+      "is_selected_audit": false,
+      "table": "local.gold.item_features",
+      "check_id": null,
+      "predicate": "price_usd IS NULL",
+      "rows": 204983,
+      "denominator": 368228,
+      "rate": 0.5566741258133547,
+      "details": {
+        "snapshot_id": 5841387267286613743
+      }
+    },
+    "null_price_share::local.silver.items": {
+      "source": "dq_export_job",
+      "run_id": null,
+      "is_selected_audit": false,
+      "table": "local.silver.items",
+      "check_id": null,
+      "predicate": "price_usd IS NULL",
+      "rows": 1083563,
+      "denominator": 1610012,
+      "rate": 0.6730154806299581,
+      "details": {
+        "snapshot_id": 7760402325430157555
+      }
+    }
+  },
+  "reconciliation": {
+    "checks": [
+      {
+        "name": "raw_equals_bronze",
+        "lhs": 43886944,
+        "rhs": 43886944,
+        "ok": true,
+        "note": "ingest is lossless: 0 corrupt lines"
+      },
+      {
+        "name": "bronze_minus_drops_equals_silver",
+        "lhs": 43365424,
+        "rhs": 43365424,
+        "ok": true,
+        "note": "dedup + supersede + quarantine account for every dropped row"
+      },
+      {
+        "name": "quarantine_ledger_equals_waterfall",
+        "lhs": 2,
+        "rhs": 2,
+        "ok": true,
+        "note": "the quarantine table holds exactly the rows the waterfall says it does"
+      },
+      {
+        "name": "silver_minus_kcore_equals_gold",
+        "lhs": 15473536,
+        "rhs": 15473536,
+        "ok": true,
+        "note": "the k-core prune accounts for the whole silver->gold delta"
+      },
+      {
+        "name": "funnel_starts_at_silver",
+        "lhs": 43365424,
+        "rhs": 43365424,
+        "ok": true,
+        "note": "iteration 0 of the k-core funnel is the silver row count"
+      },
+      {
+        "name": "funnel_ends_at_gold",
+        "lhs": 15473536,
+        "rhs": 15473536,
+        "ok": true,
+        "note": "the converged funnel iteration is the published 5-core row count"
+      },
+      {
+        "name": "audit_total_rows::local.silver.interactions",
+        "lhs": 43365424,
+        "rhs": 43365424,
+        "ok": true,
+        "note": "the audited table is the table the waterfall describes"
+      },
+      {
+        "name": "audit_total_rows::local.gold.interactions_5core",
+        "lhs": 15473536,
+        "rhs": 15473536,
+        "ok": true,
+        "note": "the audited table is the table the waterfall describes"
+      },
+      {
+        "name": "audit_total_rows::local.silver.items",
+        "lhs": 1610012,
+        "rhs": 1610012,
+        "ok": true,
+        "note": "the audited table is the table the waterfall describes"
+      }
+    ],
+    "all_ok": true
+  },
+  "kcore_funnel": [
+    {
+      "iteration": 0,
+      "users": 18286190,
+      "items": 1609860,
+      "interactions": 43365424,
+      "converged": false,
+      "wall_clock_s": 72.936
+    },
+    {
+      "iteration": 1,
+      "users": 1847620,
+      "items": 603239,
+      "interactions": 16883417,
+      "converged": false,
+      "wall_clock_s": 112.928
+    },
+    {
+      "iteration": 2,
+      "users": 1743137,
+      "items": 383259,
+      "interactions": 15929364,
+      "converged": false,
+      "wall_clock_s": 45.231
+    },
+    {
+      "iteration": 3,
+      "users": 1650879,
+      "items": 375640,
+      "interactions": 15541920,
+      "converged": false,
+      "wall_clock_s": 57.281
+    },
+    {
+      "iteration": 4,
+      "users": 1646183,
+      "items": 368980,
+      "interactions": 15497125,
+      "converged": false,
+      "wall_clock_s": 94.57
+    },
+    {
+      "iteration": 5,
+      "users": 1641604,
+      "items": 368626,
+      "interactions": 15477434,
+      "converged": false,
+      "wall_clock_s": 61.215
+    },
+    {
+      "iteration": 6,
+      "users": 1641345,
+      "items": 368288,
+      "interactions": 15475048,
+      "converged": false,
+      "wall_clock_s": 123.025
+    },
+    {
+      "iteration": 7,
+      "users": 1641077,
+      "items": 368262,
+      "interactions": 15473873,
+      "converged": false,
+      "wall_clock_s": 131.175
+    },
+    {
+      "iteration": 8,
+      "users": 1641061,
+      "items": 368236,
+      "interactions": 15473705,
+      "converged": false,
+      "wall_clock_s": 91.103
+    },
+    {
+      "iteration": 9,
+      "users": 1641037,
+      "items": 368233,
+      "interactions": 15473597,
+      "converged": false,
+      "wall_clock_s": 47.451
+    },
+    {
+      "iteration": 10,
+      "users": 1641034,
+      "items": 368230,
+      "interactions": 15473576,
+      "converged": false,
+      "wall_clock_s": 45.324
+    },
+    {
+      "iteration": 11,
+      "users": 1641029,
+      "items": 368230,
+      "interactions": 15473556,
+      "converged": false,
+      "wall_clock_s": 68.288
+    },
+    {
+      "iteration": 12,
+      "users": 1641029,
+      "items": 368229,
+      "interactions": 15473552,
+      "converged": false,
+      "wall_clock_s": 48.103
+    },
+    {
+      "iteration": 13,
+      "users": 1641027,
+      "items": 368229,
+      "interactions": 15473544,
+      "converged": false,
+      "wall_clock_s": 44.771
+    },
+    {
+      "iteration": 14,
+      "users": 1641027,
+      "items": 368228,
+      "interactions": 15473540,
+      "converged": false,
+      "wall_clock_s": 52.57
+    },
+    {
+      "iteration": 15,
+      "users": 1641026,
+      "items": 368228,
+      "interactions": 15473536,
+      "converged": false,
+      "wall_clock_s": 50.26
+    },
+    {
+      "iteration": 16,
+      "users": 1641026,
+      "items": 368228,
+      "interactions": 15473536,
+      "converged": true,
+      "wall_clock_s": 49.719
+    }
+  ],
+  "notes": {
+    "waterfall_source": "rows_in / rows_out / target_count / per-reason rows / sum_ok / count_ok are read out of results/dq/waterfall.json, the byte-identical committed copy of data/waterfall.json that the kind=dq_export record's waterfall_sha256 anchors. delta, share_of_rows_in and the dominant drop reason are derived by the Spark job and come from results/dq/dq_raw.json (dq_raw_sha256).",
+    "ledger_cross_check": "The Spark job re-read local.dq.waterfall at a pinned snapshot and refused to publish unless every edge/reason row equalled data/waterfall.json; waterfall.ledger_rows_checked is how many ledger rows that covered.",
+    "measured_rates_sources": "source=contract_ledger rows are recorded dq_results measures; source=dq_export_job rows are read-only counts this job took because §9 asks for a null-price rate and no contract check measures one (price_unparseable counts unparseable strings, not absent prices).",
+    "kcore_funnel_naming": "interactions is the ledger's rows column, renamed for the site per the AGREED schema; iteration 0 is the silver row count and the converged iteration is the published 5-core count (both asserted in reconciliation.checks).",
+    "audit_selection": "The matrix is one contract-audit run that covers every contract YAML on disk with exactly one row per (table, check) — partial or duplicated runs are rejected, never merged."
+  }
+}

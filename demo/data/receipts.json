@@ -14,6 +14,7 @@
     "20260807T085806Z-c320c79",
     "20260807T085819Z-c320c79",
     "20260807T085845Z-c320c79",
+    "20260807T090857Z-97af81f",
     "20260807T153823Z-9a9fb4c",
     "20260807T154116Z-6a3183b",
     "20260807T154209Z-6a3183b",
@@ -28,7 +29,8 @@
     "20260807T155734Z-dc1b1ff",
     "20260807T160910Z-739833b",
     "20260807T164622Z-3e2c665",
-    "20260808T030659Z-43c90c8"
+    "20260808T030659Z-43c90c8",
+    "20260808T122329Z-6e9c66b"
   ],
   "note": "Every field below is copied verbatim from the matching results/runs.jsonl record (append-only). demo/data/trace_manifest.json re-resolves each one.",
   "runs": {
@@ -376,6 +378,24 @@
         "hardware"
       ]
     },
+    "20260807T090857Z-97af81f": {
+      "run_id": "20260807T090857Z-97af81f",
+      "kind": "ann_receipt",
+      "run_ts": "2026-08-07T09:08:57.663248+00:00",
+      "git_sha": "97af81f538c8ad59e53d5042e5d47b4138acce4d",
+      "git_dirty": true,
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
     "20260807T153823Z-9a9fb4c": {
       "run_id": "20260807T153823Z-9a9fb4c",
       "kind": "reproduce",
@@ -646,6 +666,29 @@
         "splits",
         "iceberg_snapshots",
         "model"
+      ]
+    },
+    "20260808T122329Z-6e9c66b": {
+      "run_id": "20260808T122329Z-6e9c66b",
+      "kind": "dq_export",
+      "run_ts": "2026-08-08T12:23:29.703935+00:00",
+      "git_sha": "6e9c66ba748ce937b3c0703b553403611c975a5e",
+      "git_dirty": false,
+      "config_path": "configs/dq_export.yaml",
+      "config_hash": "sha256:109d1fb642a4c1548cda12b58e2e06f6ff3e22bf117fdb1529f30be9e01a3aff",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213,
+        "local.gold.user_stats": 7656304543449163695
+      },
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "splits",
+        "seeds",
+        "model",
+        "wall_clock_s"
       ]
     }
   }
