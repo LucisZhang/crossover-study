@@ -1084,3 +1084,37 @@ removed; disk 44→52GB. Post-drop verification: all four gold tables and
 The 11 ops records, both reproduce records, and the lineage artifacts remain
 the exhibits' receipts. Phase 6 (demo + case study) starts next in a fresh
 session.
+
+## Phase 6 T32 — Checkpoint 1: narrative skeleton signed off (2026-08-08)
+
+Owner sign-off on the case-study narrative skeleton, per the mandatory
+Phase 6 checkpoint (no case-study prose existed before this entry):
+
+1. **Name:** Batch Recsys Lab, confirmed (alternates Cold-Start Lab and
+   Recommender Systems Lab rejected — the measured outcome refuted the
+   cold-start-crossover framing; the lane name is outcome-independent).
+2. **Pitch:** question-inverting variant approved, superseding §1.2, with
+   the owner's amendment that the closing claim carries magnitude inline
+   and states the small win as small (house style): "…and it wins
+   everywhere, by a small margin (+6% relative NDCG@10) that
+   1,000-resample paired CIs cleanly separate from zero." (Check: blend
+   0.005726 vs pop-t12m 0.005404 → +0.000322/0.005404 = +5.96% ≈ +6%
+   relative, from the recorded TEST runs.)
+3. **Chapter outline:** approved as proposed (10 chapters: question →
+   provenance → lakehouse → protocol → challenger ladder → no-crossover →
+   policy-collapsed-to-constant → ops receipts → §10 "How this was
+   verified" → §10 "What this does not prove"), with one optional
+   addition taken up: ch. 8 gets half a sentence on the ANN artifact
+   receipt (top-10 overlap 0.947 vs the informal 0.95 expectation,
+   reported as-is, never used in eval) as another instance of the
+   under-expectation-reported-honestly pattern.
+4. **Exhibit list:** approved — the six §9 demo exhibits plus case-study
+   inline figures (crossover chart matching the committed SVG, policy
+   grid table VAL+TEST, reconciliation waterfall, lineage table,
+   byte-exact reproduce receipts).
+
+Evidence-class labeling convention confirmed: every claim tagged
+measured / estimated / projected; distributed-scale portability is the
+only anticipated "projected". Next mandatory stop: Checkpoint 2
+(assembled demo verified static/offline + fully traced, presented for
+owner review before final case-study copy).
