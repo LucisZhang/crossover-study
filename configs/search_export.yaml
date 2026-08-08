@@ -1,0 +1,107 @@
+# Semantic-search demo assets (Phase 6, T35; plan §9 exhibit 3, UPGRADE_PLAN §9 item 3).
+#
+#   uv run python -m batch_recsys_lab.demo.export_search        --config configs/search_export.yaml
+#   uv run python -m batch_recsys_lab.demo.fetch_search_assets  --config configs/search_export.yaml
+#
+# Both are run together by `make demo-assets`. Neither output is committed
+# (~50MB): cut-order item #2 in UPGRADE_PLAN §12 — deleting demo/data/search/
+# and demo/vendor/ must leave every other exhibit green.
+#
+# EVIDENCE CLASS. Nothing this config produces is evaluation evidence. The
+# similarity scores the exhibit renders are a capability demonstration: they are
+# cosine similarities between a query and item text embeddings, not a ranking
+# metric, and they are NOT rendered with the traced-number affordance. What *is*
+# anchored is the provenance chain — the int8 payload is a lossy projection of
+# data/eval/minilm/<snapshot>/<recipe>/embeddings.npy, whose SHA-256 is carried
+# by the kind="ann_receipt" record below.
+
+schema_version: 1
+
+runs_log: results/runs.jsonl
+
+# --- provenance anchors --------------------------------------------------------
+# The record that carries source_embeddings_sha256 + source_minilm_recipe_hash +
+# five_core_snapshot_id. The exporter re-hashes embeddings.npy on disk and
+# aborts if it disagrees with BOTH this record and the MiniLM manifest.
+ann_receipt_run_id: "20260807T090857Z-97af81f"
+five_core_snapshot_id: 8184397443787800955
+recipe_hash_short: "1f7878ff82bf"
+
+minilm_dir: null # default: data/eval/minilm/<five_core_snapshot_id>/<recipe_hash_short>
+
+# --- input slice ---------------------------------------------------------------
+# Written by demo/shopper_history_job.py (configs/shoppers_export.yaml →
+# search_slice): the top-50k catalog items by pop_train_end_365, ties broken by
+# ascending catalog index. The exporter re-derives and re-asserts that ordering.
+items_parquet: data/demo_export/search_items_raw.parquet
+popularity_column: pop_train_end_365
+expected_rows: 50000
+
+# --- output --------------------------------------------------------------------
+out_dir: demo/data/search
+top_k: 10 # reference results per canned query
+
+# --- the browser-side model (fetch_search_assets.py) ---------------------------
+# The hash, not the URL, is ground truth: every file below is verified against
+# the SHA-256 recorded in demo/README.md's "Search assets" table. A mismatch is
+# a hard, non-zero, no-partial-install failure — investigate the drift, do not
+# update the hash.
+vendor_dir: demo/vendor
+readme: demo/README.md
+readme_section: "Search assets"
+
+# Nothing outside this list may be fetched. Enforced on the URL the README
+# records, so a drifted README that points somewhere else fails before any
+# byte is read.
+allowed_url_hosts:
+  - registry.npmjs.org
+  - huggingface.co
+
+transformers_js:
+  # 3.8.1 is pinned because its dist/ still ships ort-wasm-simd-threaded.jsep.wasm
+  # in-package (4.x does not, and would need a second registry dependency to run
+  # offline). One tarball, one hash, and that hash covers every extracted byte.
+  version: "3.8.1"
+  tarball: "transformers-3.8.1.tgz"
+  url: "https://registry.npmjs.org/@huggingface/transformers/-/transformers-3.8.1.tgz"
+  install_subdir: "transformers"
+  extract: # tarball member -> path under vendor_dir/install_subdir
+    "package/dist/transformers.web.min.js": "transformers.web.min.js"
+    "package/dist/transformers.web.min.js.map": "transformers.web.min.js.map"
+    "package/dist/ort-wasm-simd-threaded.jsep.mjs": "ort-wasm-simd-threaded.jsep.mjs"
+    "package/dist/ort-wasm-simd-threaded.jsep.wasm": "ort-wasm-simd-threaded.jsep.wasm"
+    "package/LICENSE": "LICENSE"
+
+model:
+  # transformers.js port of the SAME upstream checkpoint the Python recipe used
+  # (sentence-transformers/all-MiniLM-L6-v2). Pinned by commit, never by "main".
+  repo: "Xenova/all-MiniLM-L6-v2"
+  revision: "751bff37182d3f1213fa05d7196b954e230abad9"
+  base_url: "https://huggingface.co/Xenova/all-MiniLM-L6-v2/resolve/751bff37182d3f1213fa05d7196b954e230abad9"
+  install_subdir: "models/Xenova/all-MiniLM-L6-v2"
+  dtype: "q8" # transformers.js dtype -> onnx/model_quantized.onnx
+  files:
+    - "config.json"
+    - "tokenizer.json"
+    - "tokenizer_config.json"
+    - "onnx/model_quantized.onnx"
+
+# --- canned queries -------------------------------------------------------------
+# Computed at export time with the REAL Python model + pooling of the recipe
+# (sentence-transformers/all-MiniLM-L6-v2, mean pooling, L2-normalised) against
+# the same fp16 slice. They are the documented degradation path when the assets
+# are absent, AND the in-UI quantization-parity receipt: the browser reruns
+# query #1 and reports overlap@10 against the reference top-10 recorded here.
+queries:
+  - "noise cancelling headphones for long flights"
+  - "usb c fast charging cable braided"
+  - "mechanical keyboard with rgb backlight"
+  - "4k streaming stick for my tv"
+  - "wireless mouse for a laptop"
+  - "gaming headset with a microphone"
+  - "portable bluetooth speaker that is waterproof"
+  - "external solid state drive 1tb"
+  - "webcam for video calls"
+  - "smart plug that works with alexa"
+  - "surge protector power strip with usb ports"
+  - "phone mount for the car dashboard"

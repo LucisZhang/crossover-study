@@ -1,0 +1,1505 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_search",
+  "evidence_class": "demonstration",
+  "evidence_note": "Reference results for the fallback path and for the in-UI parity receipt. Scores are cosine similarities over item text — a capability demonstration, not an evaluation metric.",
+  "top_k": 10,
+  "n_queries": 12,
+  "fallback": {
+    "self_contained": true,
+    "note": "Each hit carries its own descriptive metadata, so demo/js/search.js can render FALLBACK MODE from this file alone — no items_meta.json, no .bin, no vendored model. This is the documented degradation path of cut-order item #2."
+  },
+  "reference": {
+    "computed_against": "float32 L2-normalised view of the fp16 embeddings.npy slice (exact, not the int8 payload)",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "detected_local_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "pooling": "mean (SentenceTransformer module stack) + float32 L2 normalisation",
+    "recipe_id": "v1_title_brand_cat_features",
+    "recipe_hash": "1f7878ff82bff9fb6c23b0aad5597817dd0e0e0ae0c7859abdd0c7a70efe7bc5",
+    "sentence_transformers_version": "5.6.1",
+    "device": "mps",
+    "mps_failure_detail": null,
+    "tie_break": "score descending, ties by ascending payload row"
+  },
+  "int8_parity": {
+    "note": "Export-side quantization parity: the int8 payload's own top-k against the exact fp16 reference. The browser adds the ONNX-model half of the gap; the exhibit's parity receipt reports the combined overlap.",
+    "mean_overlap_at_k": 9.833333333333334,
+    "min_overlap_at_k": 9,
+    "per_query_overlap_at_k": [
+      10,
+      10,
+      10,
+      10,
+      10,
+      10,
+      10,
+      10,
+      9,
+      10,
+      9,
+      10
+    ]
+  },
+  "provenance": {
+    "embeddings_npy": "data/eval/minilm/8184397443787800955/1f7878ff82bf/embeddings.npy",
+    "source_embeddings_sha256": "sha256:260bf265a29083917852895b2fd006d7641d77aa7fb5daeef7e5019694792110",
+    "catalog_rows": 368228,
+    "embedding_dtype": "float16",
+    "recipe_id": "v1_title_brand_cat_features",
+    "recipe_hash": "1f7878ff82bff9fb6c23b0aad5597817dd0e0e0ae0c7859abdd0c7a70efe7bc5",
+    "recipe_fields": [
+      "title",
+      "brand_norm",
+      "main_category",
+      "features"
+    ],
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "five_core_snapshot_id": 8184397443787800955,
+    "ann_receipt_run_id": "20260807T090857Z-97af81f",
+    "ann_receipt_git_sha": "97af81f538c8ad59e53d5042e5d47b4138acce4d"
+  },
+  "queries": [
+    {
+      "query_index": 0,
+      "query": "noise cancelling headphones for long flights",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 18446,
+          "item_id": "B07RFPLLD3",
+          "score": 0.7145050764083862,
+          "title": "MONODEAL Active Noise Cancelling Headphones with Microphone and Airplane Adapter, Folding and Lightweight Travel Headsets, Hi-Fi Deep Bass Wired Headphones with Carrying Case",
+          "brand": "monodeal",
+          "price_usd": 42.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 2,
+          "row": 3556,
+          "item_id": "B09RWNL2SW",
+          "score": 0.6839508414268494,
+          "title": "INFURTURE Rose Gold Active Noise Cancelling Headphones with Microphone Wireless Over Ear Bluetooth Headphones, Deep Bass, Memory Foam Ear Cups, Quick Charge 40H Playtime, for TV, Travel, Home Office",
+          "brand": "infurture",
+          "price_usd": 49.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 3,
+          "row": 18466,
+          "item_id": "B07TJWHHF2",
+          "score": 0.6810673475265503,
+          "title": "MINDBEAST Noise Cancelling Headphones Wired Earbuds For Kids And Adults With Microphone And Case – Xbox One Headset Gaming Earbuds For Samsung Galaxy Android iPhone, Extra Bass For Sleep Sport Workout",
+          "brand": "mindbeast",
+          "price_usd": 21.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 4,
+          "row": 23244,
+          "item_id": "B0B3LXYHVH",
+          "score": 0.6689167022705078,
+          "title": "Active Noise Cancelling Headphones,Wireless Bluetooth Headphones Built-in Mic 40 Hours Playtime Wireless Noise Cancelling Headphone 3D Low Bass Tone Fast Charge for Cellphone/Work/Gym/TravelComputers",
+          "brand": "ulacici",
+          "price_usd": 39.31,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 5,
+          "row": 42851,
+          "item_id": "B09YYDF88X",
+          "score": 0.6531947255134583,
+          "title": "MONODEAL Active Noise Cancelling Wired/Wireless Bluetooth Headphones, Foldable Over The Ear Headset,Soft Memory-Protein Earmuffs,Hi-Fi Stereo Headset for PC/Cell Phones/TV Travel Work Daily Use",
+          "brand": "monodeal",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 19157,
+          "item_id": "B09G2F6G6L",
+          "score": 0.646944522857666,
+          "title": "Vsonus H51 Active Noise Cancelling Headphones, Wireless Over Ear Bluetooth Headphones, Heavy Bass, BT 5.0, 30H Playtime, Metal Cover, Comfortable Protein Earpads for Travel Home Office",
+          "brand": "vsonus",
+          "price_usd": 25.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 7,
+          "row": 47723,
+          "item_id": "B08G58RQXF",
+          "score": 0.6358118057250977,
+          "title": "NEEGO Sony Wired Noise Cancelling Stereo Headphones (Black) + Airline Headphone Adapter Wireless Bluetooth Receiver",
+          "brand": "neego",
+          "price_usd": 44.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 8,
+          "row": 8599,
+          "item_id": "B09GV2PSSP",
+          "score": 0.635178804397583,
+          "title": "Silensys E7 PRO Active Noise Cancelling Headphones Bluetooth Headphones with Microphone Deep Bass Wireless Headphones Over Ear, Comfortable Fit, 30H Playtime for TV/Computer/Cellphone, Black",
+          "brand": "silensys",
+          "price_usd": 64.98,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 9,
+          "row": 7551,
+          "item_id": "B08L7DNT8R",
+          "score": 0.6310063004493713,
+          "title": "TOZO NC9 Hybrid Active Noise Cancelling Wireless Earbuds, in Ear Headphones IPX6 Waterproof Bluetooth 5.0 Stereo Earphones, Immersive Sound Premium Deep Bass Headset,Champagne",
+          "brand": "tozo",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 10,
+          "row": 25522,
+          "item_id": "B09QGCMY35",
+          "score": 0.6288595795631409,
+          "title": "Noise Cancelling Headphones Over Ear: Bluetooth Wireless Foldable ANC Headphones Comfortable with Active Sound Canceling Stereo Mic",
+          "brand": "ausdom",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B07RFPLLD3",
+        "B09RWNL2SW",
+        "B07TJWHHF2",
+        "B0B3LXYHVH",
+        "B09YYDF88X",
+        "B09G2F6G6L",
+        "B08G58RQXF",
+        "B09GV2PSSP",
+        "B08L7DNT8R",
+        "B09QGCMY35"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 1,
+      "query": "usb c fast charging cable braided",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 12892,
+          "item_id": "B07WWF89MS",
+          "score": 0.8020981550216675,
+          "title": "Mkeke USB C Cable, Fast Charging USB Type C Cable,USB-A to USB-C Cable 3Pack(1/1.5/1.8M) Nylon Braided…",
+          "brand": "mkeke",
+          "price_usd": null,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 2,
+          "row": 1434,
+          "item_id": "B0C3DDZLPL",
+          "score": 0.7987202405929565,
+          "title": "Cabepow USB A to Type C Cable, [3Pack] 6Ft Fast Charging 6 Feet USB Type C Cord for Samsung Galaxy A10/A20/A51/S10/S9/S8, 6 Foot Type C Charger Premium Nylon Braided USB Cable -Purple",
+          "brand": "cabepow",
+          "price_usd": 9.89,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 3,
+          "row": 31670,
+          "item_id": "B09C5FF3PM",
+          "score": 0.7674257755279541,
+          "title": "Updated 6FT USB C Cables, 3 Amps Quick Charging Type C Cable",
+          "brand": "aisino",
+          "price_usd": null,
+          "main_category": "Industrial & Scientific"
+        },
+        {
+          "rank": 4,
+          "row": 40039,
+          "item_id": "B0893B6QLY",
+          "score": 0.7646560668945312,
+          "title": "Syncwire USB C Cable 3A Fast Charge, [2 Pack 6.6ft] Nylon Braided USB-A to Type-C Charging Cable USB Type C Cord Compatible with Samsung Galaxy S10/S9/S8+/S8/Note 8, LG V20, Sony XZ - Alloy Sliver",
+          "brand": "syncwire",
+          "price_usd": null,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 5,
+          "row": 741,
+          "item_id": "B0C557PVVR",
+          "score": 0.7637982964515686,
+          "title": "USB Type C Cable,USB A to USB C 3A Fast Charging (3.3ft 2-Pack) Braided Charge Cord Compatible with Samsung Galaxy S10 S9 S8 Plus,Note 9 8,A11 A20 A51,LG G6 G7 V30 V35,Moto Z2 Z3,USB C Charger (Grey)",
+          "brand": "jxmox",
+          "price_usd": 6.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 6,
+          "row": 24668,
+          "item_id": "B08JD2Y868",
+          "score": 0.7627642750740051,
+          "title": "Pokanic USB C Type Cable Durable Nylon Braided Fast Quick Charging Connect Cord USB-C to USB-A Compatible with Apple iPad Pro Samsung Galaxy LG Google Pixel Nintendo Switch (3.3 ft, Red - 2 Pack)",
+          "brand": "pokanic",
+          "price_usd": 7.05,
+          "main_category": "Industrial & Scientific"
+        },
+        {
+          "rank": 7,
+          "row": 39754,
+          "item_id": "B083FLWT17",
+          "score": 0.7576666474342346,
+          "title": "USB Type C Cable 5-Pack, SPEATE USB C to USB A Nylon Braid Fast Charging Cord High Speed Data Sync Transfer Charger Cable Compatible with Galaxy S9, Note, LG, ONEPLUS and More (Black Gray) Smartphone",
+          "brand": "speate",
+          "price_usd": 8.99,
+          "main_category": "Industrial & Scientific"
+        },
+        {
+          "rank": 8,
+          "row": 943,
+          "item_id": "B0C7T44CNZ",
+          "score": 0.7536293268203735,
+          "title": "USB A to Type C Cable, Cabepow (2Pack) 10 ft Extra Long Fast Charging 10 Feet USB Type C Cord for Samsung Galaxy A10/A20/A51/S10/S9/S8, 10 Foot Type C Charger Premium Nylon Braided USB Cable-DarkGreen",
+          "brand": "cabepow",
+          "price_usd": 8.99,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 9,
+          "row": 5182,
+          "item_id": "B07CWGYS4Y",
+          "score": 0.7407793998718262,
+          "title": "Amazon Basics Double Braided Nylon USB-C to USB-C 3.1 Gen 2 (10Gbps) Fast Charging Cable, 3A - 1-Foot, Dark Gray",
+          "brand": "amazon basics",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 10,
+          "row": 43373,
+          "item_id": "B0BXN4L5H1",
+          "score": 0.7355170845985413,
+          "title": "DEWALT Type C to USB Cable — Reinforced Braided Cable for USB to USB-C — Type C Fast Charging USB-C to USB-A Cable — Fast Charging Cord Type C — 6 ft",
+          "brand": "dewalt",
+          "price_usd": 16.99,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B07WWF89MS",
+        "B0C3DDZLPL",
+        "B09C5FF3PM",
+        "B0893B6QLY",
+        "B0C557PVVR",
+        "B08JD2Y868",
+        "B083FLWT17",
+        "B0C7T44CNZ",
+        "B07CWGYS4Y",
+        "B0BXN4L5H1"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 2,
+      "query": "mechanical keyboard with rgb backlight",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 44865,
+          "item_id": "B074W1QSV2",
+          "score": 0.7027220726013184,
+          "title": "Rottay Rainbow Backlit Mechanical Keyboard, White Gaming Keyboard, Wired Computer Keyboard with Brown Switch and Aluminum Panel",
+          "brand": "rottay",
+          "price_usd": 39.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 2,
+          "row": 9302,
+          "item_id": "B07TVS5F87",
+          "score": 0.6950253248214722,
+          "title": "Macally Backlit Mechanical Keyboard for Mac - Quality You Can Feel - Classic Mac Mechanical Keyboard with Brown Switches for Comfortable Typing - 104 Key Apple Keyboard Wired USB with Weighted Base",
+          "brand": "macally",
+          "price_usd": 99.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 3,
+          "row": 20504,
+          "item_id": "B08P2N5NQK",
+          "score": 0.6941848993301392,
+          "title": "seenda Backlit Wireless Keyboard, Multi Device Bluetooth Keyboard with LED Lights for Windows PC Laptop Computer, Space Gray",
+          "brand": "seenda",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 4,
+          "row": 28087,
+          "item_id": "B09B9P59FG",
+          "score": 0.6911890506744385,
+          "title": "Backlit Wired Keyboard and Mouse Combo, Large Print Keyboard with White Illuminated, Wired Backlit USB Keyboard and RGB Optical Mouse for Windows, Mac OS Desktop, Laptop, PC, Gaming, Black",
+          "brand": "mariauqdk",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 5,
+          "row": 24893,
+          "item_id": "B08VNGCB6G",
+          "score": 0.6903643012046814,
+          "title": "Macally Mac Mechanical Keyboard Backlit - Retro, but Modern - (Tactile/Audible Brown Switches) USB Backlit Wired Keyboard with Crisp White LEDs and Weighted Base - TKL Keyboard for Mac and PC",
+          "brand": "macally",
+          "price_usd": 49.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 6,
+          "row": 18789,
+          "item_id": "B08LVG9TKM",
+          "score": 0.6685160994529724,
+          "title": "seenda Wired Backlit USB Keyboard, Low Profile Computer Keyboard with Stands, Waterproof Illuminated Keyboard Rainbow LED Backlight Keyboard Wired Gaming Keyboard",
+          "brand": "seenda",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 7,
+          "row": 3961,
+          "item_id": "B09YD28QPG",
+          "score": 0.6671396493911743,
+          "title": "seenda Backlit Wireless Keyboard, 2.4GHz Ultra Slim Rechargeable Keyboard, Illuminated Wireless Keyboard for Computer, Laptop, Desktop, PC, Surface, Smart TV, Windows 10/8/7 (Black and Grey)",
+          "brand": "seenda",
+          "price_usd": 43.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 8,
+          "row": 35279,
+          "item_id": "B08R61G3QK",
+          "score": 0.6647616624832153,
+          "title": "Jewaytec Mechanical Gaming Keyboard,USB Wired104 Keys RGB Rainbow Backlit Mechanical Gaming Keyboard,Ergonomic Design Splash Proof ABS Floating Keyboard for Windows PC/MAC Gameing.Blue Switches",
+          "brand": "jewaytec",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 9,
+          "row": 42440,
+          "item_id": "B09MLQCRBM",
+          "score": 0.65869140625,
+          "title": "Backlit Bluetooth Keyboard, Wireless Multi-Device(2.4G+BT1+BT2) Illuminated Keyboard, Rechargeable Wireless Ergonomic Keyboard with Palm Rest for Mac OS, Windows, iOS, Android",
+          "brand": "pryrose",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 10,
+          "row": 20558,
+          "item_id": "B08SWLB9WF",
+          "score": 0.6556875705718994,
+          "title": "seenda Backlit Wireless Keyboard, Multi-Device Ultra Slim Rechargeable Wireless Keyboard with 7-Colors Backlit for Mac OS/iOS/Windows/PC/Laptop/Android,Bluetooth 5.1,Full-Size, Space Gray",
+          "brand": "seenda",
+          "price_usd": null,
+          "main_category": "Computers"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B074W1QSV2",
+        "B07TVS5F87",
+        "B08P2N5NQK",
+        "B09B9P59FG",
+        "B08VNGCB6G",
+        "B08LVG9TKM",
+        "B09YD28QPG",
+        "B08R61G3QK",
+        "B09MLQCRBM",
+        "B08SWLB9WF"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 3,
+      "query": "4k streaming stick for my tv",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 32200,
+          "item_id": "B09X9T2TMQ",
+          "score": 0.664614737033844,
+          "title": "TV Stick 4K Streaming Stick Device | MECOOL Android 11 KD3 Google Netflix Certified Google TV Box Streaming Media Player Support 2GB 8GB HDR/AV1/2.4G/5G WiFi/BT 5.0, Dolby Audio with Remote Controls",
+          "brand": "mecool",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 2,
+          "row": 81,
+          "item_id": "B09W4XDQ9Q",
+          "score": 0.6503437757492065,
+          "title": "Roku Streaming Stick 4K | Portable Roku Streaming Device 4K/HDR/Dolby Vision, Roku Voice Remote, Free & Live TV",
+          "brand": "roku",
+          "price_usd": 46.95,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 3,
+          "row": 22736,
+          "item_id": "B096YZGTP2",
+          "score": 0.627517580986023,
+          "title": "Support 4K 1080P",
+          "brand": "before",
+          "price_usd": null,
+          "main_category": "Home Audio & Theater"
+        },
+        {
+          "rank": 4,
+          "row": 31568,
+          "item_id": "B098PYV57P",
+          "score": 0.6206809282302856,
+          "title": "EKO TV Box 4K Ultra HD, Android TV, Streaming Media Player Google Assistant Built-in & with Google Play Store",
+          "brand": "ekotv",
+          "price_usd": 49.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 5,
+          "row": 18517,
+          "item_id": "B07YF3MMZL",
+          "score": 0.6138163805007935,
+          "title": "LG 4K Region Free Smart WiFi UHD 4K Ultra HD Blu-ray & DVD Player Multi Region 3D Dolby Vision HDR & 6Ft Dynastar HDMI Cable Bundle Model UBKM9",
+          "brand": "dynastar",
+          "price_usd": 329.69,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 39600,
+          "item_id": "B08161PM18",
+          "score": 0.6027487516403198,
+          "title": "Android TV Box 11.0, HAKOMiNi 2GB 16GB Smart TV Box Netflix Google Certified, Amlogic S905Y4 Media Player Support 2.4G 5G WiFi Ultra HD 4K/ HDR/ 2*USB 2.0/ BT 5.0 with Remote, Chromcast Built-in",
+          "brand": "transpeed",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 7,
+          "row": 24377,
+          "item_id": "B0836LJDBL",
+          "score": 0.5804529786109924,
+          "title": "OTG Cable for TV Stick 4K Lite, Max, Cube, with Ethernet Adapter, USB HUB to Add Memory Storage and Bluetooth",
+          "brand": "smays",
+          "price_usd": 13.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 8,
+          "row": 4496,
+          "item_id": "B07S6VHC18",
+          "score": 0.5748724937438965,
+          "title": "Sony BDP-S6700 4K Upscaling 3D Home Theater Streaming Blu-Ray DVD Player with Wi-Fi, Dolby Digital TrueHD/DTS, and upscaling",
+          "brand": "sony",
+          "price_usd": 69.98,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 9,
+          "row": 11927,
+          "item_id": "B0BYRZFSVF",
+          "score": 0.5712555050849915,
+          "title": "AVerMedia GC573 Live Gamer 4K Internal Capture Card: 4K60 HDR10 Streaming and Recording with Ultra-Low Latency for PS5, Xbox Series X/S, OBS, Twitch, YouTube, Windows 11 - TAA/NDAA Compliant",
+          "brand": "avermedia",
+          "price_usd": 209.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 10,
+          "row": 2440,
+          "item_id": "B0963R2MTP",
+          "score": 0.5692060589790344,
+          "title": "Sony UBP- X700M 4K Ultra HD Home Theater Streaming Blu-ray™ Player with HDMI Cable, Black",
+          "brand": "sony",
+          "price_usd": 258.0,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B09X9T2TMQ",
+        "B09W4XDQ9Q",
+        "B096YZGTP2",
+        "B098PYV57P",
+        "B07YF3MMZL",
+        "B08161PM18",
+        "B0836LJDBL",
+        "B07S6VHC18",
+        "B0BYRZFSVF",
+        "B0963R2MTP"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 4,
+      "query": "wireless mouse for a laptop",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 536,
+          "item_id": "B09Y2SCDB2",
+          "score": 0.7675387263298035,
+          "title": "LeadsaiL Wireless Mouse for Laptop, 2.4G Portable Slim Cordless Computer Mouse Less Noise for Laptop Optical Mouse with 6 Buttons,USB Mouse for Windows 10/8/7/Mac/MacBook Pro/Air/HP/Dell/Lenovo/Acer",
+          "brand": "leadsail",
+          "price_usd": 9.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 2,
+          "row": 25389,
+          "item_id": "B09KGL25V5",
+          "score": 0.7456116080284119,
+          "title": "Cudote Bluetooth Rechargeable Wireless Mouse(Dual Bluetooth+2.4G), Ergonomic Cordless Computer Mice, Easy-Switch up to 3 Devices, 5 Adjustable DPI Windows/Mac/Android/Computer, black",
+          "brand": "cudote",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 3,
+          "row": 19943,
+          "item_id": "B07G28NF3L",
+          "score": 0.7418648600578308,
+          "title": "Amazon Basics Wireless Trackball Mouse",
+          "brand": "amazon basics",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 4,
+          "row": 1216,
+          "item_id": "B09Y2SCJPD",
+          "score": 0.7341367602348328,
+          "title": "LeadsaiL Wireless Computer Mouse, 2.4G Portable Slim Cordless Mouse Less Noise for Laptop Optical Mouse with 4 Buttons, AA Battery Used, USB Mouse for Laptop, Desktop, MacBook",
+          "brand": "leadsail",
+          "price_usd": 9.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 5,
+          "row": 47831,
+          "item_id": "B08HMRWS4Q",
+          "score": 0.7323325872421265,
+          "title": "Wireless Gaming Mouse 2.4G Portable Mobile Optical Mice with USB Nano Receiver for Laptop,PC,Computer,Chromebook, Black",
+          "brand": "lsea",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 20452,
+          "item_id": "B08KY6RWNS",
+          "score": 0.7318060398101807,
+          "title": "Macally 2.4G Wireless Mouse with USB Receiver - Cordless Mouse for Laptop Desktop Windows Mac MacBook Pro Air PC Notebook - Ergonomic Computer Mouse Wireless with Smooth Scroll Wheel",
+          "brand": "macally",
+          "price_usd": 11.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 7,
+          "row": 8278,
+          "item_id": "B09PHLXHMK",
+          "score": 0.7271867394447327,
+          "title": "Wireless Mouse, 2.4G Ergonomic Wireless Mouse, Lightspeed 3200 DPI, Quiet Click, Metal Scroll Wheel, Wireless Mouse with USB Nano Receiver, Cordless Mouse, Wireless Mouse for Laptop Chromebook PC Mac",
+          "brand": "soueto",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 8,
+          "row": 47972,
+          "item_id": "B08KFXCQW8",
+          "score": 0.7256135940551758,
+          "title": "AERFA Wireless Computer Mouse, 2.4G Noiseless Mouse with USB Receiver -3 Adjustable DPI Levels-Portable Computer Mice Compatible with PC, Mac, Laptop, Chromebook （Blue）",
+          "brand": "aerfa",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 9,
+          "row": 26824,
+          "item_id": "B07SYGB2L1",
+          "score": 0.724921464920044,
+          "title": "Wireless Mouse, TedGem 2.4G Portable Computer Mouse Optical USB Mouse Cordless Mouse Ergonomic Mouse with USB Receiver 6 Buttons 3-Level DPI Laptop Mouse for Windows MacOS PC Laptop (Grey)",
+          "brand": "tedgem",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 10,
+          "row": 35713,
+          "item_id": "B093P3N8ZT",
+          "score": 0.7236606478691101,
+          "title": "ATESON Wireless Mouse for Laptop, Rechargeable Silent 2.4G Cordless Mouse with USB Receiver Portable Slim Quiet Noiseless Mice for PC Computer Desktop Laptop Notebook Black",
+          "brand": "ateson",
+          "price_usd": 12.25,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B09Y2SCDB2",
+        "B09KGL25V5",
+        "B07G28NF3L",
+        "B09Y2SCJPD",
+        "B08HMRWS4Q",
+        "B08KY6RWNS",
+        "B09PHLXHMK",
+        "B08KFXCQW8",
+        "B07SYGB2L1",
+        "B093P3N8ZT"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 5,
+      "query": "gaming headset with a microphone",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 35483,
+          "item_id": "B08XYL7TQM",
+          "score": 0.7403379678726196,
+          "title": "2021 Gaming Headset with Microphone for PS4, PC, Xbox one, X|S, Playstation 4, Gamer Headphones and LED Lights, Compatible with Computer/Laptop/Nintendo, Surround Sound, by IDoon",
+          "brand": "idoon",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 2,
+          "row": 34543,
+          "item_id": "B086CWGPN5",
+          "score": 0.7156796455383301,
+          "title": "Pacrate Gaming Headset with Microphone for PC Laptop PS4 PS5 Headset Switch Xbox One Headset Gaming Headphones with Microphone PC Headset with Mic & LED Lights for Kids Adults",
+          "brand": "pacrate",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 3,
+          "row": 42187,
+          "item_id": "B09HK141C2",
+          "score": 0.7048413753509521,
+          "title": "USB Gaming Headset Virtual 7.1 Surround Sound Headphones with Microphone, Soft Earmuffs Surround Sound for PC Computers, Mac, Laptop, Desktop, (Blue White)",
+          "brand": "younux",
+          "price_usd": 22.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 4,
+          "row": 34656,
+          "item_id": "B0895GL5NL",
+          "score": 0.6948822140693665,
+          "title": "Gaming Headset for PS4, Xbox One, Over-Ear Headhones with Stereo Sound LED Light Mic (Blue)",
+          "brand": "luhutu",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 5,
+          "row": 32629,
+          "item_id": "B0C4P9MW92",
+          "score": 0.6939889788627625,
+          "title": "Pacrate Gaming Headset with Microphone for PC Mac PS4 Headset PS5 Headset Switch Xbox One Headset with Mic & LED Lights Noise Cancelling Headphones with Microphone for Kids Adults",
+          "brand": "pacrate",
+          "price_usd": 20.98,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 28235,
+          "item_id": "B09HGV4BZK",
+          "score": 0.6913822293281555,
+          "title": "Wireless Gaming Headset with Microphone for PS5 PS4 PC Nintendo Switch Computer - USB Wireless Game Headphones 3.5mm Wired for Xbox one Over Ear Comfortable",
+          "brand": "huhd",
+          "price_usd": 31.49,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 7,
+          "row": 40539,
+          "item_id": "B08JYSC56D",
+          "score": 0.6745774745941162,
+          "title": "Kithouse USB Headset Headphone with Microphone for Computer Laptop PC, Wired Call Center Office Work Headset with Microphone Noise Cancelling + Headset Headphone Stand Holder",
+          "brand": "kithouse",
+          "price_usd": 22.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 8,
+          "row": 12519,
+          "item_id": "B09T37723Y",
+          "score": 0.6709016561508179,
+          "title": "Wireless Gaming Headset with Microphone for PC PS4 PS5 Playstation 4 5, Over Ear Noise Cancelling 2.4G & Bluetooth Wireless Gaming Headphones, RGB Lighting, 3.5mm Wired for 【Xbox One】【V07W PRO】",
+          "brand": "easysmx",
+          "price_usd": 39.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 9,
+          "row": 32031,
+          "item_id": "B09NR6BWVY",
+          "score": 0.6599479913711548,
+          "title": "NUBWO X Wireless Gaming Headset with Microphone for PS5, PS4, PC, Mac, Gamer Headphones wit Mic, 2.4GHz Wireless for Playstation Console, Wired Mode for Controller",
+          "brand": "nubwo",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 10,
+          "row": 35508,
+          "item_id": "B08YFHYPWD",
+          "score": 0.6542757153511047,
+          "title": "EPOS Gaming B20 Streaming Microphone - 2.9m Cable USB-C Computer Microphone for Gaming - PC & Laptop Connection with Audio Controls - Compatible with PC, Mac, and PS4/5 - Desk Stand Included, Gray",
+          "brand": "epos",
+          "price_usd": 133.39,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B08XYL7TQM",
+        "B086CWGPN5",
+        "B09HK141C2",
+        "B0895GL5NL",
+        "B0C4P9MW92",
+        "B09HGV4BZK",
+        "B08JYSC56D",
+        "B09T37723Y",
+        "B09NR6BWVY",
+        "B08YFHYPWD"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 6,
+      "query": "portable bluetooth speaker that is waterproof",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 15211,
+          "item_id": "B09M6CYK5D",
+          "score": 0.8031008839607239,
+          "title": "SYOYOC Waterproof Bluetooth Speaker, Bluetooth Shower Speaker Loud Stereo Sound, Shower Speakers Bluetooth Wireless with Clip & Suction Cup, Small Portable Speakers Wireless for Bathroom, Bike, Kids",
+          "brand": "syoyoc",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 2,
+          "row": 42937,
+          "item_id": "B0B3DR1XKQ",
+          "score": 0.7882856726646423,
+          "title": "HEYSONG Waterproof Bluetooth Speaker, Shower Speaker with HD Sound, LED Light, Floating, Lightweight Portable Speakers for Travel, Pool, Beach, Kayak, Gifts for Girl, Teen",
+          "brand": "heysong",
+          "price_usd": 23.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 3,
+          "row": 13259,
+          "item_id": "B09M8N7N2J",
+          "score": 0.7787076234817505,
+          "title": "Portable Bluetooth Speakers, IPX7 Waterproof Bluetooth Speaker, Outdoor Mini Speaker with HD Stereo Bass Sound, Bluetooth 5.0 Dual Paring, 10H Playtime, Support AUX, Suitable for Home Outdoor (Black)",
+          "brand": "pitras",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 4,
+          "row": 4941,
+          "item_id": "B08KT7LCHL",
+          "score": 0.7726811170578003,
+          "title": "Waterproof Portable Bluetooth Speaker,Blufree Wireless Shower Speaker with Light Show,Built-in Mic,50ft Wireless Range,IPX7,Loud Stereo Sound Outdoor Speakers for Sports Travel Camping Home Party Pool",
+          "brand": "blufree",
+          "price_usd": 36.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 5,
+          "row": 20972,
+          "item_id": "B09M94KBBM",
+          "score": 0.769717812538147,
+          "title": "Magnavox MMA3929 Waterproof Portable Bluetooth Speaker with 360° Sound in Black",
+          "brand": "magnavox",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 32513,
+          "item_id": "B0BSMN4SDM",
+          "score": 0.7663968205451965,
+          "title": "Johns Avenue Bluetooth Shower Speaker Newest Version 5.0 - Certified Waterproof - Wirelessly Pairs Easily to All Your Bluetooth Devices - with White Gift Box",
+          "brand": "johns avenue",
+          "price_usd": 26.99,
+          "main_category": "Home Audio & Theater"
+        },
+        {
+          "rank": 7,
+          "row": 36812,
+          "item_id": "B09X1MM3CK",
+          "score": 0.7656553387641907,
+          "title": "AVWOO Bluetooth Shower Speaker, IP67 Waterproof Speaker with RGB Light, Portable Bluetooth Speaker with Hi-Fi Sound and Built-in Mic, Support TF Card, Wireless Speaker for Home Outdoor Travel",
+          "brand": "avwoo",
+          "price_usd": 18.99,
+          "main_category": "Home Audio & Theater"
+        },
+        {
+          "rank": 8,
+          "row": 49436,
+          "item_id": "B095C4RXXH",
+          "score": 0.7647827863693237,
+          "title": "LFS Portable Bluetooth Speaker, IPX5 Waterproof Wireless Speaker with 10W Loud Stereo Sound, Outdoor Speakers with Bluetooth 5.0, 24H Playtime,100ft Bluetooth Range,for Home and Travel",
+          "brand": "lfs",
+          "price_usd": null,
+          "main_category": "GPS & Navigation"
+        },
+        {
+          "rank": 9,
+          "row": 25099,
+          "item_id": "B095C5WLY7",
+          "score": 0.7642107009887695,
+          "title": "Tronsmart Portable Bluetooth Speakers, Force Mini Wireless Outdoor Mini 10W Waterproof Bluetooth Speakers, Bluetooth 5.0, IPX7 Waterproof, 24 Hours Playtime, Built in mic (Gray)",
+          "brand": "tronsmart",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 10,
+          "row": 3304,
+          "item_id": "B09CKDCZ4M",
+          "score": 0.7629485726356506,
+          "title": "Bluetooth Speaker, BOGASING M4 Speaker with 40W Stereo HD Surround Sound, Deeper Bass, 24H Playtime, IPX7 Waterproof, Bluetooth 5.0 TWS Wireless Dual Pairing Portable Speaker for Home, Outdoor (Black)",
+          "brand": "bogasing",
+          "price_usd": 64.99,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B09M6CYK5D",
+        "B0B3DR1XKQ",
+        "B09M8N7N2J",
+        "B08KT7LCHL",
+        "B09M94KBBM",
+        "B0BSMN4SDM",
+        "B09X1MM3CK",
+        "B095C4RXXH",
+        "B095C5WLY7",
+        "B09CKDCZ4M"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 7,
+      "query": "external solid state drive 1tb",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 300,
+          "item_id": "B0BWMY8JZP",
+          "score": 0.6548361778259277,
+          "title": "Seagate Expansion SSD 1TB External Solid State Drive – Up to 1000MB/s – USB 3.2 for PC, Laptop and Mac, 3-Year Rescue Service (STLH1000400)",
+          "brand": "seagate",
+          "price_usd": 129.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 2,
+          "row": 38470,
+          "item_id": "B0792LL46V",
+          "score": 0.6486126780509949,
+          "title": "WD Blue 1TB 3D NAND SATA III 6Gb/s 2.5\" Internal Solid State Drive",
+          "brand": "western digital",
+          "price_usd": 47.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 3,
+          "row": 3354,
+          "item_id": "B07NNRTTCM",
+          "score": 0.6092507839202881,
+          "title": "Western Digital 1TB WD Green Internal PC SSD Solid State Drive - SATA III 6 Gb/s, 2.5\"/7mm, Up to 550 MB/s - WDS100T2G0A",
+          "brand": "western digital",
+          "price_usd": 87.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 4,
+          "row": 9093,
+          "item_id": "B09ZQ44Z8W",
+          "score": 0.6063219904899597,
+          "title": "WD 2TB Elements SE - Portable SSD, USB 3.0, Compatible with PC, Mac - WDBAYN0020BBK-WESN",
+          "brand": "western digital",
+          "price_usd": 99.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 5,
+          "row": 41030,
+          "item_id": "B08V8BG7GS",
+          "score": 0.6061398983001709,
+          "title": "ADATA SE900G 512GB Mobile External Solid State Drive in Black - USB3.2",
+          "brand": "adata",
+          "price_usd": 52.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 6,
+          "row": 39831,
+          "item_id": "B084VTPDQV",
+          "score": 0.6059209108352661,
+          "title": "Plugable 1TB Thunderbolt 3 External SSD NVMe Drive (Up to 2400MBs/1800MBs R/W)",
+          "brand": "plugable",
+          "price_usd": 349.0,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 7,
+          "row": 2310,
+          "item_id": "B09J8ZFZ48",
+          "score": 0.6022585034370422,
+          "title": "Western Digital 1TB WD Blue SA510 SATA Internal Solid State Drive SSD - SATA III 6 Gb/s, M.2 2280, Up to 560 MB/s - WDS100T3B0B",
+          "brand": "western digital",
+          "price_usd": 52.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 8,
+          "row": 23781,
+          "item_id": "B06XRZ8GB9",
+          "score": 0.601629376411438,
+          "title": "Seagate 1TB Laptop HDD SATA 6Gb/s 128MB Cache 2.5-Inch Internal Hard Drive (ST1000LM035) (Open Box)",
+          "brand": "seagate",
+          "price_usd": 28.0,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 9,
+          "row": 13809,
+          "item_id": "B083NS6WXG",
+          "score": 0.5996630191802979,
+          "title": "WD 2TB My Passport Go SSD Cobalt Portable External Storage, USB 3.0 - WDBMCG0020BBT-WESN",
+          "brand": "western digital",
+          "price_usd": 219.44,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 10,
+          "row": 33071,
+          "item_id": "B01C4W29XC",
+          "score": 0.5987380743026733,
+          "title": "Seagate 1TB Mobile HDD SATA 6Gb/s 128MB Cache 2.5\" Internal Bare Drive (ST1000LM035)",
+          "brand": "seagate",
+          "price_usd": 33.49,
+          "main_category": "Computers"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B0BWMY8JZP",
+        "B0792LL46V",
+        "B07NNRTTCM",
+        "B08V8BG7GS",
+        "B09ZQ44Z8W",
+        "B084VTPDQV",
+        "B09J8ZFZ48",
+        "B06XRZ8GB9",
+        "B083NS6WXG",
+        "B01C4W29XC"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 8,
+      "query": "webcam for video calls",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 30608,
+          "item_id": "B08BKCPSSH",
+          "score": 0.7276012301445007,
+          "title": "Webcam with Microphone, Web Camera Full Hd 1080P Webcam with Cover Tripod, Laptop PC Desktop Computer Camera Windows Mac Os for Video Calling Streaming Gaming Zoom YouTube Skype Hangouts Facetime",
+          "brand": "yqe",
+          "price_usd": 19.99,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 2,
+          "row": 40470,
+          "item_id": "B08HQ5NMHD",
+          "score": 0.6985304355621338,
+          "title": "Webcam with Microphone,1080P HD Web Cam Streaming Computer Camera for Desktop Black",
+          "brand": "doboli",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 3,
+          "row": 2698,
+          "item_id": "B09G1D9CR4",
+          "score": 0.69024258852005,
+          "title": "Webcam 1080p HD Computer Camera - Microphone Laptop USB PC Webcam with Privacy Shutter and Tripod Stand, 110 Degree Live Streaming Widescreen Recording Pro Video Web Camera for Calling, Conferencing",
+          "brand": "svcouok",
+          "price_usd": 29.99,
+          "main_category": "Camera & Photo"
+        },
+        {
+          "rank": 4,
+          "row": 1611,
+          "item_id": "B0B1LK7LPQ",
+          "score": 0.6844288110733032,
+          "title": "4K Webcam, DEPSTECH DW49 Sony Sensor Autofocus Webcam with Microphone, Privacy Cover and Tripod, Plug and Play USB Computer Web Camera for Pro Streaming/Online Teaching/Video Calling/Zoom/Skype -White",
+          "brand": "depstech",
+          "price_usd": 69.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 5,
+          "row": 18903,
+          "item_id": "B08X4BGQDS",
+          "score": 0.6843054294586182,
+          "title": "Spedal Webcam 1080p HD 60fps with Microphone, Software Webcam Laptop Desktop Mac USB, Pro Streaming Web Camera for Conferencing Zoom Meeting Gaming Skype Video Calling Recording",
+          "brand": "unknown",
+          "price_usd": null,
+          "main_category": "Computers"
+        },
+        {
+          "rank": 6,
+          "row": 2494,
+          "item_id": "B0B9WNCZZL",
+          "score": 0.6839495301246643,
+          "title": "LarmTek 1080p Full Hd Webcam,Computer Laptop Pc Mac Desktop Camera for Conference and Video Call,Pro Stream Webcam with Plug and Play Video Calling,Built-in Mic",
+          "brand": "larmtek",
+          "price_usd": 19.99,
+          "main_category": "Camera & Photo"
+        },
+        {
+          "rank": 7,
+          "row": 35467,
+          "item_id": "B08XQ3TWFX",
+          "score": 0.6818704009056091,
+          "title": "wansview Webcam with Microphone, 1080P HD Webcam USB PC Laptop Autofocus Web Camera with Privacy Cover for Computer Desktop Live Streaming, Zoom, Video Call, Online Meeting, Gaming",
+          "brand": "wansview",
+          "price_usd": 19.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 8,
+          "row": 4499,
+          "item_id": "B07T3S1TCG",
+          "score": 0.6801869869232178,
+          "title": "Hrayzan Webcam 1080p, Webcam with Microphone, USB Web Camera 110°Wide View, Plug and Play Computer Camera, Laptop Desktop Webcam for Conferencing Recording,Webcam Tripod and Privacy Cover Include",
+          "brand": "hrayzan",
+          "price_usd": 27.98,
+          "main_category": "Camera & Photo"
+        },
+        {
+          "rank": 9,
+          "row": 32135,
+          "item_id": "B09TKCBWZ2",
+          "score": 0.6777344346046448,
+          "title": "GreenYellow Webcam for PC, USB Camera with Microphone Plug Play Built-in Mic Full Ultra HD 1080P Web Camera Video Cam Video Calling Conferencing Streaming for Desktop/Computer/Mac/Laptop/MacBook",
+          "brand": "greenyellow",
+          "price_usd": 19.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 10,
+          "row": 2182,
+          "item_id": "B09B9RWZMN",
+          "score": 0.6769373416900635,
+          "title": "Webcam with Microphone for Desktop, 1080P HD USB Computer Cameras with Privacy Cover&Webcam Tripod, Streaming Webcam with Flexible Rotatable Wide Angle Webcam for PC Zoom Video/Gaming/Laptop/Skype",
+          "brand": "anvasktek",
+          "price_usd": 29.99,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B08BKCPSSH",
+        "B08HQ5NMHD",
+        "B09G1D9CR4",
+        "B0B1LK7LPQ",
+        "B08X4BGQDS",
+        "B0B9WNCZZL",
+        "B07T3S1TCG",
+        "B08XQ3TWFX",
+        "B09TKCBWZ2",
+        "B094XXGDRF"
+      ],
+      "int8_overlap_at_k": 9
+    },
+    {
+      "query_index": 9,
+      "query": "smart plug that works with alexa",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 29,
+          "item_id": "B07KTYJ769",
+          "score": 0.8067283034324646,
+          "title": "Amazon Smart Plug, for home automation, Works with Alexa - A Certified for Humans Device",
+          "brand": "unknown",
+          "price_usd": 24.99,
+          "main_category": "Amazon Devices"
+        },
+        {
+          "rank": 2,
+          "row": 678,
+          "item_id": "B07MLY3JKV",
+          "score": 0.7231629490852356,
+          "title": "Echo Flex - Plug-in mini smart speaker with Alexa",
+          "brand": "unknown",
+          "price_usd": null,
+          "main_category": "Amazon Devices"
+        },
+        {
+          "rank": 3,
+          "row": 25054,
+          "item_id": "B093XL47QG",
+          "score": 0.7171903252601624,
+          "title": "Echo Dot (3rd Gen) bundle with Amazon Smart Plug - Charcoal",
+          "brand": "unknown",
+          "price_usd": 64.98,
+          "main_category": "Amazon Devices"
+        },
+        {
+          "rank": 4,
+          "row": 15389,
+          "item_id": "B0BMV8MF5H",
+          "score": 0.7119215726852417,
+          "title": "Amazon Basics Rectangle Smart Plug Power Strip, Surge Protector with 3 Individually Controlled Outlets and 2 USB Ports, 2.4 GHz Wi-Fi, Works with Alexa, White",
+          "brand": "amazon basics",
+          "price_usd": 26.99,
+          "main_category": "Tools & Home Improvement"
+        },
+        {
+          "rank": 5,
+          "row": 42502,
+          "item_id": "B09NN2H1VL",
+          "score": 0.705253541469574,
+          "title": "Smart Power Strip, Maxcio USB Surge Protector Compatible with Alexa & Google Home, Smart Outlets with 3 USB Ports, APP Individual Control, Smart Home Office Multi-Plug Extension Cord for Home, Travel",
+          "brand": "maxcio",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 4433,
+          "item_id": "B09P58VK93",
+          "score": 0.6851606369018555,
+          "title": "Smart Plug Power Strip, WISEBOT USB Surge Protector with 3 Individually Controlled Smart Outlets and 3 USB Ports, Works with Alexa Google Home, WiFi Timer Plug Extender for Travel, UL, 2.4G WiFi Only",
+          "brand": "wisebot",
+          "price_usd": 23.99,
+          "main_category": null
+        },
+        {
+          "rank": 7,
+          "row": 10398,
+          "item_id": "B08J9YDHQT",
+          "score": 0.6749093532562256,
+          "title": "Smart Plug, Power Strip Work with Alexa or Google Home, ANHAORUI WiFi Surge Protector with 6 Smart Outlets and 6 Always on outlets and 4 USB Ports, 6 Feet Extension Cord, Black/Grey, ETL Listed",
+          "brand": "anhaorui",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 8,
+          "row": 40322,
+          "item_id": "B08F8QNG1B",
+          "score": 0.6717299222946167,
+          "title": "Echo Flex - Plug-in mini smart speaker with Alexa LIFX Smart Bulb (Wi-Fi)",
+          "brand": "unknown",
+          "price_usd": null,
+          "main_category": "Amazon Devices"
+        },
+        {
+          "rank": 9,
+          "row": 20864,
+          "item_id": "B09DP8N62H",
+          "score": 0.6680591106414795,
+          "title": "Smart Power Strip, TESSAN WiFi Flat Plug Strip with 3 Smart Outlets and 3 USB Ports, 6 Feet Extension Cord, Wall Mountable Surge Protector, Compatible with Alexa and Google Home, White",
+          "brand": "tessan",
+          "price_usd": 26.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 10,
+          "row": 17285,
+          "item_id": "B08F8QPLGJ",
+          "score": 0.6619166731834412,
+          "title": "Echo Dot (3rd Gen) - Smart speaker with Alexa - Plum Sengled Bluetooth bulb",
+          "brand": "unknown",
+          "price_usd": null,
+          "main_category": "Amazon Devices"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B07KTYJ769",
+        "B07MLY3JKV",
+        "B093XL47QG",
+        "B0BMV8MF5H",
+        "B09NN2H1VL",
+        "B09P58VK93",
+        "B08J9YDHQT",
+        "B08F8QNG1B",
+        "B09DP8N62H",
+        "B08F8QPLGJ"
+      ],
+      "int8_overlap_at_k": 10
+    },
+    {
+      "query_index": 10,
+      "query": "surge protector power strip with usb ports",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 20814,
+          "item_id": "B09B71MR76",
+          "score": 0.7685788869857788,
+          "title": "Surge Protector Power Strip with USB, Power Strip Tower with 12 AC Outlets & 4 USB Ports, 6.5 FT Power Strip Tower with Flat Plug Overload Protection for Home, Office, Smartphone",
+          "brand": "zardiee",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 2,
+          "row": 28893,
+          "item_id": "B0BV78PVD9",
+          "score": 0.7586565017700195,
+          "title": "Power Strip Surge Protector - TROND 5 Widely Spaced Outlets with 3 USB Ports(1 USB C), 6 feet Long Extension Cord, Thin Flat Plug, 1440 Joules, Wall Mountable for Home, Office, Dorm Room Essentials",
+          "brand": "trond",
+          "price_usd": 18.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 3,
+          "row": 4531,
+          "item_id": "B08SQDPG3W",
+          "score": 0.7557511329650879,
+          "title": "Power Strip Surge Protector with USB, Fast Charging Desktop USB C Power Strip Flat Plug with 10 AC Outlets 4 USB Ports, 1875W/15A, 8ft Extension Cords Outlet Strip for Home Office",
+          "brand": "mblai",
+          "price_usd": 19.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 4,
+          "row": 17286,
+          "item_id": "B08FCDWYJ1",
+          "score": 0.7524732947349548,
+          "title": "Surge Protector Power Strip with USB, 6ft Extension Cord, 10 Outlets and 4 USB Ports, AUOPLUS Mountable Power Strips Flat Plug with Overload Protection for Home, Office and Dorm, ETL Listed",
+          "brand": "auoplus",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 5,
+          "row": 30101,
+          "item_id": "B07TVCS6GQ",
+          "score": 0.7510834336280823,
+          "title": "Surge Protector Power Strip with 5 USB Ports (6A Max) and 7 Outlets (1625W/13A), 2100 Joules, Wall Mountable Outlet Strip with Wide Spaced Outlet, 6ft Extension Cord for Indoor - Black",
+          "brand": "hicity",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 6,
+          "row": 754,
+          "item_id": "B0BLMRZQZ7",
+          "score": 0.7509972453117371,
+          "title": "Power Strip with USB Ports 16.4FT Extension Cord with Multiple Outlets 12 Outlet 4 USB Power Strip Surge Protector",
+          "brand": "smallrt",
+          "price_usd": 26.99,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 7,
+          "row": 8579,
+          "item_id": "B098353PM4",
+          "score": 0.75087970495224,
+          "title": "Power Strip Surge Protector with USB, 8ft Extension Cord Flat Plug USB C Power Strip with 10 AC Outlets 4 USB Ports, 1875w/15A , Wall Mountable Surge Protection Outlet Strip for Home Office",
+          "brand": "ptuna",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 8,
+          "row": 22430,
+          "item_id": "B08MY5SC5V",
+          "score": 0.7479389905929565,
+          "title": "Power Strip Tower Surge Protector, 8 AC Outlets & 4 USB Ports, 10FT/3M Extension Cords, Overload Protection, Short Circuit Protection, Power Strip with USB for Home, School, Office.",
+          "brand": "aoumun",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 9,
+          "row": 8015,
+          "item_id": "B0BM8PDSD8",
+          "score": 0.7460293173789978,
+          "title": "Extension Cord with Multiple Outlets, SMALLRT Power Strip Surge Protector 8 AC Outlets 4 USB Ports (1 USB C), 6.56FT Power Tower Bar Surge Protector Overload Protection for Home Office",
+          "brand": "smallrt",
+          "price_usd": 26.99,
+          "main_category": "Tools & Home Improvement"
+        },
+        {
+          "rank": 10,
+          "row": 31102,
+          "item_id": "B08V1FBPM2",
+          "score": 0.7443945407867432,
+          "title": "10Ft Power Strip Surge Protector with 6 AC Outlet and 4 USB Charger, FDTEK Long Extension Cord with Flat Plug, 900 Joules, 15A Circuit Breaker, Wall Mountable Overload Protection for Home Office Dorm",
+          "brand": "fudong",
+          "price_usd": null,
+          "main_category": "All Electronics"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B09B71MR76",
+        "B0BV78PVD9",
+        "B08SQDPG3W",
+        "B08FCDWYJ1",
+        "B07TVCS6GQ",
+        "B0BLMRZQZ7",
+        "B098353PM4",
+        "B08MY5SC5V",
+        "B0BM8PDSD8",
+        "B095JQ9SFX"
+      ],
+      "int8_overlap_at_k": 9
+    },
+    {
+      "query_index": 11,
+      "query": "phone mount for the car dashboard",
+      "top_k": 10,
+      "results": [
+        {
+          "rank": 1,
+          "row": 21680,
+          "item_id": "B0772CR74K",
+          "score": 0.6777580976486206,
+          "title": "Amazon Basics Car Dashboard Mount Holder for Garmin, Tomtom, Magellan and Other Portable GPS Navigators",
+          "brand": "amazon basics",
+          "price_usd": null,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 2,
+          "row": 32933,
+          "item_id": "B00OSR6FX2",
+          "score": 0.6551563739776611,
+          "title": "Garmin 010-R1280-00 Portable Friction Dashboard Mount - Repackaged Like New",
+          "brand": "garmin",
+          "price_usd": null,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 3,
+          "row": 23568,
+          "item_id": "B001S2RCWI",
+          "score": 0.6535171270370483,
+          "title": "Garmin Portable Friction Dashboard Mount",
+          "brand": "garmin",
+          "price_usd": null,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 4,
+          "row": 39547,
+          "item_id": "B07ZGH2HVX",
+          "score": 0.6361304521560669,
+          "title": "Car Dashboard Windshield Tablet Mount, 7\"-10.5\" Tablet Holder, 4.5\"-6.5\" Phone Mount, Compatible iPad Pro 10.5/Air/Mini/iPhone Xs/XS MAX/XR/X/8/8Plus/7/7Plus, Galaxy S7/S8/S10, Huawei etc (Black)",
+          "brand": "sincerefly",
+          "price_usd": 11.99,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 5,
+          "row": 17318,
+          "item_id": "B08J26DTXF",
+          "score": 0.6332153677940369,
+          "title": "APPS2Car GPS Suction Cup Mount for Garmin, Window Mount Replacement GPS Ball Mount Phone Holder for Car Dashboard Windshield for Garmin Dezl Drive Nuvi Zumo DriveSmart Driveassist StreetPilot RV",
+          "brand": "wiiki-tech",
+          "price_usd": 13.99,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 6,
+          "row": 3256,
+          "item_id": "B071114DHH",
+          "score": 0.6329440474510193,
+          "title": "APPS2Car GPS Dashboard Mount Nonslip Beanbag Friction GPS Holder for Garmin Nuvi Tomtom Via GO Magellan Roadmate & Other 3.5-6 Inch GPS Devices & Smartphones",
+          "brand": "apps2car",
+          "price_usd": 24.99,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 7,
+          "row": 25042,
+          "item_id": "B093GX2JB8",
+          "score": 0.6295212507247925,
+          "title": "Dashboard Pad Mounting Disk for Suction Cup, 95mm (3.74\") 3M Heat Resistant Adhesive Disc for Dash Camera Windshield Holder, GPS, Tablet, Car Phone Bracket Base with Sticky Adhesion Replacement 3 Pack",
+          "brand": "volport",
+          "price_usd": 9.99,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 8,
+          "row": 23574,
+          "item_id": "B002XQ1R7Y",
+          "score": 0.6257690787315369,
+          "title": "Bracketron Nav-Mat Portable GPS Dash Pad, Converts Windshield GPS Mount into Dashboard Mount, Weighted Beanbag and Friction Base",
+          "brand": "bracketron",
+          "price_usd": 23.92,
+          "main_category": "All Electronics"
+        },
+        {
+          "rank": 9,
+          "row": 3697,
+          "item_id": "B0796VRYV3",
+          "score": 0.6243075132369995,
+          "title": "GPS Dash Mount [Matte Black Dock] for Garmin Nuvi Drive Dezl Drivesmart, Tomtom, Magellan Roadmate, Rand McNally, Navman, Cell Phone - Car Adhesive Non-Slip Dashboard Replacement Holder for Satnav",
+          "brand": "1zero",
+          "price_usd": 19.99,
+          "main_category": "Cell Phones & Accessories"
+        },
+        {
+          "rank": 10,
+          "row": 21832,
+          "item_id": "B07K1NKMQ1",
+          "score": 0.6174510717391968,
+          "title": "APPS2Car GPS Dash Mount, Dashboard Windshield Sticky Suction Mount w/One Hand Operated Semi-Auto Telescopic Arm Additional Replacement Upgrade Mount for Garmin Nuvi Dezl DriveSmart StreetPilot",
+          "brand": "apps2car",
+          "price_usd": 8.99,
+          "main_category": "Cell Phones & Accessories"
+        }
+      ],
+      "int8_top_k_item_ids": [
+        "B0772CR74K",
+        "B00OSR6FX2",
+        "B001S2RCWI",
+        "B07ZGH2HVX",
+        "B071114DHH",
+        "B08J26DTXF",
+        "B093GX2JB8",
+        "B002XQ1R7Y",
+        "B0796VRYV3",
+        "B07K1NKMQ1"
+      ],
+      "int8_overlap_at_k": 10
+    }
+  ]
+}
