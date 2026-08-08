@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -357,5 +357,9 @@ demo-assets:
 	uv run python -m batch_recsys_lab.demo.export_search --config configs/search_export.yaml
 	uv run python -m batch_recsys_lab.demo.fetch_search_assets --config configs/search_export.yaml
 
-# Still to come, with the task that owns the code it would invoke:
-#   demo-offline-check T36  external-URL scanner over the assembled demo/
+# External-URL scanner over the assembled demo/ (T36). demo/vendor/ is
+# report-only (documented exemption, see verify_offline.py docstring);
+# everything else must be clean of URLs in an executable position. Exits
+# non-zero on any violation.
+demo-offline-check:
+	uv run python -m batch_recsys_lab.demo.verify_offline --demo-dir demo

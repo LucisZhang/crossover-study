@@ -41,6 +41,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -70,6 +71,22 @@ def sha256_file(path: str | Path) -> str:
 def dump_json(doc: Any) -> str:
     """Same convention as demo/export_core.py: stable separators, trailing NL."""
     return json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
+
+
+_URL_RE = re.compile(r"\s*\(?\bhttps?://\S+\)?")
+
+
+def _strip_urls(title: Any) -> Any:
+    """Drop URL substrings from display titles (descriptive metadata only).
+
+    Some catalog titles embed marketing URLs; the offline audit's hard line is
+    zero URLs in data files outside whitelisted provenance blocks. Titles are
+    descriptive-class (presence-checked, never value-matched), so display
+    sanitization does not touch any evidence value.
+    """
+    if not isinstance(title, str):
+        return title
+    return _URL_RE.sub("", title).strip()
 
 
 def _fail(msg: str) -> "NoReturn":  # noqa: F821
@@ -366,7 +383,7 @@ def export(cfg: dict, *, skip_queries: bool = False) -> dict:
         ),
         "columns": ["item_id", "title", "brand", "price_usd", "main_category", "catalog_index", pop_col],
         "item_id": item_ids,
-        "title": table.column("title").to_pylist(),
+        "title": [_strip_urls(t) for t in table.column("title").to_pylist()],
         "brand": table.column("brand_norm").to_pylist(),
         "price_usd": table.column("price_usd").to_pylist(),
         "main_category": table.column("main_category").to_pylist(),

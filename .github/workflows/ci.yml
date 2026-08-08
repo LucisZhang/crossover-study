@@ -40,3 +40,11 @@ jobs:
 
       - name: Run tests
         run: uv run pytest -v
+
+      # demo/vendor/ is never committed, so it is absent in CI — the scanner
+      # handles that gracefully (reports "absent", does not fail on it).
+      - name: Demo offline-URL scan
+        run: make demo-offline-check
+
+      - name: Demo traceability check (record mode)
+        run: make demo-verify-record

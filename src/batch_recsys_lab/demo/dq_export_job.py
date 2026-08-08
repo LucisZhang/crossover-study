@@ -100,7 +100,12 @@ class DqExportError(RuntimeError):
 
 def load_config(path: str | Path, *, repo_root: Path | None = None) -> dict:
     """Load ``configs/dq_export.yaml`` and resolve the shared demo-export keys."""
-    root = Path(repo_root) if repo_root else _REPO_ROOT
+    # Default to cwd, not the module's install location: production invokes from
+    # the repo root, and tests chdir into a hermetic fixture repo. Resolving to
+    # _REPO_ROOT here made main() read the REAL results/runs.jsonl from inside
+    # the fixture — the duplicate guard then fired against the real dq_export
+    # record and the dry-run test broke the moment the real append landed.
+    root = Path(repo_root) if repo_root else Path.cwd()
     cfg = yaml.safe_load(Path(path).read_text())
     missing = [k for k in _REQUIRED_CONFIG if k not in cfg]
     if missing:
