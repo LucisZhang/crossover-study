@@ -1,0 +1,58 @@
+# Pick-a-shopper pipeline (Phase 6, T28; plan §9 exhibit 3).
+#
+#   uv run python -m batch_recsys_lab.demo.select_shoppers   --config configs/shoppers_export.yaml
+#   JAVA_HOME=... uv run python -m batch_recsys_lab.demo.shopper_history_job --config configs/shoppers_export.yaml
+#   uv run python -m batch_recsys_lab.demo.export_shoppers   --config configs/shoppers_export.yaml
+#
+# The curation rule below is NOT configurable in spirit: it was pre-declared in
+# EXPERIMENT_LOG.md ("Phase 6 T28 — shopper curation rule (pre-declared)")
+# before any selection ran. The knobs are here so the rule is stated once, in
+# machine-readable form, next to the code that executes it — changing one is a
+# rule change and needs a superseding log entry, not a config edit.
+
+schema_version: 1
+
+# Model run_ids are NOT duplicated here: they are resolved from the canonical
+# demo export config (which itself mirrors configs/crossover_test.yaml), so the
+# shopper exhibit cannot cite a different run than the crossover chart.
+demo_export_config: configs/demo_export.yaml
+models: ["blend", "pop_t12m", "als", "item_knn", "content"]
+
+# ALS and item-kNN score every catalog item exactly 0 for a user with no TRAIN
+# history; their stored top50 is the harness's index tie-break, not a
+# recommendation (see models/als.py "Cold-start / segment-0 collapse"). For
+# n_train == 0 users these arms render "empty by design" and carry no top10.
+cold_collapse_models: ["als", "item_knn"]
+
+# Eval cache: resolved from the headline record's pinned 5-core snapshot id
+# (data/eval/cache/<snapshot_id>) unless overridden here.
+cache_dir: null
+
+# --- pre-declared curation rule ------------------------------------------------
+seed: 20260805
+per_segment: 6
+min_test_gt: 2          # preferred candidate pool: users with >=2 TEST GT items
+min_blend_hits: 2       # >=2 of the 6 must have >=1 GT item in blend's top-10
+min_blend_misses: 1     # >=1 of the 6 must have none
+max_attempts: 50        # hard cap; exhaustion aborts, the rule is never relaxed
+
+# --- local (gitignored) working state -----------------------------------------
+salt_path: data/demo_salt.txt
+work_dir: data/demo_export
+out_dir: demo/data
+manifest: demo/data/trace_manifest.json
+
+# --- Spark read-only history job ----------------------------------------------
+warehouse: data/warehouse
+tables:
+  five_core: local.gold.interactions_5core
+  item_features: local.gold.item_features
+  user_stats: local.gold.user_stats
+
+# T35 (semantic search) consumes this metadata slice, exported by the same
+# read-only Spark job so the demo needs one Spark touch, not two.
+search_slice:
+  top_n: 50000
+  popularity_vector: pop_train_end_365   # eval-cache vector = gold.popularity
+                                         # (as_of=train_end, window_days=365)
+  out: search_items_raw.parquet

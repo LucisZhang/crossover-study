@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -297,7 +297,15 @@ demo-export:
 	uv run python -m batch_recsys_lab.demo.export_crossover --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_policy_grid --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_lineage --config configs/demo_export.yaml
+	uv run python -m batch_recsys_lab.demo.export_shoppers --config configs/shoppers_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_receipts --config configs/demo_export.yaml
+
+# Shopper pipeline prerequisites (T28): deterministic selection, then the Spark
+# read-only history job (snapshot-guarded against the headline record's pins).
+# Spark lives here, NOT in demo-export — demo-export must stay JVM-free.
+demo-shoppers:
+	uv run python -m batch_recsys_lab.demo.select_shoppers --config configs/shoppers_export.yaml
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.demo.shopper_history_job --config configs/shoppers_export.yaml
 
 # Independent re-resolution of every exported number (shares no code with the
 # writing path). Exits non-zero on any coverage, exact-match, artifact-hash or

@@ -122,6 +122,11 @@ class _Resolver:
         self._artifacts: dict[str, Any] = {}
         self._artifact_hashes: dict[str, str] = {}
         self._tables: dict[str, Any] = {}
+        # (parquet_rel, column) -> materialized python list; (parquet_rel, key_col)
+        # -> {str(key): [rows]}. A 228k x 50 list column costs ~1.6s to materialize;
+        # without these two caches full mode re-pays that per manifest entry.
+        self._columns: dict[tuple[str, str], list] = {}
+        self._key_index: dict[tuple[str, str], dict[str, list[int]]] = {}
         self.skipped_per_user = 0
 
     def _path(self, rel: str) -> Path:
@@ -163,8 +168,14 @@ class _Resolver:
         key_col, key_val = parts[0].split("=", 1)
         if key_col not in table.column_names:
             raise LookupError(f"row_pointer {row_pointer!r}: no column {key_col!r}")
-        keys = table.column(key_col).to_pylist()
-        rows = [i for i, v in enumerate(keys) if str(v) == key_val]
+        idx_key = (parquet_rel, key_col)
+        if idx_key not in self._key_index:
+            keys = table.column(key_col).to_pylist()
+            index: dict[str, list[int]] = {}
+            for i, v in enumerate(keys):
+                index.setdefault(str(v), []).append(i)
+            self._key_index[idx_key] = index
+        rows = self._key_index[idx_key].get(key_val, [])
         if len(rows) != 1:
             raise LookupError(f"row_pointer {row_pointer!r}: matched {len(rows)} rows, expected exactly 1")
         row = rows[0]
@@ -173,7 +184,10 @@ class _Resolver:
         col = parts[1]
         if col not in table.column_names:
             raise LookupError(f"row_pointer {row_pointer!r}: no column {col!r}")
-        value = table.column(col).to_pylist()[row]
+        col_key = (parquet_rel, col)
+        if col_key not in self._columns:
+            self._columns[col_key] = table.column(col).to_pylist()
+        value = self._columns[col_key][row]
         for token in parts[2:]:
             if not token.isdigit():
                 raise LookupError(f"row_pointer {row_pointer!r}: {token!r} is not a list index")

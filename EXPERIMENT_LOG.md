@@ -1118,3 +1118,121 @@ measured / estimated / projected; distributed-scale portability is the
 only anticipated "projected". Next mandatory stop: Checkpoint 2
 (assembled demo verified static/offline + fully traced, presented for
 owner review before final case-study copy).
+
+## Phase 6 T28 — shopper curation rule (pre-declared) (2026-08-08)
+
+Written **before** any selection code was run, so the pick cannot be
+retrofitted to a pretty result (select-then-look discipline). The exhibit shows
+30 real users; the rule below is the whole of how they are chosen, and
+`src/batch_recsys_lab/demo/select_shoppers.py` implements exactly it. Any
+deviation discovered later gets a superseding entry, never an edit here.
+
+**Universe.** The 228,153 TEST-eval users — i.e. the rows of the blend
+per-user artifact
+`data/eval/per_user/20260807T055333Z-c320c79_content_pop_blend.parquet`
+(equivalently: 5-core users with ≥1 TEST ground-truth item). No other filter.
+Segment is the artifact's own `segment` column (the frozen five, from
+`eval/protocol.py::segment_of(n_train)`), never recomputed here.
+
+**Size.** 6 users per segment × 5 segments (`0`, `1-4`, `5-9`, `10-19`, `20+`)
+= 30.
+
+**Seed.** 20260805 (the lab's standard seed). Attempt counter `a` starts at 0;
+sub-seed for attempt `a` is `20260805 + a`. Each segment draws from its own
+stream: `numpy.random.default_rng([20260805 + a, segment_ordinal])` with
+`segment_ordinal ∈ {0..4}` in the frozen segment order, then
+`rng.choice(pool, size=6, replace=False)` where `pool` is the segment's
+candidate `user_idx` values sorted ascending (so the draw depends on nothing
+but the seed and the frozen universe).
+
+**Preference for users with real TEST evidence.** Within a segment the
+candidate pool is the users with **≥2 TEST ground-truth items** (counted from
+the pinned eval cache `data/eval/cache/8184397443787800955/test_user_idx.npy`).
+If that pool holds fewer than 6 users the segment falls back to its full user
+set, and the fallback is recorded in the selection artifact.
+
+**Curation predicate (per segment, checked on the blend arm only).** Of the 6
+drawn users, at least **2** must have ≥1 TEST ground-truth item inside blend's
+top-10 (`hitrate@10 == 1.0` in the blend artifact) and at least **1** must have
+none (`hitrate@10 == 0.0`). Rationale: an exhibit of six misses teaches
+nothing, and an exhibit of six hits misrepresents a 0.0057 NDCG@10 model. The
+predicate is deliberately blind to the other four arms — no arm is curated to
+look good.
+
+**Redraws.** A segment that fails the predicate is re-drawn at `a+1`
+(per-segment attempt counter; segments that already passed are frozen and never
+re-drawn). Attempt counts per segment are recorded in
+`data/demo_export/shopper_selection.json` and reported in this log. Hard cap 50
+attempts per segment; on exhaustion the export **aborts loudly** — the rule is
+never relaxed to fit.
+
+**Ordering.** Within a segment the 6 selected users are ordered by ascending
+`user_idx`; segments appear in the frozen order; `shopper_order` in
+`shoppers.json` is that concatenation.
+
+**Re-hash (privacy).** Displayed identity is
+`shopper_id = HMAC-SHA256(key=salt, msg=user_id.encode("utf-8")).hexdigest()[:12]`,
+with a 32-byte random salt generated on first run into `data/demo_salt.txt`.
+`data/` is gitignored, so neither the salt nor the `user_id → shopper_id`
+mapping (`data/demo_export/shopper_map.parquet`) is ever committed or
+published; the mapping is retained locally only. A truncation collision among
+the 30 aborts the export. The re-hash is stable only while the local salt
+persists — accepted (the demo JSON is a committed projection; regenerating it
+after salt loss changes the displayed ids but nothing else).
+
+**Frozen-TEST safety.** This is selection of *users to display*, not of models,
+thresholds or metrics: every number shown is read from the already-recorded
+one-shot TEST runs' per-user artifacts. No re-scoring, no refitting, no new
+ground-truth consultation beyond the membership tests above, and nothing here
+feeds back into any model or policy choice.
+
+## Phase 6 T28 — curation rule v1 FAILED, superseded by a stratified draw (2026-08-08)
+
+**Hypothesis (v1, the rule pre-declared above):** uniform 6-of-segment draws,
+re-drawn until ≥2 of the 6 have a blend top-10 hit and ≥1 has none, would
+converge within 50 attempts.
+
+**Result: it does not, and the export aborted loudly as the rule requires** —
+`RuntimeError: segment '1-4': the pre-declared predicate (>=2 blend-hit, >=1
+blend-miss of 6) was not met in 50 attempts. The rule is not relaxed.`
+Segment `0` passed at attempt 1; `1-4` exhausted all 50.
+
+**Why (arithmetic, not luck).** blend's recorded per-segment `hitrate@10` — the
+share of TEST users with ≥1 ground-truth item inside the top 10 — is
+0.0403 / 0.0197 / 0.0147 / 0.0152 / 0.0151 across segments `0` … `20+`. At
+p ≈ 0.02, P(≥2 hits in a uniform draw of 6) ≈ 6·10⁻³, so 50 attempts succeed
+about a quarter of the time and "just raise the cap" is fishing, not curation:
+with enough redraws the *rule* stops constraining the pick and the seed does.
+The v1 predicate was written as if hits were common. They are not — that is the
+finding the whole exhibit exists to show.
+
+**Amended rule (v2, `rule_id = phase6-t28-v2-stratified`), declared here before
+re-running the selection.** Only the sampling step changes; universe, segments,
+seed, the ≥2-TEST-GT preference, the ordering and the HMAC re-hash are
+unchanged from the entry above.
+
+* Within each segment's candidate pool, partition users into a **hit stratum**
+  (`hitrate@10 == 1.0` in the blend artifact) and a **miss stratum**
+  (`hitrate@10 == 0.0`).
+* Draw **exactly 2 from the hit stratum and 4 from the miss stratum**, without
+  replacement, with `default_rng([seed, segment_ordinal, 1])` and
+  `default_rng([seed, segment_ordinal, 0])` respectively. Deterministic in one
+  pass: the v1 predicate is now satisfied *by construction*, so the redraw
+  machinery survives only as the abort path for a stratum too small to fill
+  (it does not fire — the smallest hit stratum is 208 users, in `20+`).
+* Attempt counts are still recorded, and are 1 for every segment by
+  construction.
+
+**Disclosure is the price of stratifying.** Over-sampling hits 2-in-6 where the
+truth is ~1-in-50 would misrepresent the model if it were hidden, so
+`shoppers.json` carries a `curation` block naming the strata and the draw
+counts, and — traced to each model record's
+`/metrics/per_segment/<segment>/hitrate@10` — the **real** per-segment hit rate
+next to it. The exhibit copy (T33) must state that the six shoppers per segment
+are 2 hits + 4 misses by design, not a random sample.
+
+**Discipline preserved.** Between the v1 abort and this amendment the only
+things inspected were aggregates: per-segment stratum sizes and the
+already-recorded per-segment `hitrate@10`. No individual user's row, ranking or
+metric was examined, and the amended rule was fixed before the v2 selection ran
+— so which 30 users appear is still decided by the seed, not by how they look.
