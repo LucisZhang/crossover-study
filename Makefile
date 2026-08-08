@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -280,3 +280,40 @@ lineage-check:
 # whose parent is exactly the warehouse root.
 clean-ops: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.ops.run_scenario --step clean
+
+# --- Static demo (Phase 6) ----------------------------------------------------
+# Pure projection of committed evidence: these targets read results/runs.jsonl
+# (never write it — invariant #3) plus record-anchored artifacts, and write
+# demo/data/*.json. No Spark, no JVM, no model code — the JAVA_HOME pin above is
+# irrelevant here and no java-check prerequisite is declared. Deterministic and
+# idempotent: documents carry no timestamp, so re-exporting unchanged evidence
+# leaves them byte-identical (only trace_manifest.json's generated_at moves).
+#
+# Exporter order matters: receipts must run LAST — it reads the trace manifest
+# the other exporters wrote to find the run_id closure it has to document.
+# Later Phase 6 tasks insert their exporters before it (T27 policy_grid, T28
+# shoppers, T29 dq, T30 lineage/timetravel, T35 search).
+demo-export:
+	uv run python -m batch_recsys_lab.demo.export_crossover --config configs/demo_export.yaml
+	uv run python -m batch_recsys_lab.demo.export_receipts --config configs/demo_export.yaml
+
+# Independent re-resolution of every exported number (shares no code with the
+# writing path). Exits non-zero on any coverage, exact-match, artifact-hash or
+# staleness failure. `demo-verify-record` is the CI mode: same checks minus the
+# per-user parquet reads (those artifacts are gitignored, CI does not have them).
+demo-verify:
+	uv run python -m batch_recsys_lab.demo.verify_traceability --data-dir demo/data --mode=full
+
+demo-verify-record:
+	uv run python -m batch_recsys_lab.demo.verify_traceability --data-dir demo/data --mode=record
+
+# Serve the static site on loopback. ES modules need an HTTP origin (file://
+# blocks them); this is the only "server" the demo ever needs.
+demo-serve:
+	uv run python -m http.server 8000 --bind 127.0.0.1 -d demo
+
+# Still to come, with the tasks that own the code they would invoke (a target
+# that only prints "not implemented" would be noise):
+#   demo-grid          T27  policy/grid_test.py -> kind="policy_grid" record
+#   demo-assets        T35  search payload export + SHA-256-verified model download
+#   demo-offline-check T36  external-URL scanner over the assembled demo/

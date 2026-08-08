@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_receipts",
+  "headline_run_id": "20260807T055333Z-c320c79",
+  "run_order": [
+    "20260805T172047Z-035042b",
+    "20260805T185305Z-adbca99",
+    "20260805T185935Z-adbca99",
+    "20260806T082441Z-2f2f26d",
+    "20260806T091202Z-4fcd2f2",
+    "20260807T050054Z-c320c79",
+    "20260807T055333Z-c320c79",
+    "20260807T082125Z-c320c79",
+    "20260807T085806Z-c320c79",
+    "20260807T085819Z-c320c79",
+    "20260807T085845Z-c320c79",
+    "20260807T153823Z-9a9fb4c",
+    "20260807T164622Z-3e2c665"
+  ],
+  "note": "Every field below is copied verbatim from the matching results/runs.jsonl record (append-only). demo/data/trace_manifest.json re-resolves each one.",
+  "runs": {
+    "20260805T172047Z-035042b": {
+      "run_id": "20260805T172047Z-035042b",
+      "kind": "eval",
+      "run_ts": "2026-08-05T17:30:18.009394+00:00",
+      "git_sha": "035042bbc4ce5284a4b7afd46f5dca574b5ddee4",
+      "git_dirty": false,
+      "config_path": "configs/eval_pop_t12m_test.yaml",
+      "config_hash": "sha256:1e60f2621f29dda053119282bfd8dbc3c824df0af7d95b8d9aeca2f86a1500ed",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "popularity",
+        "params": {
+          "as_of": "train_end",
+          "window_days": 365
+        }
+      },
+      "wall_clock_s": 570.663,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260805T185305Z-adbca99": {
+      "run_id": "20260805T185305Z-adbca99",
+      "kind": "eval",
+      "run_ts": "2026-08-05T18:58:40.707555+00:00",
+      "git_sha": "adbca99412155e655a0b0b7e61efa8f8d3a72415",
+      "git_dirty": false,
+      "config_path": "configs/eval_itemknn_test.yaml",
+      "config_hash": "sha256:2726d7e6cbac5412b70e3cf5698a97f935011c64210b32950c77d9b83e6ec2ac",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "item_knn",
+        "params": {
+          "top_n": 50,
+          "shrinkage": 0.0,
+          "block_size": 8192
+        }
+      },
+      "wall_clock_s": 335.448,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260805T185935Z-adbca99": {
+      "run_id": "20260805T185935Z-adbca99",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-05T18:59:35.706278+00:00",
+      "git_sha": "adbca99412155e655a0b0b7e61efa8f8d3a72415",
+      "git_dirty": true,
+      "config_path": "configs/compare_itemknn_vs_pop_t12m_test.yaml",
+      "config_hash": "sha256:e153e0c3d50275b28c23c0a58d2b977be9d4a015ba516a4a759b1fea467f39c4",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260806T082441Z-2f2f26d": {
+      "run_id": "20260806T082441Z-2f2f26d",
+      "kind": "eval",
+      "run_ts": "2026-08-06T08:46:12.872525+00:00",
+      "git_sha": "2f2f26d55129eabadfd84012146c8a202d61e1c2",
+      "git_dirty": false,
+      "config_path": "configs/eval_als_test_seed1.yaml",
+      "config_hash": "sha256:c50679bf1b89ed1bb82d7914b089a887a6ff91332c228b5ff67724966606d31e",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 20260805
+      },
+      "model": {
+        "name": "als",
+        "params": {
+          "rank": 128,
+          "reg_param": 0.01,
+          "alpha": 10.0,
+          "max_iter": 25,
+          "weighting": "binary",
+          "seed": 20260805,
+          "param_hash": "36cb7b0cd328",
+          "user_factors_sha256": "a85c2d9fd88c5b51b7c71234dd02ca94d5bc5b9a3e3edb44a71cc9537f6154fb",
+          "item_factors_sha256": "6fc9e5468dc701a903467887c25efb300a47264539d006765988d6dd4af0026d"
+        }
+      },
+      "wall_clock_s": 1292.102,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260806T091202Z-4fcd2f2": {
+      "run_id": "20260806T091202Z-4fcd2f2",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-06T09:12:02.914148+00:00",
+      "git_sha": "4fcd2f214261f1c3f81f8187ef021b9c9cc00629",
+      "git_dirty": false,
+      "config_path": "configs/compare_als_vs_pop_t12m_test.yaml",
+      "config_hash": "sha256:6d7da36f1371b5d59b164773e7a5a2bf2e2442cc86c8ba63ccec66af7c451b39",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260807T050054Z-c320c79": {
+      "run_id": "20260807T050054Z-c320c79",
+      "kind": "eval",
+      "run_ts": "2026-08-07T05:25:38.082285+00:00",
+      "git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "git_dirty": false,
+      "config_path": "configs/eval_content_test.yaml",
+      "config_hash": "sha256:37248ae3c39f4ed1a4e42d54d46dd6fa55cb787d6ebd3ce29995ae4f0f03c6f4",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "content",
+        "params": {
+          "recipe_hash": "1f7878ff82bf",
+          "artifact_root": "data/eval/minilm",
+          "five_core_snapshot_id": 8184397443787800955,
+          "embeddings_sha256": "260bf265a29083917852895b2fd006d7641d77aa7fb5daeef7e5019694792110",
+          "item_ids_sha256": "3dacae9d50fec59110d452cde587e91b17aa8812d9c86abce351d782cf863e9f",
+          "embedding_dim": 384
+        }
+      },
+      "wall_clock_s": 1485.086,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260807T055333Z-c320c79": {
+      "run_id": "20260807T055333Z-c320c79",
+      "kind": "eval",
+      "run_ts": "2026-08-07T06:14:09.171133+00:00",
+      "git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "git_dirty": false,
+      "config_path": "configs/eval_blend_test.yaml",
+      "config_hash": "sha256:5ab33a50f1791367ed987fce7af54650c2791a57e2137e5f63306667989d72e4",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "content_pop_blend",
+        "params": {
+          "alpha": 0.3,
+          "as_of": "train_end",
+          "window_days": 365,
+          "recipe_hash": "1f7878ff82bf",
+          "artifact_root": "data/eval/minilm",
+          "content_params": {
+            "recipe_hash": "1f7878ff82bf",
+            "artifact_root": "data/eval/minilm",
+            "five_core_snapshot_id": 8184397443787800955,
+            "embeddings_sha256": "260bf265a29083917852895b2fd006d7641d77aa7fb5daeef7e5019694792110",
+            "item_ids_sha256": "3dacae9d50fec59110d452cde587e91b17aa8812d9c86abce351d782cf863e9f",
+            "embedding_dim": 384
+          }
+        }
+      },
+      "wall_clock_s": 1235.911,
+      "hardware": "arm64 · Darwin",
+      "reproduce": [
+        {
+          "run_id": "20260807T153823Z-9a9fb4c",
+          "verdict": "byte_exact"
+        },
+        {
+          "run_id": "20260807T164622Z-3e2c665",
+          "verdict": "byte_exact"
+        }
+      ],
+      "repro_command": "make reproduce-headline"
+    },
+    "20260807T082125Z-c320c79": {
+      "run_id": "20260807T082125Z-c320c79",
+      "kind": "eval",
+      "run_ts": "2026-08-07T08:56:38.748445+00:00",
+      "git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "git_dirty": false,
+      "config_path": "configs/eval_hybrid_test.yaml",
+      "config_hash": "sha256:340fc6f3bb8de84398ab8dd425d3498e54c61381503f4ae88f7526c4cb87cb51",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "hybrid",
+        "params": {
+          "n_star": null,
+          "low": {
+            "name": "content_pop_blend",
+            "params": {
+              "alpha": 0.3,
+              "as_of": "train_end",
+              "window_days": 365,
+              "recipe_hash": "1f7878ff82bf",
+              "artifact_root": "data/eval/minilm"
+            }
+          },
+          "high": {
+            "name": "popularity",
+            "params": {
+              "as_of": "train_end",
+              "window_days": 365
+            }
+          }
+        }
+      },
+      "wall_clock_s": 2114.619,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260807T085806Z-c320c79": {
+      "run_id": "20260807T085806Z-c320c79",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-07T08:58:06.168541+00:00",
+      "git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "git_dirty": true,
+      "config_path": "configs/compare_content_vs_pop_t12m_test.yaml",
+      "config_hash": "sha256:ac6406a942c73def6334f1cf63b9bda6b334ba6651368428962cec3d9ca18a2a",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260807T085819Z-c320c79": {
+      "run_id": "20260807T085819Z-c320c79",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-07T08:58:19.445453+00:00",
+      "git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "git_dirty": true,
+      "config_path": "configs/compare_blend_vs_pop_t12m_test.yaml",
+      "config_hash": "sha256:fa4983cdf743d37cdf22ff5456c67cdad92c57087db346dcdfe6d47c70c89aac",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260807T085845Z-c320c79": {
+      "run_id": "20260807T085845Z-c320c79",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-07T08:58:45.750830+00:00",
+      "git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "git_dirty": true,
+      "config_path": "configs/compare_hybrid_vs_best_component_test.yaml",
+      "config_hash": "sha256:4a95741d4c2707b5b28837a0f4fedde552dc6cfa5d9e3992c069f3eca0e0c3c8",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260807T153823Z-9a9fb4c": {
+      "run_id": "20260807T153823Z-9a9fb4c",
+      "kind": "reproduce",
+      "run_ts": "2026-08-07T15:38:23.804372+00:00",
+      "git_sha": "9a9fb4cdbc1b9a5ba90b311a08d65a9cd3f3e992",
+      "git_dirty": false,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s"
+      ]
+    },
+    "20260807T164622Z-3e2c665": {
+      "run_id": "20260807T164622Z-3e2c665",
+      "kind": "reproduce",
+      "run_ts": "2026-08-07T16:46:22.236508+00:00",
+      "git_sha": "3e2c665999f7b4901e3008e47d706d8d5ebadbc6",
+      "git_dirty": false,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s"
+      ]
+    }
+  }
+}

@@ -1,0 +1,96 @@
+# Static-demo data export (Phase 6, T26; plan §9). Shared by every
+# src/batch_recsys_lab/demo/export_*.py module:
+#   make demo-export     # crossover.json + receipts.json + trace_manifest.json
+#   make demo-verify     # independent re-resolution of every exported number
+#
+# The run_ids below are the canonical TEST runs pinned in
+# configs/crossover_test.yaml — the demo cites exactly the runs the committed
+# figure cites, no re-selection. Nothing here may be edited without re-running
+# `make demo-export`; demo-verify fails if the exported JSON and the log drift.
+
+schema_version: 1
+
+runs_log: results/runs.jsonl
+out_dir: demo/data
+manifest: demo/data/trace_manifest.json
+
+# The one-shot TEST headline run (blend a=0.3). `make reproduce-headline`
+# reproduces THIS record (byte_exact x2, records 20260807T153823Z-9a9fb4c and
+# 20260807T164622Z-3e2c665) — receipts.json attaches both verdicts to it.
+headline_run_id: "20260807T055333Z-c320c79"
+repro_command: "make reproduce-headline"
+
+split: test
+segments: ["0", "1-4", "5-9", "10-19", "20+"]
+# Exhibit 1 shows NDCG@10 (headline metric) and Recall@20 (the §6.5 secondary).
+metrics: ["ndcg@10", "recall@20"]
+
+# Chart copy, carried over from configs/crossover_test.yaml so the site chart
+# and results/figures/crossover_test.svg tell the same story. Descriptive:
+# presence-checked by the verifier, never value-matched against the log.
+title: "How much history before personalization beats popularity? (TEST)"
+subtitle: "NDCG@10 by user history depth - full-catalog ranking, 368,228 items; bands are 95% bootstrap CIs; Amazon Electronics, TEST = 2023-01-01 -> snapshot end"
+xlabel: "User history depth (TRAIN interactions per TEST user)"
+
+models:
+  - key: blend
+    label: "blend α=0.3 (content+pop)"
+    run_id: "20260807T055333Z-c320c79"
+    highlight: true
+  - key: pop_t12m
+    label: "pop-t12m"
+    run_id: "20260805T172047Z-035042b"
+  - key: als
+    label: "ALS (rank 128, seed 20260805)"
+    run_id: "20260806T082441Z-2f2f26d"
+  - key: item_knn
+    label: "item-kNN (top-50)"
+    run_id: "20260805T185305Z-adbca99"
+  - key: content
+    label: "content (MiniLM)"
+    run_id: "20260807T050054Z-c320c79"
+  # Plotted as an annotation, not a sixth line: the hybrid policy at n*=inf
+  # reduces to blend everywhere, and its TEST record is numerically identical
+  # (paired delta hybrid-vs-blend is exactly zero in every cell).
+  - key: hybrid
+    label: "hybrid policy (n*=inf ≡ blend)"
+    run_id: "20260807T082125Z-c320c79"
+    identical_to: blend
+    plot: false
+
+# Paired bootstrap deltas (kind="paired_delta"), listed explicitly rather than
+# discovered: the exhibit's claims are pinned to specific comparisons, and an
+# appended future comparison must not silently change the export.
+paired_deltas:
+  - key: blend_vs_pop_t12m
+    label: "blend α=0.3 − pop-t12m"
+    run_id: "20260807T085819Z-c320c79"
+  - key: content_vs_pop_t12m
+    label: "content (MiniLM) − pop-t12m"
+    run_id: "20260807T085806Z-c320c79"
+  - key: als_vs_pop_t12m
+    label: "ALS − pop-t12m"
+    run_id: "20260806T091202Z-4fcd2f2"
+  - key: itemknn_vs_pop_t12m
+    label: "item-kNN − pop-t12m"
+    run_id: "20260805T185935Z-adbca99"
+  - key: hybrid_vs_blend
+    label: "hybrid − blend α=0.3 (identity check)"
+    run_id: "20260807T085845Z-c320c79"
+
+# Committed results artifacts usable as transitive evidence: a number from one
+# of these may be exported only through TracedWriter.register_artifact(), which
+# refuses the binding unless the file still hashes to what `run_id` recorded at
+# `anchor_pointer`. Consumed by later Phase 6 tasks, declared here so the
+# anchor rule is one place.
+artifacts:
+  lineage:
+    path: results/lineage.json
+    run_id: "20260807T160910Z-739833b"      # kind="lineage"
+    anchor_pointer: "/artifact_sha256"
+    consumed_by: T30 (export_lineage)
+  policy_select_val:
+    path: results/policy_select_val.json
+    run_id: "20260808T025446Z-1f1ab07"       # kind="policy_grid" (T27)
+    anchor_pointer: "/val_selection_ref/sha256"
+    consumed_by: T27 (export_policy_grid)
