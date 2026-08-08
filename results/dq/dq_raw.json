@@ -1,0 +1,1825 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.dq_export_job",
+  "warehouse": "data/warehouse",
+  "headline_run_id": "20260807T055333Z-c320c79",
+  "audit_run_id": "20260806T104111Z-5df9906",
+  "audit_run_ts": "2026-08-06T10:41:12.105063+00:00",
+  "build_run_id": "20260805T143256Z-7406fc1",
+  "table_snapshots": {
+    "local.dq.dq_results": 5773615139187912564,
+    "local.dq.kcore_funnel": 3180400616661769631,
+    "local.dq.waterfall": 6981461550824696597,
+    "local.gold.item_features": 5841387267286613743,
+    "local.quarantine.interactions": 600269372414732988,
+    "local.quarantine.items": 3613873469199912067,
+    "local.silver.items": 7760402325430157555
+  },
+  "headline_snapshots": {
+    "local.gold.interactions_5core": 8184397443787800955,
+    "local.gold.item_features": 5841387267286613743,
+    "local.gold.popularity": 1565243784354530213,
+    "local.gold.user_stats": 7656304543449163695
+  },
+  "contracts": {
+    "local.gold.interactions_5core": {
+      "name": "gold_interactions_5core",
+      "version": 1
+    },
+    "local.gold.item_features": {
+      "name": "gold_item_features",
+      "version": 1
+    },
+    "local.gold.item_text": {
+      "name": "gold_item_text",
+      "version": 1
+    },
+    "local.gold.popularity": {
+      "name": "gold_popularity",
+      "version": 1
+    },
+    "local.gold.user_stats": {
+      "name": "gold_user_stats",
+      "version": 1
+    },
+    "local.silver.interactions": {
+      "name": "silver_interactions",
+      "version": 1
+    },
+    "local.silver.items": {
+      "name": "silver_items",
+      "version": 1
+    }
+  },
+  "contract_matrix": {
+    "local.gold.interactions_5core": {
+      "contract_name": "gold_interactions_5core",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 15473536,
+      "counts": {
+        "pass": 7,
+        "measured": 4,
+        "fail": 0
+      },
+      "checks": {
+        "rating_domain": {
+          "kind": "allowed_values",
+          "column": "rating",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "rating"
+            ]
+          }
+        },
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "keys_non_null": {
+          "kind": "not_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "user_id",
+              "parent_asin",
+              "ts"
+            ]
+          }
+        },
+        "ts_range": {
+          "kind": "range",
+          "column": "ts",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "ts"
+            ]
+          }
+        },
+        "schema__asin": {
+          "kind": "schema_conformance",
+          "column": "asin",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__helpful_vote": {
+          "kind": "schema_conformance",
+          "column": "helpful_vote",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__parent_asin": {
+          "kind": "schema_conformance",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__rating": {
+          "kind": "schema_conformance",
+          "column": "rating",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "double",
+            "actual_dtype": "double",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__ts": {
+          "kind": "schema_conformance",
+          "column": "ts",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "timestamp",
+            "actual_dtype": "timestamp",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__user_id": {
+          "kind": "schema_conformance",
+          "column": "user_id",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__verified_purchase": {
+          "kind": "schema_conformance",
+          "column": "verified_purchase",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "boolean",
+            "actual_dtype": "boolean",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        }
+      }
+    },
+    "local.gold.item_features": {
+      "contract_name": "gold_item_features",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 368228,
+      "counts": {
+        "pass": 9,
+        "measured": 2,
+        "fail": 0
+      },
+      "checks": {
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "parent_asin_non_null": {
+          "kind": "not_null",
+          "column": "parent_asin",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "parent_asin"
+            ]
+          }
+        },
+        "price_nonneg": {
+          "kind": "range",
+          "column": "price_usd",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "price_usd"
+            ]
+          }
+        },
+        "schema__average_rating": {
+          "kind": "schema_conformance",
+          "column": "average_rating",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "double",
+            "actual_dtype": "double",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__brand_norm": {
+          "kind": "schema_conformance",
+          "column": "brand_norm",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__categories": {
+          "kind": "schema_conformance",
+          "column": "categories",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "array<string>",
+            "actual_dtype": "array<string>",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__main_category": {
+          "kind": "schema_conformance",
+          "column": "main_category",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__parent_asin": {
+          "kind": "schema_conformance",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__price_usd": {
+          "kind": "schema_conformance",
+          "column": "price_usd",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "double",
+            "actual_dtype": "double",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__rating_number": {
+          "kind": "schema_conformance",
+          "column": "rating_number",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__title": {
+          "kind": "schema_conformance",
+          "column": "title",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        }
+      }
+    },
+    "local.gold.item_text": {
+      "contract_name": "gold_item_text",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 368228,
+      "counts": {
+        "pass": 9,
+        "measured": 1,
+        "fail": 0
+      },
+      "checks": {
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "text_hygiene": {
+          "kind": "no_control_chars",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "title",
+              "brand_norm",
+              "main_category"
+            ]
+          }
+        },
+        "parent_asin_non_null": {
+          "kind": "not_null",
+          "column": "parent_asin",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "parent_asin"
+            ]
+          }
+        },
+        "schema__brand_norm": {
+          "kind": "schema_conformance",
+          "column": "brand_norm",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__categories": {
+          "kind": "schema_conformance",
+          "column": "categories",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "array<string>",
+            "actual_dtype": "array<string>",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__description": {
+          "kind": "schema_conformance",
+          "column": "description",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "array<string>",
+            "actual_dtype": "array<string>",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__features": {
+          "kind": "schema_conformance",
+          "column": "features",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "array<string>",
+            "actual_dtype": "array<string>",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__main_category": {
+          "kind": "schema_conformance",
+          "column": "main_category",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__parent_asin": {
+          "kind": "schema_conformance",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__title": {
+          "kind": "schema_conformance",
+          "column": "title",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        }
+      }
+    },
+    "local.gold.popularity": {
+      "contract_name": "gold_popularity",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 1223106,
+      "counts": {
+        "pass": 4,
+        "measured": 5,
+        "fail": 0
+      },
+      "checks": {
+        "window_days_domain": {
+          "kind": "allowed_values",
+          "column": "window_days",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "window_days"
+            ]
+          }
+        },
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "parent_asin_non_null": {
+          "kind": "not_null",
+          "column": "parent_asin",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "parent_asin"
+            ]
+          }
+        },
+        "n_interactions_min1": {
+          "kind": "range",
+          "column": "n_interactions",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "n_interactions"
+            ]
+          }
+        },
+        "schema__as_of": {
+          "kind": "schema_conformance",
+          "column": "as_of",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "timestamp",
+            "actual_dtype": "timestamp",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__n_interactions": {
+          "kind": "schema_conformance",
+          "column": "n_interactions",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__n_unique_users": {
+          "kind": "schema_conformance",
+          "column": "n_unique_users",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__parent_asin": {
+          "kind": "schema_conformance",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__window_days": {
+          "kind": "schema_conformance",
+          "column": "window_days",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "int",
+            "actual_dtype": "int",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        }
+      }
+    },
+    "local.gold.user_stats": {
+      "contract_name": "gold_user_stats",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 1641026,
+      "counts": {
+        "pass": 3,
+        "measured": 8,
+        "fail": 0
+      },
+      "checks": {
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "user_id_non_null": {
+          "kind": "not_null",
+          "column": "user_id",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "user_id"
+            ]
+          }
+        },
+        "n_total_min5": {
+          "kind": "range",
+          "column": "n_total",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "n_total"
+            ]
+          }
+        },
+        "schema__first_ts": {
+          "kind": "schema_conformance",
+          "column": "first_ts",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "timestamp",
+            "actual_dtype": "timestamp",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__last_ts": {
+          "kind": "schema_conformance",
+          "column": "last_ts",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "timestamp",
+            "actual_dtype": "timestamp",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__n_test": {
+          "kind": "schema_conformance",
+          "column": "n_test",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__n_total": {
+          "kind": "schema_conformance",
+          "column": "n_total",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__n_train": {
+          "kind": "schema_conformance",
+          "column": "n_train",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__n_val": {
+          "kind": "schema_conformance",
+          "column": "n_val",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__tenure_days": {
+          "kind": "schema_conformance",
+          "column": "tenure_days",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "int",
+            "actual_dtype": "int",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__user_id": {
+          "kind": "schema_conformance",
+          "column": "user_id",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        }
+      }
+    },
+    "local.silver.interactions": {
+      "contract_name": "silver_interactions",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 43365424,
+      "counts": {
+        "pass": 7,
+        "measured": 5,
+        "fail": 0
+      },
+      "checks": {
+        "rating_domain": {
+          "kind": "allowed_values",
+          "column": "rating",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "rating"
+            ]
+          }
+        },
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "keys_non_null": {
+          "kind": "not_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "user_id",
+              "parent_asin",
+              "ts"
+            ]
+          }
+        },
+        "item_fk": {
+          "kind": "orphan_rate",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": 0.0,
+          "note": null,
+          "details": {
+            "ref_table": "local.silver.items",
+            "ref_column": "parent_asin",
+            "denominator": 43365424
+          }
+        },
+        "ts_range": {
+          "kind": "range",
+          "column": "ts",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "ts"
+            ]
+          }
+        },
+        "schema__asin": {
+          "kind": "schema_conformance",
+          "column": "asin",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__helpful_vote": {
+          "kind": "schema_conformance",
+          "column": "helpful_vote",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__parent_asin": {
+          "kind": "schema_conformance",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__rating": {
+          "kind": "schema_conformance",
+          "column": "rating",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "double",
+            "actual_dtype": "double",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__ts": {
+          "kind": "schema_conformance",
+          "column": "ts",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "timestamp",
+            "actual_dtype": "timestamp",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__user_id": {
+          "kind": "schema_conformance",
+          "column": "user_id",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__verified_purchase": {
+          "kind": "schema_conformance",
+          "column": "verified_purchase",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "boolean",
+            "actual_dtype": "boolean",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        }
+      }
+    },
+    "local.silver.items": {
+      "contract_name": "silver_items",
+      "contract_version": 1,
+      "contract_declared_version": 1,
+      "total_rows": 1610012,
+      "counts": {
+        "pass": 12,
+        "measured": 3,
+        "fail": 0
+      },
+      "checks": {
+        "price_sentinel": {
+          "kind": "forbidden_values",
+          "column": "price_usd",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "price_usd"
+            ]
+          }
+        },
+        "no_dead_columns": {
+          "kind": "no_all_null",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "dead_columns": []
+          }
+        },
+        "text_hygiene": {
+          "kind": "no_control_chars",
+          "column": null,
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "title",
+              "brand_norm"
+            ]
+          }
+        },
+        "key_non_null": {
+          "kind": "not_null",
+          "column": "parent_asin",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "parent_asin"
+            ]
+          }
+        },
+        "price_nonneg": {
+          "kind": "range",
+          "column": "price_usd",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "columns": [
+              "price_usd"
+            ]
+          }
+        },
+        "schema__average_rating": {
+          "kind": "schema_conformance",
+          "column": "average_rating",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "double",
+            "actual_dtype": "double",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__brand_norm": {
+          "kind": "schema_conformance",
+          "column": "brand_norm",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__categories": {
+          "kind": "schema_conformance",
+          "column": "categories",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "array<string>",
+            "actual_dtype": "array<string>",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__main_category": {
+          "kind": "schema_conformance",
+          "column": "main_category",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__parent_asin": {
+          "kind": "schema_conformance",
+          "column": "parent_asin",
+          "status": "measured",
+          "violations": 0,
+          "measured": null,
+          "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8).",
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": false,
+            "actual_nullable": true,
+            "note": "Spark/Iceberg createOrReplace marks all columns physically nullable; the declared-non-null column is otherwise conformant (dtype matches). NULL values are still hard-failed by the column's not_null check / zero-violation re-assertion. Downgraded fail->measured (T8)."
+          }
+        },
+        "schema__price_usd": {
+          "kind": "schema_conformance",
+          "column": "price_usd",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "double",
+            "actual_dtype": "double",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__rating_number": {
+          "kind": "schema_conformance",
+          "column": "rating_number",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "bigint",
+            "actual_dtype": "bigint",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__store": {
+          "kind": "schema_conformance",
+          "column": "store",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "schema__title": {
+          "kind": "schema_conformance",
+          "column": "title",
+          "status": "pass",
+          "violations": 0,
+          "measured": null,
+          "note": null,
+          "details": {
+            "expected_dtype": "string",
+            "actual_dtype": "string",
+            "expected_nullable": true,
+            "actual_nullable": true
+          }
+        },
+        "brand_unknown_share": {
+          "kind": "unknown_share",
+          "column": "brand_norm",
+          "status": "measured",
+          "violations": 73178,
+          "measured": 0.04545183514160143,
+          "note": null,
+          "details": {
+            "sentinel": "unknown"
+          }
+        }
+      }
+    }
+  },
+  "contract_summary": {
+    "tables": 7,
+    "checks": 79,
+    "pass": 51,
+    "measured": 28,
+    "fail": 0,
+    "any_fail": false,
+    "by_kind_status": {
+      "allowed_values": {
+        "pass": 3
+      },
+      "forbidden_values": {
+        "pass": 1
+      },
+      "no_all_null": {
+        "pass": 7
+      },
+      "no_control_chars": {
+        "pass": 2
+      },
+      "not_null": {
+        "pass": 7
+      },
+      "orphan_rate": {
+        "measured": 1
+      },
+      "range": {
+        "pass": 6
+      },
+      "schema_conformance": {
+        "measured": 26,
+        "pass": 25
+      },
+      "unknown_share": {
+        "measured": 1
+      }
+    },
+    "failing": []
+  },
+  "quarantine": {
+    "build_run_id": "20260805T143256Z-7406fc1",
+    "total_rows": 2,
+    "by_reason": [
+      {
+        "table": "local.quarantine.interactions",
+        "reason": "rating_domain",
+        "rows": 2,
+        "share": 1.0,
+        "share_of_input": 4.557163971134559e-08
+      }
+    ],
+    "tables": {
+      "local.quarantine.interactions": {
+        "rows": 2,
+        "rows_all_runs": 2,
+        "by_primary_reason": [
+          {
+            "reason": "rating_domain",
+            "rows": 2
+          }
+        ],
+        "by_violation_reason": [
+          {
+            "reason": "rating_domain",
+            "rows": 2
+          }
+        ],
+        "snapshot_id": 600269372414732988
+      },
+      "local.quarantine.items": {
+        "rows": 0,
+        "rows_all_runs": 0,
+        "by_primary_reason": [],
+        "by_violation_reason": [],
+        "snapshot_id": 3613873469199912067
+      }
+    }
+  },
+  "kcore_funnel": [
+    {
+      "iteration": 0,
+      "rows": 43365424,
+      "users": 18286190,
+      "items": 1609860,
+      "converged": false,
+      "wall_clock_s": 72.936
+    },
+    {
+      "iteration": 1,
+      "rows": 16883417,
+      "users": 1847620,
+      "items": 603239,
+      "converged": false,
+      "wall_clock_s": 112.928
+    },
+    {
+      "iteration": 2,
+      "rows": 15929364,
+      "users": 1743137,
+      "items": 383259,
+      "converged": false,
+      "wall_clock_s": 45.231
+    },
+    {
+      "iteration": 3,
+      "rows": 15541920,
+      "users": 1650879,
+      "items": 375640,
+      "converged": false,
+      "wall_clock_s": 57.281
+    },
+    {
+      "iteration": 4,
+      "rows": 15497125,
+      "users": 1646183,
+      "items": 368980,
+      "converged": false,
+      "wall_clock_s": 94.57
+    },
+    {
+      "iteration": 5,
+      "rows": 15477434,
+      "users": 1641604,
+      "items": 368626,
+      "converged": false,
+      "wall_clock_s": 61.215
+    },
+    {
+      "iteration": 6,
+      "rows": 15475048,
+      "users": 1641345,
+      "items": 368288,
+      "converged": false,
+      "wall_clock_s": 123.025
+    },
+    {
+      "iteration": 7,
+      "rows": 15473873,
+      "users": 1641077,
+      "items": 368262,
+      "converged": false,
+      "wall_clock_s": 131.175
+    },
+    {
+      "iteration": 8,
+      "rows": 15473705,
+      "users": 1641061,
+      "items": 368236,
+      "converged": false,
+      "wall_clock_s": 91.103
+    },
+    {
+      "iteration": 9,
+      "rows": 15473597,
+      "users": 1641037,
+      "items": 368233,
+      "converged": false,
+      "wall_clock_s": 47.451
+    },
+    {
+      "iteration": 10,
+      "rows": 15473576,
+      "users": 1641034,
+      "items": 368230,
+      "converged": false,
+      "wall_clock_s": 45.324
+    },
+    {
+      "iteration": 11,
+      "rows": 15473556,
+      "users": 1641029,
+      "items": 368230,
+      "converged": false,
+      "wall_clock_s": 68.288
+    },
+    {
+      "iteration": 12,
+      "rows": 15473552,
+      "users": 1641029,
+      "items": 368229,
+      "converged": false,
+      "wall_clock_s": 48.103
+    },
+    {
+      "iteration": 13,
+      "rows": 15473544,
+      "users": 1641027,
+      "items": 368229,
+      "converged": false,
+      "wall_clock_s": 44.771
+    },
+    {
+      "iteration": 14,
+      "rows": 15473540,
+      "users": 1641027,
+      "items": 368228,
+      "converged": false,
+      "wall_clock_s": 52.57
+    },
+    {
+      "iteration": 15,
+      "rows": 15473536,
+      "users": 1641026,
+      "items": 368228,
+      "converged": false,
+      "wall_clock_s": 50.26
+    },
+    {
+      "iteration": 16,
+      "rows": 15473536,
+      "users": 1641026,
+      "items": 368228,
+      "converged": true,
+      "wall_clock_s": 49.719
+    }
+  ],
+  "waterfall": {
+    "run_id": "20260805T143256Z-7406fc1",
+    "stages": [
+      {
+        "stage": "reviews:raw->bronze",
+        "dataset": "reviews",
+        "stage_from": "raw",
+        "stage_to": "bronze",
+        "rows_in": 43886944,
+        "rows_out": 43886944,
+        "delta": 0,
+        "reason": "none",
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 43886944,
+            "share_of_rows_in": 1.0
+          },
+          {
+            "reason": "corrupt",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          }
+        ],
+        "target_table": "local.bronze.reviews",
+        "target_count": 43886944,
+        "sum_ok": true,
+        "count_ok": true,
+        "matches_ledger": true
+      },
+      {
+        "stage": "reviews:bronze->silver",
+        "dataset": "reviews",
+        "stage_from": "bronze",
+        "stage_to": "silver",
+        "rows_in": 43886944,
+        "rows_out": 43365424,
+        "delta": 521520,
+        "reason": "exact_duplicate",
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 43365424,
+            "share_of_rows_in": 0.9881167392288696
+          },
+          {
+            "reason": "quarantine:rating_domain",
+            "rows": 2,
+            "share_of_rows_in": 4.557163971134559e-08
+          },
+          {
+            "reason": "exact_duplicate",
+            "rows": 477968,
+            "share_of_rows_in": 0.010890892744776214
+          },
+          {
+            "reason": "superseded_by_later_review",
+            "rows": 43550,
+            "share_of_rows_in": 0.0009923224547145502
+          }
+        ],
+        "target_table": "local.silver.interactions",
+        "target_count": 43365424,
+        "sum_ok": true,
+        "count_ok": true,
+        "matches_ledger": true
+      },
+      {
+        "stage": "reviews:silver->gold",
+        "dataset": "reviews",
+        "stage_from": "silver",
+        "stage_to": "gold",
+        "rows_in": 43365424,
+        "rows_out": 15473536,
+        "delta": 27891888,
+        "reason": "kcore_pruned",
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 15473536,
+            "share_of_rows_in": 0.35681735753350413
+          },
+          {
+            "reason": "kcore_pruned",
+            "rows": 27891888,
+            "share_of_rows_in": 0.6431826424664959
+          }
+        ],
+        "target_table": "local.gold.interactions_5core",
+        "target_count": 15473536,
+        "sum_ok": true,
+        "count_ok": true,
+        "matches_ledger": true
+      },
+      {
+        "stage": "items:raw->bronze",
+        "dataset": "items",
+        "stage_from": "raw",
+        "stage_to": "bronze",
+        "rows_in": 1610012,
+        "rows_out": 1610012,
+        "delta": 0,
+        "reason": "none",
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 1610012,
+            "share_of_rows_in": 1.0
+          },
+          {
+            "reason": "corrupt",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          }
+        ],
+        "target_table": "local.bronze.items",
+        "target_count": 1610012,
+        "sum_ok": true,
+        "count_ok": true,
+        "matches_ledger": true
+      },
+      {
+        "stage": "items:bronze->silver",
+        "dataset": "items",
+        "stage_from": "bronze",
+        "stage_to": "silver",
+        "rows_in": 1610012,
+        "rows_out": 1610012,
+        "delta": 0,
+        "reason": "none",
+        "reasons": [
+          {
+            "reason": "kept",
+            "rows": 1610012,
+            "share_of_rows_in": 1.0
+          },
+          {
+            "reason": "exact_duplicate",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          },
+          {
+            "reason": "superseded_by_later_review",
+            "rows": 0,
+            "share_of_rows_in": 0.0
+          }
+        ],
+        "target_table": "local.silver.items",
+        "target_count": 1610012,
+        "sum_ok": true,
+        "count_ok": true,
+        "matches_ledger": true
+      }
+    ],
+    "reconciles": true,
+    "ledger_rows_checked": 13
+  },
+  "measured_rates": {
+    "unknown_brand_share": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104111Z-5df9906",
+      "is_selected_audit": true,
+      "table": "local.silver.items",
+      "check_id": "brand_unknown_share",
+      "rows": 73178,
+      "denominator": 1610012,
+      "rate": 0.04545183514160143,
+      "details": {
+        "sentinel": "unknown"
+      }
+    },
+    "item_fk_orphan_rate": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104111Z-5df9906",
+      "is_selected_audit": true,
+      "table": "local.silver.interactions",
+      "check_id": "item_fk",
+      "rows": 0,
+      "denominator": 43365424,
+      "rate": 0.0,
+      "details": {
+        "ref_table": "local.silver.items",
+        "ref_column": "parent_asin",
+        "denominator": 43365424
+      }
+    },
+    "price_unparseable_share": {
+      "source": "contract_ledger",
+      "run_id": "20260805T143256Z-7406fc1",
+      "is_selected_audit": false,
+      "table": "local.silver.items",
+      "check_id": "price_unparseable",
+      "rows": 316,
+      "denominator": 1610012,
+      "rate": 0.00019627182902984573,
+      "details": {
+        "regex": "^\\$?\\d+(\\.\\d+)?$"
+      }
+    },
+    "brand_from_manufacturer_share": {
+      "source": "contract_ledger",
+      "run_id": "20260805T143256Z-7406fc1",
+      "is_selected_audit": false,
+      "table": "local.silver.items",
+      "check_id": "brand_source_share",
+      "rows": 384785,
+      "denominator": 1610012,
+      "rate": 0.2389951130799025,
+      "details": {
+        "from_brand": 1153897,
+        "from_manufacturer": 384785,
+        "from_none": 71330
+      }
+    },
+    "gold_item_features_join_loss": {
+      "source": "contract_ledger",
+      "run_id": "20260805T143256Z-7406fc1",
+      "is_selected_audit": false,
+      "table": "local.gold.item_features",
+      "check_id": "gold_item_features_join_loss",
+      "rows": 0,
+      "denominator": 368228,
+      "rate": 0.0,
+      "details": {
+        "orphan_items": 0,
+        "catalog_items": 368228
+      }
+    },
+    "gold_item_text_empty_title_share": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104051Z-5df9906",
+      "is_selected_audit": false,
+      "table": "local.gold.item_text",
+      "check_id": "gold_item_text_empty_title_share",
+      "rows": 0,
+      "denominator": 368228,
+      "rate": 0.0,
+      "details": {
+        "null_title": 0,
+        "rows": 368228
+      }
+    },
+    "gold_item_text_empty_features_share": {
+      "source": "contract_ledger",
+      "run_id": "20260806T104051Z-5df9906",
+      "is_selected_audit": false,
+      "table": "local.gold.item_text",
+      "check_id": "gold_item_text_empty_features_share",
+      "rows": 58654,
+      "denominator": 368228,
+      "rate": 0.15928718076843695,
+      "details": {
+        "empty_features": 58654,
+        "rows": 368228
+      }
+    },
+    "null_price_share::local.gold.item_features": {
+      "source": "dq_export_job",
+      "run_id": null,
+      "is_selected_audit": false,
+      "table": "local.gold.item_features",
+      "check_id": null,
+      "predicate": "price_usd IS NULL",
+      "rows": 204983,
+      "denominator": 368228,
+      "rate": 0.5566741258133547,
+      "details": {
+        "snapshot_id": 5841387267286613743
+      }
+    },
+    "null_price_share::local.silver.items": {
+      "source": "dq_export_job",
+      "run_id": null,
+      "is_selected_audit": false,
+      "table": "local.silver.items",
+      "check_id": null,
+      "predicate": "price_usd IS NULL",
+      "rows": 1083563,
+      "denominator": 1610012,
+      "rate": 0.6730154806299581,
+      "details": {
+        "snapshot_id": 7760402325430157555
+      }
+    }
+  },
+  "headline_counts": {
+    "raw_reviews_rows": 43886944,
+    "bronze_reviews_rows": 43886944,
+    "silver_interactions_rows": 43365424,
+    "bronze_to_silver_dropped_rows": 521520,
+    "exact_duplicate_rows": 477968,
+    "superseded_by_later_review_rows": 43550,
+    "quarantined_interaction_rows": 2,
+    "quarantine_ledger_rows": 2,
+    "kcore_pruned_rows": 27891888,
+    "gold_interactions_5core_rows": 15473536,
+    "raw_items_rows": 1610012,
+    "silver_items_rows": 1610012
+  },
+  "reconciliation": {
+    "checks": [
+      {
+        "name": "raw_equals_bronze",
+        "lhs": 43886944,
+        "rhs": 43886944,
+        "ok": true,
+        "note": "ingest is lossless: 0 corrupt lines"
+      },
+      {
+        "name": "bronze_minus_drops_equals_silver",
+        "lhs": 43365424,
+        "rhs": 43365424,
+        "ok": true,
+        "note": "dedup + supersede + quarantine account for every dropped row"
+      },
+      {
+        "name": "quarantine_ledger_equals_waterfall",
+        "lhs": 2,
+        "rhs": 2,
+        "ok": true,
+        "note": "the quarantine table holds exactly the rows the waterfall says it does"
+      },
+      {
+        "name": "silver_minus_kcore_equals_gold",
+        "lhs": 15473536,
+        "rhs": 15473536,
+        "ok": true,
+        "note": "the k-core prune accounts for the whole silver->gold delta"
+      },
+      {
+        "name": "funnel_starts_at_silver",
+        "lhs": 43365424,
+        "rhs": 43365424,
+        "ok": true,
+        "note": "iteration 0 of the k-core funnel is the silver row count"
+      },
+      {
+        "name": "funnel_ends_at_gold",
+        "lhs": 15473536,
+        "rhs": 15473536,
+        "ok": true,
+        "note": "the converged funnel iteration is the published 5-core row count"
+      },
+      {
+        "name": "audit_total_rows::local.silver.interactions",
+        "lhs": 43365424,
+        "rhs": 43365424,
+        "ok": true,
+        "note": "the audited table is the table the waterfall describes"
+      },
+      {
+        "name": "audit_total_rows::local.gold.interactions_5core",
+        "lhs": 15473536,
+        "rhs": 15473536,
+        "ok": true,
+        "note": "the audited table is the table the waterfall describes"
+      },
+      {
+        "name": "audit_total_rows::local.silver.items",
+        "lhs": 1610012,
+        "rhs": 1610012,
+        "ok": true,
+        "note": "the audited table is the table the waterfall describes"
+      }
+    ],
+    "all_ok": true
+  }
+}

@@ -158,6 +158,10 @@ def main(argv: list[str] | None = None) -> None:
     # receipts.json would cite run_ids it does not document (the verifier's
     # RECEIPTS check catches exactly that).
     seeds |= {rep["run_id"] for rep in reproduce_records(cfg["headline_run_id"], runs)}
+    # Provenance-cited run_ids outside the trace manifest's closure: exhibits may
+    # cite a record as provenance without tracing numbers to it (the search
+    # exhibit's ann_receipt chip). Config-pinned so the citation set stays explicit.
+    seeds |= set(cfg.get("extra_run_ids", []))
     run_ids = closure(seeds, runs)
 
     writer = build(cfg, runs, run_ids)

@@ -1,0 +1,281 @@
+{
+  "run_id": "20260805T143256Z-7406fc1",
+  "generated_at": "2026-08-05T15:00:25.583617+00:00",
+  "datasets": {
+    "reviews": {
+      "chain": [
+        "raw",
+        "bronze",
+        "silver",
+        "gold"
+      ],
+      "edges": [
+        {
+          "stage_from": "raw",
+          "stage_to": "bronze",
+          "source_rows": 43886944,
+          "kept_rows": 43886944,
+          "reason_sum": 43886944,
+          "target_table": "local.bronze.reviews",
+          "target_count": 43886944,
+          "sum_ok": true,
+          "count_ok": true,
+          "reasons": [
+            {
+              "reason": "kept",
+              "rows": 43886944
+            },
+            {
+              "reason": "corrupt",
+              "rows": 0
+            }
+          ]
+        },
+        {
+          "stage_from": "bronze",
+          "stage_to": "silver",
+          "source_rows": 43886944,
+          "kept_rows": 43365424,
+          "reason_sum": 43886944,
+          "target_table": "local.silver.interactions",
+          "target_count": 43365424,
+          "sum_ok": true,
+          "count_ok": true,
+          "reasons": [
+            {
+              "reason": "kept",
+              "rows": 43365424
+            },
+            {
+              "reason": "quarantine:rating_domain",
+              "rows": 2
+            },
+            {
+              "reason": "exact_duplicate",
+              "rows": 477968
+            },
+            {
+              "reason": "superseded_by_later_review",
+              "rows": 43550
+            }
+          ]
+        },
+        {
+          "stage_from": "silver",
+          "stage_to": "gold",
+          "source_rows": 43365424,
+          "kept_rows": 15473536,
+          "reason_sum": 43365424,
+          "target_table": "local.gold.interactions_5core",
+          "target_count": 15473536,
+          "sum_ok": true,
+          "count_ok": true,
+          "reasons": [
+            {
+              "reason": "kept",
+              "rows": 15473536
+            },
+            {
+              "reason": "kcore_pruned",
+              "rows": 27891888
+            }
+          ]
+        }
+      ],
+      "kcore_run_id": "20260805T143256Z-7406fc1",
+      "kcore_funnel": [
+        {
+          "iteration": 0,
+          "rows": 43365424,
+          "users": 18286190,
+          "items": 1609860,
+          "converged": false,
+          "wall_clock_s": 72.936
+        },
+        {
+          "iteration": 1,
+          "rows": 16883417,
+          "users": 1847620,
+          "items": 603239,
+          "converged": false,
+          "wall_clock_s": 112.928
+        },
+        {
+          "iteration": 2,
+          "rows": 15929364,
+          "users": 1743137,
+          "items": 383259,
+          "converged": false,
+          "wall_clock_s": 45.231
+        },
+        {
+          "iteration": 3,
+          "rows": 15541920,
+          "users": 1650879,
+          "items": 375640,
+          "converged": false,
+          "wall_clock_s": 57.281
+        },
+        {
+          "iteration": 4,
+          "rows": 15497125,
+          "users": 1646183,
+          "items": 368980,
+          "converged": false,
+          "wall_clock_s": 94.57
+        },
+        {
+          "iteration": 5,
+          "rows": 15477434,
+          "users": 1641604,
+          "items": 368626,
+          "converged": false,
+          "wall_clock_s": 61.215
+        },
+        {
+          "iteration": 6,
+          "rows": 15475048,
+          "users": 1641345,
+          "items": 368288,
+          "converged": false,
+          "wall_clock_s": 123.025
+        },
+        {
+          "iteration": 7,
+          "rows": 15473873,
+          "users": 1641077,
+          "items": 368262,
+          "converged": false,
+          "wall_clock_s": 131.175
+        },
+        {
+          "iteration": 8,
+          "rows": 15473705,
+          "users": 1641061,
+          "items": 368236,
+          "converged": false,
+          "wall_clock_s": 91.103
+        },
+        {
+          "iteration": 9,
+          "rows": 15473597,
+          "users": 1641037,
+          "items": 368233,
+          "converged": false,
+          "wall_clock_s": 47.451
+        },
+        {
+          "iteration": 10,
+          "rows": 15473576,
+          "users": 1641034,
+          "items": 368230,
+          "converged": false,
+          "wall_clock_s": 45.324
+        },
+        {
+          "iteration": 11,
+          "rows": 15473556,
+          "users": 1641029,
+          "items": 368230,
+          "converged": false,
+          "wall_clock_s": 68.288
+        },
+        {
+          "iteration": 12,
+          "rows": 15473552,
+          "users": 1641029,
+          "items": 368229,
+          "converged": false,
+          "wall_clock_s": 48.103
+        },
+        {
+          "iteration": 13,
+          "rows": 15473544,
+          "users": 1641027,
+          "items": 368229,
+          "converged": false,
+          "wall_clock_s": 44.771
+        },
+        {
+          "iteration": 14,
+          "rows": 15473540,
+          "users": 1641027,
+          "items": 368228,
+          "converged": false,
+          "wall_clock_s": 52.57
+        },
+        {
+          "iteration": 15,
+          "rows": 15473536,
+          "users": 1641026,
+          "items": 368228,
+          "converged": false,
+          "wall_clock_s": 50.26
+        },
+        {
+          "iteration": 16,
+          "rows": 15473536,
+          "users": 1641026,
+          "items": 368228,
+          "converged": true,
+          "wall_clock_s": 49.719
+        }
+      ]
+    },
+    "items": {
+      "chain": [
+        "raw",
+        "bronze",
+        "silver"
+      ],
+      "edges": [
+        {
+          "stage_from": "raw",
+          "stage_to": "bronze",
+          "source_rows": 1610012,
+          "kept_rows": 1610012,
+          "reason_sum": 1610012,
+          "target_table": "local.bronze.items",
+          "target_count": 1610012,
+          "sum_ok": true,
+          "count_ok": true,
+          "reasons": [
+            {
+              "reason": "kept",
+              "rows": 1610012
+            },
+            {
+              "reason": "corrupt",
+              "rows": 0
+            }
+          ]
+        },
+        {
+          "stage_from": "bronze",
+          "stage_to": "silver",
+          "source_rows": 1610012,
+          "kept_rows": 1610012,
+          "reason_sum": 1610012,
+          "target_table": "local.silver.items",
+          "target_count": 1610012,
+          "sum_ok": true,
+          "count_ok": true,
+          "reasons": [
+            {
+              "reason": "kept",
+              "rows": 1610012
+            },
+            {
+              "reason": "exact_duplicate",
+              "rows": 0
+            },
+            {
+              "reason": "superseded_by_later_review",
+              "rows": 0
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

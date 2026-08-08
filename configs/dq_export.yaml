@@ -1,0 +1,79 @@
+# Data-quality exhibit (Phase 6, T29; plan §9 exhibit 4).
+#
+#   1. read-only Spark pull  -> data/demo_export/dq_raw.json
+#      make demo-dq
+#   2. publish + record      -> results/dq/*.json + one kind="dq_export" record
+#      uv run python -m batch_recsys_lab.demo.dq_export_job \
+#          --config configs/dq_export.yaml --phase record --dry-run   # prints, appends nothing
+#      uv run python -m batch_recsys_lab.demo.dq_export_job \
+#          --config configs/dq_export.yaml --phase record --append    # appends (run from a clean tree)
+#   3. project to the site   -> demo/data/dq.json
+#      uv run python -m batch_recsys_lab.demo.export_dq --config configs/dq_export.yaml
+#
+# Step 2 is deliberately separate from step 1 and JVM-free: the record's
+# git_sha must contain the code that produced dq_raw.json, so the append runs
+# only after that code is committed. dq_raw.json carries no timestamp, so the
+# sha256 printed by --dry-run is the sha256 the appended record will carry.
+
+schema_version: 1
+
+# out_dir / manifest / runs_log / headline_run_id are resolved from the shared
+# demo export config — this exhibit cannot cite a different headline run than
+# the crossover chart.
+demo_export_config: configs/demo_export.yaml
+
+warehouse: data/warehouse
+contracts_dir: contracts
+
+# Read-only Spark reads, each pinned to the snapshot id captured before the JVM
+# starts (a concurrent commit cannot change what is exported).
+tables:
+  dq_results: local.dq.dq_results
+  kcore_funnel: local.dq.kcore_funnel
+  waterfall: local.dq.waterfall
+  quarantine_interactions: local.quarantine.interactions
+  quarantine_items: local.quarantine.items
+
+# Tables scanned only for the §9 null-price rate (see below). Read-only.
+null_price_tables:
+  - local.silver.items
+  - local.gold.item_features
+
+# §9 item 4 names "Unknown-brand and null-price rates". The unknown-brand share
+# is a recorded contract check (silver_items.brand_unknown_share); a null-price
+# rate is NOT — the closest ledger measure, price_unparseable, counts strings
+# that failed the price regex, not absent prices. So the null-price rate is
+# measured by this job (one read-only COUNT per table) and labelled
+# source="dq_export_job" in dq_raw.json, next to the ledger-sourced rates which
+# are labelled source="contract_ledger". Set to false to drop the panel rather
+# than ship an unlabelled derivation.
+measure_null_price: true
+
+# Audit selection. null => the LATEST dq_results run (by run_ts) that covers
+# every contract in contracts_dir with exactly one row per (table, check_id).
+# A partial or duplicated audit is rejected, never silently used.
+audit_run_id: null
+
+# The build run whose waterfall is the reconciliation ground truth. null =>
+# data/waterfall.json's own run_id. Quarantine counts and the k-core funnel are
+# filtered to this run so they reconcile with the waterfall exactly (the
+# ledgers are append-only and hold rows from every build ever run).
+build_run_id: null
+
+waterfall_json: data/waterfall.json
+build_summary: data/build_summary.jsonl
+
+dq_raw: data/demo_export/dq_raw.json
+
+# Committed copies of the two anchored artifacts. data/ is gitignored, and the
+# traceability verifier re-reads a results_artifact source file in BOTH modes
+# (unlike per-user parquets, which record mode skips) — so the evidence dq.json
+# points at has to live in a committed path, exactly like results/lineage.json.
+# These are byte-identical copies; the record carries one sha256 per artifact,
+# valid for both paths.
+published_dir: results/dq
+
+# The kind="dq_export" record export_dq projects. null => the latest one in the
+# log whose sha256s match the artifacts on disk (register_artifact refuses the
+# binding otherwise, so a wrong record cannot pass silently).
+record_run_id: null

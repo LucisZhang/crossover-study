@@ -18,6 +18,11 @@ manifest: demo/data/trace_manifest.json
 # reproduces THIS record (byte_exact x2, records 20260807T153823Z-9a9fb4c and
 # 20260807T164622Z-3e2c665) — receipts.json attaches both verdicts to it.
 headline_run_id: "20260807T055333Z-c320c79"
+
+# Provenance-cited run_ids with no traced numbers (receipts drawer needs cards
+# for their chips anyway): the search exhibit's embedding-artifact receipt.
+extra_run_ids:
+  - "20260807T090857Z-97af81f"   # kind=ann_receipt — MiniLM embeddings + ANN overlap
 repro_command: "make reproduce-headline"
 
 split: test

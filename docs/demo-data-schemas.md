@@ -12,7 +12,7 @@ Status of each schema:
 | `receipts.json` | **FROZEN** (shipped) | `demo/export_receipts.py` | T26 |
 | `policy_grid.json` | **SHIPPED** | `demo/export_policy_grid.py` | T27 |
 | `shoppers.json` | **SHIPPED** | `demo/export_shoppers.py` | T28 |
-| `dq.json` | AGREED (not yet written) | `demo/export_dq.py` | T29 |
+| `dq.json` | **SHIPPED** | `demo/export_dq.py` | T29 |
 | `lineage.json` | AGREED (not yet written) | `demo/export_lineage.py` | T30 |
 | `timetravel.json` | AGREED (not yet written) | `demo/export_lineage.py` | T30 |
 | `search/*` | AGREED (not yet written, not committed) | `demo/export_search.py` | T35 |
@@ -337,22 +337,113 @@ Notes for the JS:
   `iceberg_snapshots`, per-arm `run_id` and `hitrate@10`, per-item `brand` /
   `price_usd` / `main_category`, and `top10[].catalog_index`.
 
-## `dq.json` — AGREED (T29, exhibit 4: DQ dashboard)
+## `dq.json` — SHIPPED (T29, exhibit 4: DQ dashboard)
 
 Anchored by one appended `kind="dq_export"` record carrying the SHA-256 of both
-`data/waterfall.json` and the Spark job's `dq_raw.json`.
+`data/waterfall.json` and the Spark job's `dq_raw.json`. Both are re-published
+byte-identically under `results/dq/` (committed — `data/` is gitignored and the
+verifier re-reads a `results_artifact` source file in **record** mode too), and
+every numeric leaf below uses the `results_artifact` source kind against one of
+them. Which one is not arbitrary:
+
+* the **raw waterfall counts** (`rows_in`, `rows_out`, `target_count`,
+  `reasons[].rows`, `sum_ok`, `count_ok`) resolve into
+  `results/dq/waterfall.json` — i.e. into the committed reconciliation ledger
+  itself, so "the dashboard's waterfall byte-matches `data/waterfall.json`" is
+  true by construction, not by comparison;
+* everything the Spark job **derived** (`delta`, `share_of_rows_in`, the
+  dominant `reason`, the contract matrix, quarantine tallies, funnel, measured
+  rates, reconciliation identities) resolves into `results/dq/dq_raw.json`.
+
+`export_dq` additionally re-derives the waterfall-edge ↔ stage mapping itself
+and aborts if `dq_raw.json` restates any count differently.
 
 ```jsonc
 {
   "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_dq",
   "record_run_id": "<kind=dq_export run_id>",
-  "waterfall": { "stages": [ { "stage": "raw", "rows_in": …, "rows_out": …, "delta": …, "reason": … } ],
-                 "reconciles": true },
-  "contract_matrix": { "<table>": { "<check>": { "status": "pass", "measured": …, "threshold": … } } },
-  "quarantine": { "by_reason": [ { "reason": …, "rows": …, "share": … } ], "total_rows": … },
-  "kcore_funnel": [ { "iteration": …, "users": …, "items": …, "interactions": … } ]
+  "artifact_sha256": { "waterfall": "sha256:…", "dq_raw": "sha256:…" },   // descriptive
+  "artifact_path":   { "waterfall": "results/dq/waterfall.json", "dq_raw": "results/dq/dq_raw.json" },
+  "audit_run_id": …, "audit_run_ts": …, "build_run_id": …, "headline_run_id": …,  // descriptive
+  "iceberg_snapshots": { "<table>": … },   // traced (record) — headline-pinned tables the job guarded
+  "table_snapshots":   { "<table>": … },   // traced (record) — the ledger tables it READ
+
+  "waterfall": {
+    "stages": [ { "stage": "reviews:raw->bronze",        // descriptive label
+                  "dataset": …, "stage_from": …, "stage_to": …, "target_table": …,   // descriptive
+                  "rows_in": …, "rows_out": …, "target_count": …,
+                  "sum_ok": true, "count_ok": true,      // ← results/dq/waterfall.json
+                  "delta": …, "reason": …, "matches_ledger": true,   // ← dq_raw.json
+                  "reasons": [ { "reason": …,            // descriptive label
+                                 "rows": …,              // ← results/dq/waterfall.json
+                                 "share_of_rows_in": … } ] } ],      // ← dq_raw.json
+    "reconciles": true, "ledger_rows_checked": …, "run_id": …
+  },
+
+  "contract_matrix": { "<table>": { "<check_id>": {
+        "status": "pass" | "measured" | "fail", "measured": … | null, "violations": …,
+        "kind": …, "column": … | null,          // descriptive
+        "threshold": null } } },                // ALWAYS null — see note
+  "contract_tables": { "<table>": { "contract_name": …, "contract_version": …,
+                                    "total_rows": …, "counts": { "pass": …, "measured": …, "fail": … } } },
+
+  "headline_counts": { "raw_reviews_rows": …, "bronze_reviews_rows": …,
+                       "silver_interactions_rows": …, "exact_duplicate_rows": …,
+                       "superseded_by_later_review_rows": …, "quarantined_interaction_rows": …,
+                       "quarantine_ledger_rows": …, "kcore_pruned_rows": …,
+                       "gold_interactions_5core_rows": …, "raw_items_rows": …, "silver_items_rows": … },
+  "contract_summary": { "tables": …, "checks": …, "pass": …, "measured": …, "fail": …,
+                        "any_fail": false,
+                        "by_kind_status": { "<check_kind>": { "<status>": … } },
+                        "failing": [ { "table": …, "check_id": …, "kind": …,
+                                       "violations": …, "measured": … } ] },
+  "quarantine": { "build_run_id": …, "total_rows": …,
+                  "by_reason": [ { "table": …, "reason": …, "rows": …,
+                                   "share": …, "share_of_input": … } ],
+                  "tables": { "<table>": { "rows": …, "rows_all_runs": …,
+                                           "by_primary_reason": [ … ],
+                                           "by_violation_reason": [ … ], "snapshot_id": … } } },
+  "measured_rates": { "<key>": { "source": "contract_ledger" | "dq_export_job",
+                                 "run_id": … | null, "is_selected_audit": …,
+                                 "table": …, "check_id": … | null,
+                                 "rows": …, "denominator": …, "rate": …, "details": { … } } },
+  "reconciliation": { "checks": [ { "name": …, "lhs": …, "rhs": …, "ok": true, "note": … } ],
+                      "all_ok": true },
+  "kcore_funnel": [ { "iteration": …, "users": …, "items": …, "interactions": …,
+                      "converged": …, "wall_clock_s": … } ],
+  "notes": { … }        // descriptive subtree: provenance copy for the exhibit
 }
 ```
+
+Notes for the JS (deviations and additions since the AGREED draft, all additive
+— no field was renamed or removed):
+
+* **`contract_matrix.<table>.<check>.threshold` is always `null`.** No contract
+  YAML declares a numeric threshold: checks are pass/fail predicates
+  (`not_null`, `range`, `allowed_values`, `forbidden_values`,
+  `no_control_chars`, `no_all_null`, `schema_conformance`) or unbounded
+  measures (`unknown_share`, `orphan_rate`). The key is kept for the AGREED
+  shape; render "—", not "0".
+* **Per-table metadata lives in the sibling `contract_tables` map**, not inside
+  `contract_matrix.<table>`, so the matrix namespace holds check ids only and a
+  future check named `total_rows` cannot collide with it.
+* **`status: "measured"` is not a failure.** In the shipped audit 26 of the 28
+  measured checks are `schema_conformance` rows carrying the recorded T8
+  nullability downgrade (Spark/Iceberg `createOrReplace` marks every column
+  physically nullable; the declared-non-null column is still hard-enforced by
+  its `not_null` check). Read `contract_summary.any_fail` for the headline and
+  `by_kind_status` for the breakdown.
+* **`kcore_funnel[].interactions` is the ledger's `rows` column**, renamed here
+  per this file's AGREED draft.
+* Added: `generated_by`, `artifact_sha256`, `artifact_path`, `audit_run_id`,
+  `audit_run_ts`, `build_run_id`, `headline_run_id`, `iceberg_snapshots`,
+  `table_snapshots`, per-stage `dataset` / `stage_from` / `stage_to` /
+  `target_table` / `target_count` / `sum_ok` / `count_ok` / `matches_ledger` /
+  `reasons[].share_of_rows_in`, `waterfall.ledger_rows_checked`,
+  `waterfall.run_id`, `contract_tables`, `headline_counts`,
+  `contract_summary`, `measured_rates`, `reconciliation`,
+  `kcore_funnel[].converged` / `wall_clock_s`, and `notes`.
 
 ## `lineage.json` — AGREED (T30, exhibit 5)
 

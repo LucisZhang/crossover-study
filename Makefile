@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -297,6 +297,7 @@ demo-export:
 	uv run python -m batch_recsys_lab.demo.export_crossover --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_policy_grid --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_lineage --config configs/demo_export.yaml
+	uv run python -m batch_recsys_lab.demo.export_dq --config configs/dq_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_shoppers --config configs/shoppers_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_receipts --config configs/demo_export.yaml
 
@@ -306,6 +307,21 @@ demo-export:
 demo-shoppers:
 	uv run python -m batch_recsys_lab.demo.select_shoppers --config configs/shoppers_export.yaml
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.demo.shopper_history_job --config configs/shoppers_export.yaml
+
+# DQ exhibit prerequisite (T29): read-only Spark pull of the contract ledger,
+# the k-core funnel, the reconciliation ledger and both quarantine tables ->
+# data/demo_export/dq_raw.json. Writes nothing to the warehouse; snapshot-guards
+# the headline-pinned tables before the JVM starts, then pins every read to the
+# snapshot id it captured. Spark lives here, NOT in demo-export.
+#
+# The kind="dq_export" record is appended in a SEPARATE, JVM-free step so its
+# git_sha names the commit that produced dq_raw.json:
+#   uv run python -m batch_recsys_lab.demo.dq_export_job \
+#       --config configs/dq_export.yaml --phase record --dry-run   # prints, appends nothing
+#   uv run python -m batch_recsys_lab.demo.dq_export_job \
+#       --config configs/dq_export.yaml --phase record --append    # from a clean tree
+demo-dq: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.demo.dq_export_job --config configs/dq_export.yaml --phase collect
 
 # Independent re-resolution of every exported number (shares no code with the
 # writing path). Exits non-zero on any coverage, exact-match, artifact-hash or
@@ -328,7 +344,18 @@ demo-serve:
 demo-grid:
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.policy.grid_test --config configs/policy_grid_test.yaml
 
-# Still to come, with the tasks that own the code they would invoke (a target
-# that only prints "not implemented" would be noise):
-#   demo-assets        T35  search payload export + SHA-256-verified model download
+# Search-exhibit assets (T35): int8 payload from the pinned embeddings artifact,
+# then the SHA-256-verified model download. 79.5MB total, never committed
+# (UPGRADE_PLAN §12 cut order #2) — this one command rebuilds both from scratch.
+# JVM-free like demo-export; the Spark-produced slice it consumes
+# (data/demo_export/search_items_raw.parquet) comes from demo-shoppers.
+# The download verifies every byte against the SHA-256s recorded in
+# demo/README.md and exits non-zero with no partial install on any mismatch.
+# To move a pin deliberately, bootstrap the table first:
+#   uv run python -m batch_recsys_lab.demo.fetch_search_assets --record-hashes
+demo-assets:
+	uv run python -m batch_recsys_lab.demo.export_search --config configs/search_export.yaml
+	uv run python -m batch_recsys_lab.demo.fetch_search_assets --config configs/search_export.yaml
+
+# Still to come, with the task that owns the code it would invoke:
 #   demo-offline-check T36  external-URL scanner over the assembled demo/
