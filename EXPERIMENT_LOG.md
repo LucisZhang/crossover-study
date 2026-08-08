@@ -1071,3 +1071,16 @@ after; (2) ops metrics logged — 11 `kind="ops"` records with before/after
 snapshots/files/bytes/rows, exact reconciliations throughout; (3) lineage
 table complete — 24 stages, completeness check green, artifacts committed.
 Full suite + CI smoke: 249 passed / 0 failed at the phase-final tree.
+
+## Phase 5 — formally accepted; ops table cleaned (2026-08-08)
+
+Owner accepted Phase 5 and confirmed receipts complete. MANIFEST.md prose
+wall-clock discrepancy: keep as-is permanently — the T24 superseding note is
+the final handling (the file is hash-pinned into the byte-exact reproduce
+comparison and must never change). `make clean-ops` executed:
+`local.ops.interactions_monthly` dropped (PURGE) and `data/warehouse/ops/`
+removed; disk 44→52GB. Post-drop verification: all four gold tables and
+`silver.interactions` still at their pinned snapshot IDs (JVM-free check).
+The 11 ops records, both reproduce records, and the lineage artifacts remain
+the exhibits' receipts. Phase 6 (demo + case study) starts next in a fresh
+session.
