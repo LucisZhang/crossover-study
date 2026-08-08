@@ -361,6 +361,47 @@ code.mono { font-family: var(--mono); }
 .cold-panel-title { margin: 0 0 6px; font-weight: 600; font-size: 12.5px; color: var(--ink); }
 .cold-panel-note { margin: 0; font-size: 11.5px; }
 
+/* -------------------------------------------------------------------- dq */
+
+.wf-stage { margin: 0 0 22px; }
+.wf-stage h4 { margin: 0 0 6px; font-size: 13px; color: var(--ink); }
+.wf-bar-row { display: grid; grid-template-columns: 260px 1fr 140px; align-items: center; gap: 10px; margin-bottom: 6px; }
+.wf-bar-label { font-size: 12px; color: var(--ink2); }
+.wf-bar-track {
+  display: flex; height: 16px; border-radius: 3px; overflow: hidden;
+  background: #f2f1ec; border: 1px solid var(--grid);
+}
+.wf-seg { display: block; height: 100%; }
+.wf-seg.wf-kept { background: #1baf7a; }
+.wf-seg.wf-drop { background: #e34948; }
+.wf-seg.wf-drop + .wf-seg.wf-drop { border-left: 1px solid var(--panel); }
+.wf-bar-count { font-size: 12px; color: var(--muted); text-align: right; }
+.wf-arith {
+  font-size: 12.5px; color: var(--ink2); background: #faf9f5; border: 1px solid var(--grid);
+  border-radius: 4px; padding: 6px 10px; margin: 6px 0; display: flex; flex-wrap: wrap;
+  align-items: center; gap: 6px;
+}
+.wf-check { font-size: 11px; font-weight: 600; letter-spacing: 0.02em; margin-left: 6px; }
+.wf-check.ok { color: #0d6b4c; }
+.wf-check.bad { color: #b32020; }
+.wf-reasons { font-size: 12px; margin: 6px 0 0; }
+.wf-compact-row { font-size: 13px; margin: 6px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.dq-matrix { font-size: 12px; }
+.dq-matrix-check-head {
+  writing-mode: vertical-rl; transform: rotate(180deg); font-weight: 500;
+  color: var(--muted); max-width: 14px; padding: 4px 2px !important;
+}
+.dq-matrix-cell { text-align: center; font-family: var(--mono); font-size: 11px; padding: 3px 4px !important; }
+.dq-status-pass { background: #eefaf5; color: #0d6b4c; }
+.dq-status-measured { background: #fbf6e2; color: #8a6c0d; }
+.dq-status-fail { background: #fbeaea; color: #b32020; font-weight: 700; }
+.dq-status-absent { color: var(--baseline); font-family: var(--sans); }
+.dq-has-note { cursor: help; }
+
+.dq-source-contract_ledger { border-color: #9fd9c1; color: #0d6b4c; background: #eefaf5; }
+.dq-source-dq_export_job { border-color: #9fc4d9; color: #2c6480; background: #eef6fa; }
+
 /* --------------------------------------------------------------- footer */
 
 .site-foot {
