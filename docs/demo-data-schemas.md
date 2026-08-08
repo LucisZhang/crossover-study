@@ -10,7 +10,7 @@ Status of each schema:
 | `trace_manifest.json` | **FROZEN** (shipped) | `demo/export_core.py` | T26 |
 | `crossover.json` | **FROZEN** (shipped) | `demo/export_crossover.py` | T26 |
 | `receipts.json` | **FROZEN** (shipped) | `demo/export_receipts.py` | T26 |
-| `policy_grid.json` | AGREED (not yet written) | `demo/export_policy_grid.py` | T27 |
+| `policy_grid.json` | **SHIPPED** | `demo/export_policy_grid.py` | T27 |
 | `shoppers.json` | AGREED (not yet written) | `demo/export_shoppers.py` | T28 |
 | `dq.json` | AGREED (not yet written) | `demo/export_dq.py` | T29 |
 | `lineage.json` | AGREED (not yet written) | `demo/export_lineage.py` | T30 |
@@ -212,7 +212,7 @@ manifest entry for that leaf.
 
 ---
 
-## `policy_grid.json` — AGREED (T27, exhibit 2: n\* slider)
+## `policy_grid.json` — **SHIPPED** (T27, exhibit 2: n\* slider)
 
 Backed by one appended `kind="policy_grid"` record (derived, TEST
 recomposition — no re-scoring, no refitting). VAL context comes from
@@ -237,15 +237,21 @@ its SHA-256 (see `configs/demo_export.yaml → artifacts.policy_select_val`).
     "B": {
       "inf": {
         "n_star": null, "n_star_label": "inf",
+        "low_share": 1.0,
         "global":   { "<metric>": { "value": …, "ci_lo": …, "ci_hi": … } },
         "segments": { "<segment>": { "n_users": …, "<metric>": { "value": …, "ci_lo": …, "ci_hi": … } } },
+        // present on every "0" and "inf" cell (both variants), not just B/inf:
+        // A/0 anchors to the ALS record, B/0 to pop-t12m, both "inf" cells to blend
         "identity": { "equals_run_id": "20260807T055333Z-c320c79", "asserted": true }
       }
     }
   },
-  "val_grid": [ { "variant": "A", "n_star_label": "1", "objective": …,
-                  "segment_means": { "<segment>": … } } ],   // from policy_select_val.json
+  "val_grid": [ { "variant": "A", "n_star_label": "1", "low": …, "high": …, "objective": …,
+                  "segment_means": { "<segment>": … } } ],   // from policy_select_val.json, all 10 cells
+  "val_winner": { "variant": "B", "n_star_label": "inf", "objective": …, "segment_means": { … } },
+  "objective": "segment_weighted_ndcg10_unweighted_mean",   // VAL selection objective name (descriptive)
   "n_star_selected_on_val": null,      // null ⇒ no finite n* beat blend-everywhere
+  "notes": { "variant_b_cold_collapse": "…B's n*=0 and n*=1 cells are bit-identical…" },  // descriptive
   "seeds": { "bootstrap": 20260805 }, "n_resamples": 1000
 }
 ```

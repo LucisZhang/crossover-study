@@ -15,7 +15,20 @@
     "20260807T085819Z-c320c79",
     "20260807T085845Z-c320c79",
     "20260807T153823Z-9a9fb4c",
-    "20260807T164622Z-3e2c665"
+    "20260807T154116Z-6a3183b",
+    "20260807T154209Z-6a3183b",
+    "20260807T154222Z-6a3183b",
+    "20260807T154235Z-6a3183b",
+    "20260807T154323Z-6840ac6",
+    "20260807T154411Z-f894505",
+    "20260807T154417Z-f894505",
+    "20260807T155619Z-dc1b1ff",
+    "20260807T155641Z-dc1b1ff",
+    "20260807T155651Z-dc1b1ff",
+    "20260807T155734Z-dc1b1ff",
+    "20260807T160910Z-739833b",
+    "20260807T164622Z-3e2c665",
+    "20260808T030659Z-43c90c8"
   ],
   "note": "Every field below is copied verbatim from the matching results/runs.jsonl record (append-only). demo/data/trace_manifest.json re-resolves each one.",
   "runs": {
@@ -381,6 +394,222 @@
         "wall_clock_s"
       ]
     },
+    "20260807T154116Z-6a3183b": {
+      "run_id": "20260807T154116Z-6a3183b",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:41:16.061123+00:00",
+      "git_sha": "6a3183b33ae29eb0d6da69fe691a5a141f36dee8",
+      "git_dirty": false,
+      "wall_clock_s": 48.083,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T154209Z-6a3183b": {
+      "run_id": "20260807T154209Z-6a3183b",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:42:09.528100+00:00",
+      "git_sha": "6a3183b33ae29eb0d6da69fe691a5a141f36dee8",
+      "git_dirty": false,
+      "wall_clock_s": 6.343,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T154222Z-6a3183b": {
+      "run_id": "20260807T154222Z-6a3183b",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:42:22.638829+00:00",
+      "git_sha": "6a3183b33ae29eb0d6da69fe691a5a141f36dee8",
+      "git_dirty": false,
+      "wall_clock_s": 6.033,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T154235Z-6a3183b": {
+      "run_id": "20260807T154235Z-6a3183b",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:42:35.696090+00:00",
+      "git_sha": "6a3183b33ae29eb0d6da69fe691a5a141f36dee8",
+      "git_dirty": false,
+      "wall_clock_s": 5.934,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T154323Z-6840ac6": {
+      "run_id": "20260807T154323Z-6840ac6",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:43:23.013308+00:00",
+      "git_sha": "6840ac600f696efff83cb5b0c3aa08925c655241",
+      "git_dirty": false,
+      "wall_clock_s": 19.127,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T154411Z-f894505": {
+      "run_id": "20260807T154411Z-f894505",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:44:11.546271+00:00",
+      "git_sha": "f8945055ab2be68d128e47cfd710d92c46242fc0",
+      "git_dirty": false,
+      "wall_clock_s": 0.089,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T154417Z-f894505": {
+      "run_id": "20260807T154417Z-f894505",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:44:17.014499+00:00",
+      "git_sha": "f8945055ab2be68d128e47cfd710d92c46242fc0",
+      "git_dirty": false,
+      "wall_clock_s": 2.378,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T155619Z-dc1b1ff": {
+      "run_id": "20260807T155619Z-dc1b1ff",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:56:19.569105+00:00",
+      "git_sha": "dc1b1ff2282f9e4179ccdbf72de5bd11f2cef417",
+      "git_dirty": false,
+      "wall_clock_s": 13.484,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T155641Z-dc1b1ff": {
+      "run_id": "20260807T155641Z-dc1b1ff",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:56:41.996071+00:00",
+      "git_sha": "dc1b1ff2282f9e4179ccdbf72de5bd11f2cef417",
+      "git_dirty": false,
+      "wall_clock_s": 2.201,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T155651Z-dc1b1ff": {
+      "run_id": "20260807T155651Z-dc1b1ff",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:56:51.718351+00:00",
+      "git_sha": "dc1b1ff2282f9e4179ccdbf72de5bd11f2cef417",
+      "git_dirty": false,
+      "wall_clock_s": 3.051,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T155734Z-dc1b1ff": {
+      "run_id": "20260807T155734Z-dc1b1ff",
+      "kind": "ops",
+      "run_ts": "2026-08-07T15:57:34.800989+00:00",
+      "git_sha": "dc1b1ff2282f9e4179ccdbf72de5bd11f2cef417",
+      "git_dirty": false,
+      "wall_clock_s": 3.144,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model"
+      ]
+    },
+    "20260807T160910Z-739833b": {
+      "run_id": "20260807T160910Z-739833b",
+      "kind": "lineage",
+      "run_ts": "2026-08-07T16:09:10.541587+00:00",
+      "git_sha": "739833b2653ea34d0653cff0f6c6c05c0d3b8bc5",
+      "git_dirty": true,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "config_path",
+        "config_hash",
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s"
+      ]
+    },
     "20260807T164622Z-3e2c665": {
       "run_id": "20260807T164622Z-3e2c665",
       "kind": "reproduce",
@@ -397,6 +626,26 @@
         "seeds",
         "model",
         "wall_clock_s"
+      ]
+    },
+    "20260808T030659Z-43c90c8": {
+      "run_id": "20260808T030659Z-43c90c8",
+      "kind": "policy_grid",
+      "run_ts": "2026-08-08T03:06:59.847728+00:00",
+      "git_sha": "43c90c841fed6f68e752c19549121ae0eb8e9410",
+      "git_dirty": false,
+      "config_path": "configs/policy_grid_test.yaml",
+      "config_hash": "sha256:aa84536cda92499b6e10f2744af48cb67c8e39eb499ebc5f245b9e0e48fdf4bd",
+      "seeds": {
+        "bootstrap": 20260805
+      },
+      "wall_clock_s": 83.816,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "model"
       ]
     }
   }

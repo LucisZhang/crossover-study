@@ -91,6 +91,26 @@ artifacts:
     consumed_by: T30 (export_lineage)
   policy_select_val:
     path: results/policy_select_val.json
-    run_id: "20260808T025446Z-1f1ab07"       # kind="policy_grid" (T27)
+    # Superseded 20260808T025446Z-1f1ab07 -> 20260808T030659Z-43c90c8 (same VAL
+    # artifact, corrected policy_grid record). export_policy_grid consumes only
+    # the current record.
+    run_id: "20260808T030659Z-43c90c8"       # kind="policy_grid" (T27)
     anchor_pointer: "/val_selection_ref/sha256"
     consumed_by: T27 (export_policy_grid)
+
+# Exhibit 2 (n* slider). Backed by the kind="policy_grid" record above — the
+# demo cites exactly the run the site chart cites, no re-selection.
+policy_grid:
+  run_id: "20260808T030659Z-43c90c8"
+  variants:
+    A:
+      label: "blend → ALS"
+      low: blend
+      high: als
+    B:
+      label: "blend → pop-t12m"
+      low: blend
+      high: pop_t12m
+  shipped:
+    variant: B
+    n_star_label: "inf"

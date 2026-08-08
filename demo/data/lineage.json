@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_lineage",
+  "record_run_id": "20260807T160910Z-739833b",
+  "artifact_sha256": "sha256:2291697090d9df44a13282600fe7de5fc3e4bf3d3261e7fe02c4b1a8aa45deb6",
+  "stages_count": 24,
+  "complete": true,
+  "stages": [
+    {
+      "stage": "raw_download",
+      "layer": "raw",
+      "table": "data/raw/ (2 files: Electronics.jsonl.gz, meta_Electronics.jsonl.gz)",
+      "rows_in": null,
+      "rows_out": null,
+      "bytes": 7787339046,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": null
+    },
+    {
+      "stage": "bronze.reviews",
+      "layer": "bronze",
+      "table": "local.bronze.reviews",
+      "rows_in": 43886944,
+      "rows_out": 43886944,
+      "bytes": 1980910011,
+      "wall_clock_s": 350.137,
+      "wall_clock_source": "data/ingest_summary.jsonl",
+      "snapshot_id": 8762010073867551489
+    },
+    {
+      "stage": "bronze.items",
+      "layer": "bronze",
+      "table": "local.bronze.items",
+      "rows_in": 1610012,
+      "rows_out": 1610012,
+      "bytes": 1116629631,
+      "wall_clock_s": 105.498,
+      "wall_clock_source": "data/ingest_summary.jsonl",
+      "snapshot_id": 5777158505586620094
+    },
+    {
+      "stage": "silver.items",
+      "layer": "silver",
+      "table": "local.silver.items",
+      "rows_in": 1610012,
+      "rows_out": 1610012,
+      "bytes": 116636407,
+      "wall_clock_s": 12.553,
+      "wall_clock_source": "data/build_summary.jsonl (run 20260805T143256Z-7406fc1)",
+      "snapshot_id": 7760402325430157555
+    },
+    {
+      "stage": "silver.interactions",
+      "layer": "silver",
+      "table": "local.silver.interactions",
+      "rows_in": 43886944,
+      "rows_out": 43365424,
+      "bytes": 1458626689,
+      "wall_clock_s": 316.413,
+      "wall_clock_source": "data/build_summary.jsonl (run 20260805T143256Z-7406fc1)",
+      "snapshot_id": 884031112460958161
+    },
+    {
+      "stage": "gold.interactions_5core",
+      "layer": "gold",
+      "table": "local.gold.interactions_5core",
+      "rows_in": 43365424,
+      "rows_out": 15473536,
+      "bytes": 398232550,
+      "wall_clock_s": 1195.95,
+      "wall_clock_source": "iceberg:local.dq.kcore_funnel (run 20260805T143256Z-7406fc1, 17 iterations)",
+      "snapshot_id": 8184397443787800955
+    },
+    {
+      "stage": "gold.user_stats",
+      "layer": "gold",
+      "table": "local.gold.user_stats",
+      "rows_in": 15473536,
+      "rows_out": 1641026,
+      "bytes": 56750502,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 7656304543449163695
+    },
+    {
+      "stage": "gold.item_features",
+      "layer": "gold",
+      "table": "local.gold.item_features",
+      "rows_in": 15473536,
+      "rows_out": 368228,
+      "bytes": 24304585,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 5841387267286613743
+    },
+    {
+      "stage": "gold.popularity",
+      "layer": "gold",
+      "table": "local.gold.popularity",
+      "rows_in": 15473536,
+      "rows_out": 1223106,
+      "bytes": 9448726,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 1565243784354530213
+    },
+    {
+      "stage": "gold.item_text",
+      "layer": "gold",
+      "table": "local.gold.item_text",
+      "rows_in": 368228,
+      "rows_out": 368228,
+      "bytes": 184444918,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 5993316986525394173
+    },
+    {
+      "stage": "eval_extract_cache",
+      "layer": "cache",
+      "table": "data/eval/cache/8184397443787800955",
+      "rows_in": null,
+      "rows_out": null,
+      "bytes": 258576184,
+      "wall_clock_s": null,
+      "wall_clock_source": "runtime_not_persisted_at_build",
+      "snapshot_id": 8184397443787800955
+    },
+    {
+      "stage": "headline_eval",
+      "layer": "eval",
+      "table": "data/eval/per_user/20260807T055333Z-c320c79_content_pop_blend.parquet",
+      "rows_in": null,
+      "rows_out": 228153,
+      "bytes": 24595024,
+      "wall_clock_s": 1235.911,
+      "wall_clock_source": "results/runs.jsonl kind=eval run_id=20260807T055333Z-c320c79",
+      "snapshot_id": 8184397443787800955
+    },
+    {
+      "stage": "reproduce_headline",
+      "layer": "eval",
+      "table": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/per_user/20260807T153816Z-9a9fb4c_content_pop_blend.parquet",
+      "rows_in": null,
+      "rows_out": 228153,
+      "bytes": 24595024,
+      "wall_clock_s": 2615.464,
+      "wall_clock_source": "results/runs.jsonl kind=reproduce run_id=20260807T153823Z-9a9fb4c (extract_wall_clock_s + eval_wall_clock_s)",
+      "snapshot_id": null
+    },
+    {
+      "stage": "ops.backfill",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 0,
+      "rows_out": 43216395,
+      "bytes": 1339269361,
+      "wall_clock_s": 48.083,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154116Z-6a3183b",
+      "snapshot_id": 4021089265629704947
+    },
+    {
+      "stage": "ops.append[2023-07]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43216395,
+      "rows_out": 43295105,
+      "bytes": 1341861209,
+      "wall_clock_s": 6.343,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154209Z-6a3183b",
+      "snapshot_id": 155573714918408125
+    },
+    {
+      "stage": "ops.append[2023-08]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43295105,
+      "rows_out": 43349842,
+      "bytes": 1343680159,
+      "wall_clock_s": 6.033,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154222Z-6a3183b",
+      "snapshot_id": 5575621046782304416
+    },
+    {
+      "stage": "ops.append[2023-09]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43349842,
+      "rows_out": 43353465,
+      "bytes": 1343811464,
+      "wall_clock_s": 5.934,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154235Z-6a3183b",
+      "snapshot_id": 8905353604697481203
+    },
+    {
+      "stage": "ops.upsert",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43353465,
+      "rows_out": 43365424,
+      "bytes": 1344148137,
+      "wall_clock_s": 19.127,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154323Z-6840ac6",
+      "snapshot_id": 2050513946378268697
+    },
+    {
+      "stage": "ops.compact[noop]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344148137,
+      "wall_clock_s": 0.089,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154411Z-f894505",
+      "snapshot_id": 2050513946378268697
+    },
+    {
+      "stage": "ops.expire[retain=2,deleted=0]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344148137,
+      "wall_clock_s": 2.378,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T154417Z-f894505",
+      "snapshot_id": 2050513946378268697
+    },
+    {
+      "stage": "ops.fragment[2023-06]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344359047,
+      "wall_clock_s": 13.484,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155619Z-dc1b1ff",
+      "snapshot_id": 5189449370629050757
+    },
+    {
+      "stage": "ops.compact[30->1]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344043731,
+      "wall_clock_s": 2.201,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155641Z-dc1b1ff",
+      "snapshot_id": 6414963768630265414
+    },
+    {
+      "stage": "ops.expire[retain=2,deleted=3]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344043731,
+      "wall_clock_s": 3.051,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155651Z-dc1b1ff",
+      "snapshot_id": 6414963768630265414
+    },
+    {
+      "stage": "ops.expire[retain=1,deleted=30]",
+      "layer": "ops",
+      "table": "local.ops.interactions_monthly",
+      "rows_in": 43365424,
+      "rows_out": 43365424,
+      "bytes": 1344043731,
+      "wall_clock_s": 3.144,
+      "wall_clock_source": "results/runs.jsonl kind=ops run_id=20260807T155734Z-dc1b1ff",
+      "snapshot_id": 6414963768630265414
+    }
+  ],
+  "footnotes": {
+    "runtime_not_persisted_at_build": "Wall clock is null because this stage never wrote a runtime to any ledger. It is deliberately NOT recovered by re-running: re-running a gold build would move Iceberg snapshots that recorded eval records cite, and re-running the extract would overwrite the snapshot-keyed cache the headline run was scored against."
+  }
+}

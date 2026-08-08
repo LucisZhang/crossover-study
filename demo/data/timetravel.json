@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_lineage",
+  "pinned": {
+    "snapshot_ids": {
+      "local.gold.interactions_5core": 8184397443787800955,
+      "local.gold.user_stats": 7656304543449163695,
+      "local.gold.item_features": 5841387267286613743,
+      "local.gold.popularity": 1565243784354530213
+    },
+    "run_id": "20260807T055333Z-c320c79",
+    "headline": {
+      "ndcg@10": {
+        "value": 0.005726134272789762,
+        "ci_lo": 0.0055242997066438865,
+        "ci_hi": 0.0059482904128541556
+      }
+    }
+  },
+  "today": {
+    "snapshot_ids": {
+      "local.ops.interactions_monthly": 6414963768630265414
+    },
+    "source_run_id": "20260807T155734Z-dc1b1ff"
+  },
+  "reproduce": [
+    {
+      "schema_version": 1,
+      "kind": "reproduce",
+      "run_id": "20260807T153823Z-9a9fb4c",
+      "run_ts": "2026-08-07T15:38:23.804372+00:00",
+      "git_sha": "9a9fb4cdbc1b9a5ba90b311a08d65a9cd3f3e992",
+      "git_dirty": false,
+      "headline_config": "/Users/hsiangkuochang/batch-recsys-lab/configs/headline.yaml",
+      "reproduces_run_id": "20260807T055333Z-c320c79",
+      "recorded_git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "verdict": "byte_exact",
+      "diff": [],
+      "fields_compared": [
+        "config_hash",
+        "splits",
+        "dataset_manifest_hash",
+        "iceberg_snapshots",
+        "contracts",
+        "protocol",
+        "model",
+        "seeds",
+        "metrics",
+        "beyond_accuracy"
+      ],
+      "fields_excluded": [
+        "schema_version",
+        "kind",
+        "run_id",
+        "run_ts",
+        "git_sha",
+        "git_dirty",
+        "config_path",
+        "per_user_artifact",
+        "wall_clock_s",
+        "hardware"
+      ],
+      "pinned_cache_manifest_match": true,
+      "repro_cache_dir": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/8184397443787800955",
+      "cache_files_match": true,
+      "cache_files_canonical_match": true,
+      "cache_compare_detail": {
+        "compared_files": [
+          "item_category_codes.npy",
+          "item_category_names.json",
+          "item_ids.parquet",
+          "n_test.npy",
+          "n_train.npy",
+          "n_val.npy",
+          "pop_train_end_0.npy",
+          "pop_train_end_30.npy",
+          "pop_train_end_365.npy",
+          "pop_train_end_90.npy",
+          "pop_val_end_0.npy",
+          "pop_val_end_30.npy",
+          "pop_val_end_365.npy",
+          "pop_val_end_90.npy",
+          "test_item_idx.npy",
+          "test_user_idx.npy",
+          "train_item_idx.npy",
+          "train_rating.npy",
+          "train_user_idx.npy",
+          "user_ids.parquet",
+          "val_item_idx.npy",
+          "val_user_idx.npy"
+        ],
+        "only_in_original": [],
+        "only_in_repro": [],
+        "sha256_mismatches": [],
+        "canonical_mismatches": [],
+        "excluded_files": [
+          "cache_manifest.json"
+        ]
+      },
+      "per_user_artifact_match": true,
+      "per_user_compare_detail": {
+        "n_rows_original": 228153,
+        "n_rows_repro": 228153,
+        "only_in_original_columns": [],
+        "only_in_repro_columns": [],
+        "mismatched_columns": []
+      },
+      "artifact_hashes_match": true,
+      "artifact_compare_detail": {
+        "artifact_dir": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/minilm/8184397443787800955/1f7878ff82bf",
+        "checks": {
+          "manifest_embeddings_sha256": true,
+          "manifest_item_ids_sha256": true,
+          "recomputed_embeddings_sha256": true,
+          "embedding_dim": true
+        }
+      },
+      "extract_wall_clock_s": 0.0,
+      "eval_wall_clock_s": 2615.464,
+      "hardware": "arm64 · Darwin"
+    },
+    {
+      "schema_version": 1,
+      "kind": "reproduce",
+      "run_id": "20260807T164622Z-3e2c665",
+      "run_ts": "2026-08-07T16:46:22.236508+00:00",
+      "git_sha": "3e2c665999f7b4901e3008e47d706d8d5ebadbc6",
+      "git_dirty": false,
+      "headline_config": "/Users/hsiangkuochang/batch-recsys-lab/configs/headline.yaml",
+      "reproduces_run_id": "20260807T055333Z-c320c79",
+      "recorded_git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "verdict": "byte_exact",
+      "diff": [],
+      "fields_compared": [
+        "config_hash",
+        "splits",
+        "dataset_manifest_hash",
+        "iceberg_snapshots",
+        "contracts",
+        "protocol",
+        "model",
+        "seeds",
+        "metrics",
+        "beyond_accuracy"
+      ],
+      "fields_excluded": [
+        "schema_version",
+        "kind",
+        "run_id",
+        "run_ts",
+        "git_sha",
+        "git_dirty",
+        "config_path",
+        "per_user_artifact",
+        "wall_clock_s",
+        "hardware"
+      ],
+      "pinned_cache_manifest_match": true,
+      "repro_cache_dir": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/8184397443787800955",
+      "cache_files_match": true,
+      "cache_files_canonical_match": true,
+      "cache_compare_detail": {
+        "compared_files": [
+          "item_category_codes.npy",
+          "item_category_names.json",
+          "item_ids.parquet",
+          "n_test.npy",
+          "n_train.npy",
+          "n_val.npy",
+          "pop_train_end_0.npy",
+          "pop_train_end_30.npy",
+          "pop_train_end_365.npy",
+          "pop_train_end_90.npy",
+          "pop_val_end_0.npy",
+          "pop_val_end_30.npy",
+          "pop_val_end_365.npy",
+          "pop_val_end_90.npy",
+          "test_item_idx.npy",
+          "test_user_idx.npy",
+          "train_item_idx.npy",
+          "train_rating.npy",
+          "train_user_idx.npy",
+          "user_ids.parquet",
+          "val_item_idx.npy",
+          "val_user_idx.npy"
+        ],
+        "only_in_original": [],
+        "only_in_repro": [],
+        "sha256_mismatches": [],
+        "canonical_mismatches": [],
+        "excluded_files": [
+          "cache_manifest.json"
+        ]
+      },
+      "per_user_artifact_match": true,
+      "per_user_compare_detail": {
+        "n_rows_original": 228153,
+        "n_rows_repro": 228153,
+        "only_in_original_columns": [],
+        "only_in_repro_columns": [],
+        "mismatched_columns": []
+      },
+      "artifact_hashes_match": true,
+      "artifact_compare_detail": {
+        "artifact_dir": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/minilm/8184397443787800955/1f7878ff82bf",
+        "checks": {
+          "manifest_embeddings_sha256": true,
+          "manifest_item_ids_sha256": true,
+          "recomputed_embeddings_sha256": true,
+          "embedding_dim": true
+        }
+      },
+      "extract_wall_clock_s": 0.0,
+      "eval_wall_clock_s": 2183.282,
+      "hardware": "arm64 · Darwin"
+    }
+  ],
+  "ops_chain": [
+    {
+      "run_id": "20260807T154116Z-6a3183b",
+      "step": "backfill",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": null,
+      "snapshot_id_after": 4021089265629704947
+    },
+    {
+      "run_id": "20260807T154209Z-6a3183b",
+      "step": "append",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 4021089265629704947,
+      "snapshot_id_after": 155573714918408125
+    },
+    {
+      "run_id": "20260807T154222Z-6a3183b",
+      "step": "append",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 155573714918408125,
+      "snapshot_id_after": 5575621046782304416
+    },
+    {
+      "run_id": "20260807T154235Z-6a3183b",
+      "step": "append",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 5575621046782304416,
+      "snapshot_id_after": 8905353604697481203
+    },
+    {
+      "run_id": "20260807T154323Z-6840ac6",
+      "step": "upsert",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 8905353604697481203,
+      "snapshot_id_after": 2050513946378268697
+    },
+    {
+      "run_id": "20260807T154411Z-f894505",
+      "step": "compact",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 2050513946378268697,
+      "snapshot_id_after": 2050513946378268697
+    },
+    {
+      "run_id": "20260807T154417Z-f894505",
+      "step": "expire",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 2050513946378268697,
+      "snapshot_id_after": 2050513946378268697
+    },
+    {
+      "run_id": "20260807T155619Z-dc1b1ff",
+      "step": "fragment",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 2050513946378268697,
+      "snapshot_id_after": 5189449370629050757
+    },
+    {
+      "run_id": "20260807T155641Z-dc1b1ff",
+      "step": "compact",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 5189449370629050757,
+      "snapshot_id_after": 6414963768630265414
+    },
+    {
+      "run_id": "20260807T155651Z-dc1b1ff",
+      "step": "expire",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 6414963768630265414,
+      "snapshot_id_after": 6414963768630265414
+    },
+    {
+      "run_id": "20260807T155734Z-dc1b1ff",
+      "step": "expire",
+      "table": "local.ops.interactions_monthly",
+      "snapshot_id_before": 6414963768630265414,
+      "snapshot_id_after": 6414963768630265414
+    }
+  ],
+  "notes": {
+    "ops_table_dropped": "Phase 5's clean-ops step (accepted, see EXPERIMENT_LOG.md) dropped local.ops.interactions_monthly after the reproduce-headline acceptance check ran a second time post-churn. The ops_chain above is the recorded evidence for the snapshot history — the 11 kind=ops records — not a live, re-queryable table."
+  }
+}

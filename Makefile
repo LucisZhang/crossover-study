@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -295,6 +295,8 @@ clean-ops: java-check
 # shoppers, T29 dq, T30 lineage/timetravel, T35 search).
 demo-export:
 	uv run python -m batch_recsys_lab.demo.export_crossover --config configs/demo_export.yaml
+	uv run python -m batch_recsys_lab.demo.export_policy_grid --config configs/demo_export.yaml
+	uv run python -m batch_recsys_lab.demo.export_lineage --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_receipts --config configs/demo_export.yaml
 
 # Independent re-resolution of every exported number (shares no code with the
@@ -312,8 +314,13 @@ demo-verify-record:
 demo-serve:
 	uv run python -m http.server 8000 --bind 127.0.0.1 -d demo
 
+# n* TEST grid recomposition (T27): appends one kind="policy_grid" record from
+# the already-committed per-user metrics named in configs/policy_grid_test.yaml
+# (no re-scoring, no refitting). Run before `demo-export` picks up a new record.
+demo-grid:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.policy.grid_test --config configs/policy_grid_test.yaml
+
 # Still to come, with the tasks that own the code they would invoke (a target
 # that only prints "not implemented" would be noise):
-#   demo-grid          T27  policy/grid_test.py -> kind="policy_grid" record
 #   demo-assets        T35  search payload export + SHA-256-verified model download
 #   demo-offline-check T36  external-URL scanner over the assembled demo/
