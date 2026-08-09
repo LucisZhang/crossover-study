@@ -12,6 +12,10 @@ dependencies = [
 ]
 
 [dependency-groups]
+bench = [
+    "duckdb>=1.5.5",
+    "pyiceberg>=0.11.1",
+]
 dev = [
     "matplotlib>=3.11.1",
     "pytest>=8",
