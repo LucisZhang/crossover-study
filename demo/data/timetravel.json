@@ -213,6 +213,101 @@
       "extract_wall_clock_s": 0.0,
       "eval_wall_clock_s": 2183.282,
       "hardware": "arm64 · Darwin"
+    },
+    {
+      "schema_version": 1,
+      "kind": "reproduce",
+      "run_id": "20260809T155732Z-84fb51e",
+      "run_ts": "2026-08-09T15:57:32.892171+00:00",
+      "git_sha": "5c2ec9ca9a357af8eebeafbc58345356310e33d3",
+      "git_dirty": false,
+      "headline_config": "/Users/hsiangkuochang/batch-recsys-lab/configs/headline.yaml",
+      "reproduces_run_id": "20260807T055333Z-c320c79",
+      "recorded_git_sha": "c320c793956053347171ff170088607f95d31a5e",
+      "verdict": "byte_exact",
+      "diff": [],
+      "fields_compared": [
+        "config_hash",
+        "splits",
+        "dataset_manifest_hash",
+        "iceberg_snapshots",
+        "contracts",
+        "protocol",
+        "model",
+        "seeds",
+        "metrics",
+        "beyond_accuracy"
+      ],
+      "fields_excluded": [
+        "schema_version",
+        "kind",
+        "run_id",
+        "run_ts",
+        "git_sha",
+        "git_dirty",
+        "config_path",
+        "per_user_artifact",
+        "wall_clock_s",
+        "hardware"
+      ],
+      "pinned_cache_manifest_match": true,
+      "repro_cache_dir": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/8184397443787800955",
+      "cache_files_match": true,
+      "cache_files_canonical_match": true,
+      "cache_compare_detail": {
+        "compared_files": [
+          "item_category_codes.npy",
+          "item_category_names.json",
+          "item_ids.parquet",
+          "n_test.npy",
+          "n_train.npy",
+          "n_val.npy",
+          "pop_train_end_0.npy",
+          "pop_train_end_30.npy",
+          "pop_train_end_365.npy",
+          "pop_train_end_90.npy",
+          "pop_val_end_0.npy",
+          "pop_val_end_30.npy",
+          "pop_val_end_365.npy",
+          "pop_val_end_90.npy",
+          "test_item_idx.npy",
+          "test_user_idx.npy",
+          "train_item_idx.npy",
+          "train_rating.npy",
+          "train_user_idx.npy",
+          "user_ids.parquet",
+          "val_item_idx.npy",
+          "val_user_idx.npy"
+        ],
+        "only_in_original": [],
+        "only_in_repro": [],
+        "sha256_mismatches": [],
+        "canonical_mismatches": [],
+        "excluded_files": [
+          "cache_manifest.json"
+        ]
+      },
+      "per_user_artifact_match": true,
+      "per_user_compare_detail": {
+        "n_rows_original": 228153,
+        "n_rows_repro": 228153,
+        "only_in_original_columns": [],
+        "only_in_repro_columns": [],
+        "mismatched_columns": []
+      },
+      "artifact_hashes_match": true,
+      "artifact_compare_detail": {
+        "artifact_dir": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/minilm/8184397443787800955/1f7878ff82bf",
+        "checks": {
+          "manifest_embeddings_sha256": true,
+          "manifest_item_ids_sha256": true,
+          "recomputed_embeddings_sha256": true,
+          "embedding_dim": true
+        }
+      },
+      "extract_wall_clock_s": 0.001,
+      "eval_wall_clock_s": 2404.212,
+      "hardware": "arm64 · Darwin"
     }
   ],
   "ops_chain": [

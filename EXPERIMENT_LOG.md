@@ -1419,3 +1419,42 @@ disjoint universes** (different user populations, catalogs 368,228 vs
 **Protocol.** One shot, clean tree, standard guards (dirty-tree, stale-cache,
 tables cross-check). Whatever TEST shows — including a refuted hypothesis —
 is recorded and published; there is no returning to VAL or re-running TEST.
+
+## Phase 7 stretch 3 — un-cored TEST result: hypothesis partially refuted (2026-08-10)
+
+**Result.** One-shot TEST run `20260809T160227Z-5c70b7c`
+(`configs/eval_pop_t12m_uncored_test.yaml`, clean tree, all guards passed,
+1,374,880 users, catalog 1,609,860, wall 18,654s) vs the recorded 5-core arm
+`20260805T172047Z-035042b`:
+
+| NDCG@10 | 5-core TEST | un-cored TEST | ratio (5-core/un-cored) |
+|---|---|---|---|
+| global | 0.005404 | 0.004513 [CI 0.004429–0.004599] | **1.198** |
+| seg 0 | 0.007505 | 0.004733 | **1.586** |
+| seg 1-4 | 0.005821 | 0.004390 | 1.326 |
+| seg 5-9 | 0.005225 | 0.004068 | 1.284 |
+| seg 10-19 | 0.005107 | 0.003981 | 1.283 |
+| seg 20+ | 0.003711 | 0.002686 | 1.382 |
+
+Recall@20 global ratio: 1.078 (0.017803 vs 0.016513). All ratios are
+**[derived]** protocol-matched ratios across disjoint universes, not paired
+deltas.
+
+**Verdict.** Pre-declared hypothesis (2026-08-09 entry) **partially refuted**:
+(a) global ratio 1.198 falls outside the declared 0.9–1.1 — refuted; (b) all
+non-zero segments > 1 as declared, but not monotone in depth (1.33 → 1.28 →
+1.28 → 1.38) and above the declared 1.1–1.3 at both ends — partially refuted;
+(c) segment-0 ratio declared ≈ 1.0, measured **1.586** — refuted, and in the
+opposite direction of the VAL evidence (VAL seg-0 ratio 1.00).
+
+**Diagnosis.** The VAL-based prediction assumed the compositional cancellation
+(shallow-user mix offsetting per-segment inflation) would transfer to TEST. It
+did not: on TEST every segment is inflated by coring, strict-cold most of all.
+The plausible mechanism is period interaction — TEST (2023) sits 6–15 months
+past the frozen `as_of=train_end` popularity window, and un-cored cold users'
+ground truth carries the largest share of tail/new items that the 5-core
+catalog excludes by construction; in VAL (2022-H2, fresher popularity) that
+gap had not yet opened. Mechanism is inference, not measured. The headline
+number stands regardless of the diagnosis: **coring inflates the popularity
+baseline's TEST NDCG@10 by ×1.20 globally and ×1.28–1.59 per segment.** Per
+protocol there is no re-run; the refuted clauses are published as declared.

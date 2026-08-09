@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-09T04:05:10.843663+00:00",
-  "runs_jsonl_sha256": "sha256:a7976dfc4c6059c87a47b18d644dbb7e38515cce03e6149bcea0e902125e52d7",
+  "generated_at": "2026-08-09T21:15:38.494501+00:00",
+  "runs_jsonl_sha256": "sha256:e7a297a8c6dc1a3e22039454f775e7852d6b8c7515531b48cc370856ac6c36fb",
   "runs_log": "results/runs.jsonl",
   "files": [
     {
@@ -22,7 +22,7 @@
     },
     {
       "name": "receipts.json",
-      "sha256": "sha256:f26e27f1fcee1a2d034a5fca1f22149f8aad267af87e903e770807aab0474c7c"
+      "sha256": "sha256:bc34ab8be5e449bd2e4399122b3a8ea1aa424aa07883572067aef9f659d93998"
     },
     {
       "name": "shoppers.json",
@@ -30,7 +30,7 @@
     },
     {
       "name": "timetravel.json",
-      "sha256": "sha256:2ee79e45d0eaefcacb32c4f4a7b14285ea1576c5729ecb5c2f8d214139129c7f"
+      "sha256": "sha256:d2e5873ba9372734b316ed90e04a5a71123c1e954df48cd0c53c5212a6bb8230"
     }
   ],
   "entries": [
@@ -16638,6 +16638,696 @@
       "source": {
         "kind": "runs_record",
         "run_id": "20260807T164622Z-3e2c665",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/schema_version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/schema_version"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/kind",
+      "value": "reproduce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/run_id",
+      "value": "20260809T155732Z-84fb51e",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/run_ts",
+      "value": "2026-08-09T15:57:32.892171+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/git_sha",
+      "value": "5c2ec9ca9a357af8eebeafbc58345356310e33d3",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/headline_config",
+      "value": "/Users/hsiangkuochang/batch-recsys-lab/configs/headline.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/headline_config"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/reproduces_run_id",
+      "value": "20260807T055333Z-c320c79",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/reproduces_run_id"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/recorded_git_sha",
+      "value": "c320c793956053347171ff170088607f95d31a5e",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/recorded_git_sha"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/verdict",
+      "value": "byte_exact",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/verdict"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/0",
+      "value": "config_hash",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/0"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/1",
+      "value": "splits",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/1"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/2",
+      "value": "dataset_manifest_hash",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/2"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/3",
+      "value": "iceberg_snapshots",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/3"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/4",
+      "value": "contracts",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/4"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/5",
+      "value": "protocol",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/5"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/6",
+      "value": "model",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/6"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/7",
+      "value": "seeds",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/7"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/8",
+      "value": "metrics",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/8"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_compared/9",
+      "value": "beyond_accuracy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_compared/9"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/0",
+      "value": "schema_version",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/0"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/1",
+      "value": "kind",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/1"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/2",
+      "value": "run_id",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/2"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/3",
+      "value": "run_ts",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/3"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/4",
+      "value": "git_sha",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/4"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/5",
+      "value": "git_dirty",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/5"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/6",
+      "value": "config_path",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/6"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/7",
+      "value": "per_user_artifact",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/7"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/8",
+      "value": "wall_clock_s",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/8"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/fields_excluded/9",
+      "value": "hardware",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/fields_excluded/9"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/pinned_cache_manifest_match",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/pinned_cache_manifest_match"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/repro_cache_dir",
+      "value": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/cache_repro/8184397443787800955",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/repro_cache_dir"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_files_match",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_files_match"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_files_canonical_match",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_files_canonical_match"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/0",
+      "value": "item_category_codes.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/0"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/1",
+      "value": "item_category_names.json",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/1"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/2",
+      "value": "item_ids.parquet",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/2"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/3",
+      "value": "n_test.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/3"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/4",
+      "value": "n_train.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/4"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/5",
+      "value": "n_val.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/5"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/6",
+      "value": "pop_train_end_0.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/6"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/7",
+      "value": "pop_train_end_30.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/7"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/8",
+      "value": "pop_train_end_365.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/8"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/9",
+      "value": "pop_train_end_90.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/9"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/10",
+      "value": "pop_val_end_0.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/10"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/11",
+      "value": "pop_val_end_30.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/11"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/12",
+      "value": "pop_val_end_365.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/12"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/13",
+      "value": "pop_val_end_90.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/13"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/14",
+      "value": "test_item_idx.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/14"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/15",
+      "value": "test_user_idx.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/15"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/16",
+      "value": "train_item_idx.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/16"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/17",
+      "value": "train_rating.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/17"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/18",
+      "value": "train_user_idx.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/18"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/19",
+      "value": "user_ids.parquet",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/19"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/20",
+      "value": "val_item_idx.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/20"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/compared_files/21",
+      "value": "val_user_idx.npy",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/compared_files/21"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/cache_compare_detail/excluded_files/0",
+      "value": "cache_manifest.json",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/cache_compare_detail/excluded_files/0"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/per_user_artifact_match",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/per_user_artifact_match"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/per_user_compare_detail/n_rows_original",
+      "value": 228153,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/per_user_compare_detail/n_rows_original"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/per_user_compare_detail/n_rows_repro",
+      "value": 228153,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/per_user_compare_detail/n_rows_repro"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/artifact_hashes_match",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/artifact_hashes_match"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/artifact_compare_detail/artifact_dir",
+      "value": "/Users/hsiangkuochang/batch-recsys-lab/data/eval/minilm/8184397443787800955/1f7878ff82bf",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/artifact_compare_detail/artifact_dir"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/artifact_compare_detail/checks/manifest_embeddings_sha256",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/artifact_compare_detail/checks/manifest_embeddings_sha256"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/artifact_compare_detail/checks/manifest_item_ids_sha256",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/artifact_compare_detail/checks/manifest_item_ids_sha256"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/artifact_compare_detail/checks/recomputed_embeddings_sha256",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/artifact_compare_detail/checks/recomputed_embeddings_sha256"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/artifact_compare_detail/checks/embedding_dim",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/artifact_compare_detail/checks/embedding_dim"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/extract_wall_clock_s",
+      "value": 0.001,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/extract_wall_clock_s"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/eval_wall_clock_s",
+      "value": 2404.212,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/eval_wall_clock_s"
+      }
+    },
+    {
+      "file": "timetravel.json",
+      "pointer": "/reproduce/2/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
         "source_pointer": "/hardware"
       }
     },
@@ -51252,6 +51942,26 @@
     },
     {
       "file": "receipts.json",
+      "pointer": "/runs/20260807T055333Z-c320c79/reproduce/2/run_id",
+      "value": "20260809T155732Z-84fb51e",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T055333Z-c320c79/reproduce/2/verdict",
+      "value": "byte_exact",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/verdict"
+      }
+    },
+    {
+      "file": "receipts.json",
       "pointer": "/runs/20260807T082125Z-c320c79/run_id",
       "value": "20260807T082125Z-c320c79",
       "source": {
@@ -53087,6 +53797,66 @@
       "source": {
         "kind": "runs_record",
         "run_id": "20260808T122329Z-6e9c66b",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/run_id",
+      "value": "20260809T155732Z-84fb51e",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/kind",
+      "value": "reproduce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/run_ts",
+      "value": "2026-08-09T15:57:32.892171+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/git_sha",
+      "value": "5c2ec9ca9a357af8eebeafbc58345356310e33d3",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260809T155732Z-84fb51e",
         "source_pointer": "/hardware"
       }
     }
@@ -57975,6 +58745,12 @@
       "pointer": "/runs/20260808T122329Z-6e9c66b/fields_absent_in_record",
       "subtree": true,
       "note": "kind='dq_export' records do not carry these fields"
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260809T155732Z-84fb51e/fields_absent_in_record",
+      "subtree": true,
+      "note": "kind='reproduce' records do not carry these fields"
     }
   ]
 }
