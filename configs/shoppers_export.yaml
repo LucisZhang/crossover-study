@@ -20,9 +20,12 @@ models: ["blend", "pop_t12m", "als", "item_knn", "content"]
 
 # ALS and item-kNN score every catalog item exactly 0 for a user with no TRAIN
 # history; their stored top50 is the harness's index tie-break, not a
-# recommendation (see models/als.py "Cold-start / segment-0 collapse"). For
-# n_train == 0 users these arms render "empty by design" and carry no top10.
-cold_collapse_models: ["als", "item_knn"]
+# recommendation (see models/als.py "Cold-start / segment-0 collapse"; the
+# same holds for item_knn, and for content the empty history leaves the MiniLM
+# user centroid undefined — the same class of non-signal, Checkpoint 2 ruling
+# 2026-08-09). For n_train == 0 users these arms render "empty by design" and
+# carry no top10.
+cold_collapse_models: ["als", "item_knn", "content"]
 
 # Eval cache: resolved from the headline record's pinned 5-core snapshot id
 # (data/eval/cache/<snapshot_id>) unless overridden here.

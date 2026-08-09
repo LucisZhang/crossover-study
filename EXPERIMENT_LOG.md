@@ -1287,3 +1287,28 @@ record via the receipts drawer) demonstrated by the commands above.
 Criterion 3 (case study reviewed against §10 checklists) lands with T37
 final copy after Checkpoint 2. Next: Checkpoint 2 — demo presented to the
 owner for review before final case-study copy.
+
+## Phase 6 — Checkpoint 2 signed off; two exhibit fixes applied (2026-08-09)
+
+Owner reviewed the assembled demo hands-on: offline load clean, zero
+console errors, receipts drawer verified against a live record. All four
+orchestrator rulings ratified (stratified curation as disclosed; 79.5MB
+uncommitted assets with committed 58kB fallback; "traces to a results-log
+record" read transitively via record-anchored artifact hashes; the
+[derived] evidence label), with the direction that [derived] be defined
+inline at first use and noted in demo/README + case study as an extension
+of the site's three-label convention (README note added).
+
+Fixes from the review, both applied and re-verified:
+1. item-kNN cold panel cited models/als.py — per-arm mechanism notes now
+   cite their own modules (als.py / item_knn.py / content.py).
+2. Cold-start users' content (MiniLM) column rendered its index tie-break
+   top-list as if it were recommendations. content.py documents the same
+   cold-start collapse as ALS (all-zero profile → every score exactly 0),
+   so the content arm now carries cold_collapse for n_train == 0 and
+   renders the same "no personalized signal — empty by design" panel.
+   cold_collapse_models = [als, item_knn, content]; 18 suppressed arms
+   across the 6 cold shoppers. shoppers.json re-exported (1,980 traced
+   leaves), full demo-verify green, 376 tests pass.
+
+T37 final copy proceeds.

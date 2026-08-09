@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-08T12:23:50.122733+00:00",
+  "generated_at": "2026-08-09T03:49:32.143667+00:00",
   "runs_jsonl_sha256": "sha256:a7976dfc4c6059c87a47b18d644dbb7e38515cce03e6149bcea0e902125e52d7",
   "runs_log": "results/runs.jsonl",
   "files": [
@@ -26,7 +26,7 @@
     },
     {
       "name": "shoppers.json",
-      "sha256": "sha256:b57ccd16d3cf1c7d78495438630c4b1bc291028f9270bea9ad3c78567664e8f3"
+      "sha256": "sha256:e1b3898aace67f3b785b18fcf28858dddb0288d300359526537638d9d129d725"
     },
     {
       "name": "timetravel.json",
@@ -26184,126 +26184,6 @@
     },
     {
       "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/0/catalog_index",
-      "value": 0,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/0",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/1/catalog_index",
-      "value": 1,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/1",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/2/catalog_index",
-      "value": 2,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/2",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/3/catalog_index",
-      "value": 3,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/3",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/4/catalog_index",
-      "value": 4,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/4",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/5/catalog_index",
-      "value": 5,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/5",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/6/catalog_index",
-      "value": 6,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/6",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/7/catalog_index",
-      "value": 7,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/7",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/8/catalog_index",
-      "value": 8,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/8",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10/9/catalog_index",
-      "value": 9,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=196582/top50/9",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
       "pointer": "/shoppers/a0d9130edd52/segment",
       "value": "0",
       "source": {
@@ -26781,126 +26661,6 @@
         "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
         "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
         "row_pointer": "user_idx=335898/hitrate@10",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/0/catalog_index",
-      "value": 0,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/0",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/1/catalog_index",
-      "value": 1,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/1",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/2/catalog_index",
-      "value": 2,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/2",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/3/catalog_index",
-      "value": 3,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/3",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/4/catalog_index",
-      "value": 4,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/4",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/5/catalog_index",
-      "value": 5,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/5",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/6/catalog_index",
-      "value": 6,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/6",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/7/catalog_index",
-      "value": 7,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/7",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/8/catalog_index",
-      "value": 8,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/8",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10/9/catalog_index",
-      "value": 9,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=335898/top50/9",
         "run_id": "20260807T050054Z-c320c79"
       }
     },
@@ -27388,126 +27148,6 @@
     },
     {
       "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/0/catalog_index",
-      "value": 0,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/0",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/1/catalog_index",
-      "value": 1,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/1",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/2/catalog_index",
-      "value": 2,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/2",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/3/catalog_index",
-      "value": 3,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/3",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/4/catalog_index",
-      "value": 4,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/4",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/5/catalog_index",
-      "value": 5,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/5",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/6/catalog_index",
-      "value": 6,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/6",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/7/catalog_index",
-      "value": 7,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/7",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/8/catalog_index",
-      "value": 8,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/8",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10/9/catalog_index",
-      "value": 9,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=429114/top50/9",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
       "pointer": "/shoppers/284d07325eeb/segment",
       "value": "0",
       "source": {
@@ -27985,126 +27625,6 @@
         "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
         "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
         "row_pointer": "user_idx=1000393/hitrate@10",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/0/catalog_index",
-      "value": 0,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/0",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/1/catalog_index",
-      "value": 1,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/1",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/2/catalog_index",
-      "value": 2,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/2",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/3/catalog_index",
-      "value": 3,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/3",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/4/catalog_index",
-      "value": 4,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/4",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/5/catalog_index",
-      "value": 5,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/5",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/6/catalog_index",
-      "value": 6,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/6",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/7/catalog_index",
-      "value": 7,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/7",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/8/catalog_index",
-      "value": 8,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/8",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10/9/catalog_index",
-      "value": 9,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1000393/top50/9",
         "run_id": "20260807T050054Z-c320c79"
       }
     },
@@ -28592,126 +28112,6 @@
     },
     {
       "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/0/catalog_index",
-      "value": 0,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/0",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/1/catalog_index",
-      "value": 1,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/1",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/2/catalog_index",
-      "value": 2,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/2",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/3/catalog_index",
-      "value": 3,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/3",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/4/catalog_index",
-      "value": 4,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/4",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/5/catalog_index",
-      "value": 5,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/5",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/6/catalog_index",
-      "value": 6,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/6",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/7/catalog_index",
-      "value": 7,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/7",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/8/catalog_index",
-      "value": 8,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/8",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10/9/catalog_index",
-      "value": 9,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1186435/top50/9",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
       "pointer": "/shoppers/72ba0169b92d/segment",
       "value": "0",
       "source": {
@@ -29189,126 +28589,6 @@
         "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
         "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
         "row_pointer": "user_idx=1302622/hitrate@10",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/0/catalog_index",
-      "value": 0,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/0",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/1/catalog_index",
-      "value": 1,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/1",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/2/catalog_index",
-      "value": 2,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/2",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/3/catalog_index",
-      "value": 3,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/3",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/4/catalog_index",
-      "value": 4,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/4",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/5/catalog_index",
-      "value": 5,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/5",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/6/catalog_index",
-      "value": 6,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/6",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/7/catalog_index",
-      "value": 7,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/7",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/8/catalog_index",
-      "value": 8,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/8",
-        "run_id": "20260807T050054Z-c320c79"
-      }
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10/9/catalog_index",
-      "value": 9,
-      "source": {
-        "kind": "per_user_artifact",
-        "parquet_path": "data/eval/per_user/20260807T050054Z-c320c79_content.parquet",
-        "sha256": "sha256:77e01d0bf1417596cfe78c34d3cdda77d824879fdc36ff582bd088419a33462a",
-        "row_pointer": "user_idx=1302622/top50/9",
         "run_id": "20260807T050054Z-c320c79"
       }
     },
@@ -55118,12 +54398,6 @@
     },
     {
       "file": "shoppers.json",
-      "pointer": "/shoppers/495e8d3bec61/recommendations/content/top10",
-      "subtree": true,
-      "note": "titles/prices/ranks are descriptive; each catalog_index below is traced"
-    },
-    {
-      "file": "shoppers.json",
       "pointer": "/shoppers/a0d9130edd52/shopper_id",
       "subtree": false,
       "note": "HMAC-SHA256(local salt, user_id)[:12]"
@@ -55187,12 +54461,6 @@
       "pointer": "/shoppers/a0d9130edd52/recommendations/content/cold_collapse",
       "subtree": false,
       "note": "no TRAIN history: this arm scores every catalog item 0, so its stored top50 is an index tie-break, not a recommendation (models/als.py)"
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/a0d9130edd52/recommendations/content/top10",
-      "subtree": true,
-      "note": "titles/prices/ranks are descriptive; each catalog_index below is traced"
     },
     {
       "file": "shoppers.json",
@@ -55262,12 +54530,6 @@
     },
     {
       "file": "shoppers.json",
-      "pointer": "/shoppers/250736d94849/recommendations/content/top10",
-      "subtree": true,
-      "note": "titles/prices/ranks are descriptive; each catalog_index below is traced"
-    },
-    {
-      "file": "shoppers.json",
       "pointer": "/shoppers/284d07325eeb/shopper_id",
       "subtree": false,
       "note": "HMAC-SHA256(local salt, user_id)[:12]"
@@ -55331,12 +54593,6 @@
       "pointer": "/shoppers/284d07325eeb/recommendations/content/cold_collapse",
       "subtree": false,
       "note": "no TRAIN history: this arm scores every catalog item 0, so its stored top50 is an index tie-break, not a recommendation (models/als.py)"
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/284d07325eeb/recommendations/content/top10",
-      "subtree": true,
-      "note": "titles/prices/ranks are descriptive; each catalog_index below is traced"
     },
     {
       "file": "shoppers.json",
@@ -55406,12 +54662,6 @@
     },
     {
       "file": "shoppers.json",
-      "pointer": "/shoppers/5fb65e5805f7/recommendations/content/top10",
-      "subtree": true,
-      "note": "titles/prices/ranks are descriptive; each catalog_index below is traced"
-    },
-    {
-      "file": "shoppers.json",
       "pointer": "/shoppers/72ba0169b92d/shopper_id",
       "subtree": false,
       "note": "HMAC-SHA256(local salt, user_id)[:12]"
@@ -55475,12 +54725,6 @@
       "pointer": "/shoppers/72ba0169b92d/recommendations/content/cold_collapse",
       "subtree": false,
       "note": "no TRAIN history: this arm scores every catalog item 0, so its stored top50 is an index tie-break, not a recommendation (models/als.py)"
-    },
-    {
-      "file": "shoppers.json",
-      "pointer": "/shoppers/72ba0169b92d/recommendations/content/top10",
-      "subtree": true,
-      "note": "titles/prices/ranks are descriptive; each catalog_index below is traced"
     },
     {
       "file": "shoppers.json",

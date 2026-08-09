@@ -20,9 +20,20 @@ const FILE = 'shoppers.json';
 // Column order the exhibit shows: popularity / item-kNN / ALS / content / blend.
 const MODEL_ORDER = ['pop_t12m', 'item_knn', 'als', 'content', 'blend'];
 
-const COLD_NOTE =
-  'No TRAIN history: this arm scores every catalog item 0, so its stored top-list is an ' +
-  'index tie-break, not a recommendation (models/als.py) -- no personalized signal, empty by design.';
+// Per-arm mechanism notes: the same non-signal class, three different causes.
+const COLD_NOTES = {
+  als:
+    'No TRAIN history: ALS scores every catalog item 0, so its stored top-list is an ' +
+    'index tie-break, not a recommendation (models/als.py) -- no personalized signal, empty by design.',
+  item_knn:
+    'No TRAIN history: item-kNN has no seed items to walk neighbors from, so every score is 0 and ' +
+    'its stored top-list is an index tie-break, not a recommendation (models/item_knn.py) -- ' +
+    'no personalized signal, empty by design.',
+  content:
+    'No TRAIN history: the MiniLM user profile is all-zero with an empty history, so every score ' +
+    'is exactly 0 and the stored top-list is an index tie-break, not a recommendation ' +
+    '(models/content.py "Cold-start collapse") -- no personalized signal, empty by design.',
+};
 
 let state = null; // { root, data, segment, shopperId }
 
@@ -76,7 +87,7 @@ function modelColHtml(data, shopperId, model) {
     rec && rec.cold_collapse
       ? `<div class="cold-panel">
           <p class="cold-panel-title">no personalized signal &mdash; empty by design</p>
-          <p class="cold-panel-note muted">${fmt.esc(COLD_NOTE)}</p>
+          <p class="cold-panel-note muted">${fmt.esc(COLD_NOTES[model] || COLD_NOTES.als)}</p>
         </div>`
       : `<ol class="rec-list">${(rec && rec.top10 ? rec.top10 : []).map((it) => recItemHtml(shopperId, model, it)).join('')}</ol>`;
   return `<div class="model-col">

@@ -89,6 +89,15 @@ Concretely:
    receipt names the record its components came from. The distinction is
    deliberate: dotted means "copied from the log", dashed means "arithmetic on
    things copied from the log".
+
+   Relatedly, the case study labels every claim with the site's evidence-class
+   convention — **measured** / **estimated** / **projected** — plus a fourth
+   label this lab adds: **derived**, for values recomposed from recorded runs
+   without any new measurement (the n\* TEST grid: per-user outputs of the
+   recorded one-shot TEST runs, re-aggregated under a different routing
+   threshold; no re-scoring, no refitting, no new ground-truth consultation).
+   "Derived" is deliberately not "measured": a badge-rendering site must never
+   present a recomposition as a fresh TEST measurement.
 5. `make demo-verify` re-resolves every manifest entry independently of the
    writer (coverage, exact match — same type, no epsilon — document hashes,
    artifact-hash-vs-record agreement, and a staleness guard on the log's own
