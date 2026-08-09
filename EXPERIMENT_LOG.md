@@ -1373,3 +1373,49 @@ scope.
 inflation unquantified, marked as such in the text, Phase 7 item) and one
 structural deviation (no separate offline-vs-online section; the admission
 lives in ch. 10 bullets 1–2 per the Checkpoint 1 skeleton).
+
+## Phase 7 stretch 3 — un-cored silver popularity, TEST pre-declaration (2026-08-09)
+
+**Context.** `docs/case_study.md` §10 bullet 4 admits: "This inflation has not
+been quantified — the planned un-cored popularity comparison is a stretch item
+and has not been run." This entry pre-declares the one-shot TEST run that turns
+that admission into a measured number. Machinery (chunked bootstrap, Arrow
+extract, tables guard, `*_uncored` gold builds) landed in commit `7afd780`;
+`uv run pytest` 437 passed; `make reproduce-headline` byte_exact re-confirmed
+post-refactor (record in `results/runs.jsonl`).
+
+**VAL evidence (iteration allowed).** Un-cored VAL run
+`20260809T052855Z-9911774` (pop-t12m, as_of=train_end, 1,696,246 users,
+catalog 1,609,860, wall 35,034s) vs 5-core VAL `20260806T113427Z-e056a2a`
+(356,362 users, catalog 368,228):
+
+| NDCG@10 | 5-core VAL | un-cored VAL | 5-core/un-cored |
+|---|---|---|---|
+| global | 0.010338 | 0.010229 | **1.011** |
+| seg 0 | 0.01068 | 0.01071 | 1.00 |
+| seg 1-4 | 0.01172 | 0.01050 | 1.12 |
+| seg 5-9 | 0.01053 | 0.00905 | 1.16 |
+| seg 10-19 | 0.00913 | 0.00783 | 1.17 |
+| seg 20+ | 0.00702 | 0.00558 | 1.26 |
+
+The presumed k-core inflation is real **within matched history segments**
+(+12% to +26%, monotone in depth) but vanishes globally: the un-cored
+population is 84% history-0/1–4 users (1,425,654 of 1,696,246), where
+popularity is relatively strongest, and the mix shift almost exactly cancels
+the per-segment inflation. Two opposing effects, near-coincidental
+cancellation — the global scalar alone would be misleading, so the per-segment
+ratios are the headline of this measurement.
+
+**Pre-declared TEST hypothesis.** On the frozen TEST split
+(`configs/eval_pop_t12m_uncored_test.yaml`, committed before scoring), vs the
+recorded 5-core TEST arm `20260805T172047Z-035042b` (NDCG@10 0.005404,
+228,153 users): (a) global 5-core/un-cored NDCG@10 ratio in 0.9–1.1; (b)
+per-segment ratios > 1 for all non-zero history segments, monotone-increasing
+in history depth, in the 1.1–1.3 range for 1–4 through 20+; (c) segment-0
+ratio ≈ 1.0. The comparison is a **[derived] protocol-matched ratio across
+disjoint universes** (different user populations, catalogs 368,228 vs
+1,609,860) — NOT a paired delta; no `compare.py` run is planned or valid here.
+
+**Protocol.** One shot, clean tree, standard guards (dirty-tree, stale-cache,
+tables cross-check). Whatever TEST shows — including a refuted hypothesis —
+is recorded and published; there is no returning to VAL or re-running TEST.
