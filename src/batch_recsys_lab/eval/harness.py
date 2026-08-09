@@ -272,6 +272,17 @@ def run_eval(
     git = runlog.git_info()
 
     # --- integrity guards (before any scoring) ---
+    tables_cfg = config.get("tables") or {}
+    if tables_cfg:
+        configured = set(tables_cfg.values())
+        cached = set(manifest["snapshot_ids"].keys())
+        if configured != cached:
+            raise RuntimeError(
+                "Tables guard: config `tables:` values "
+                f"{sorted(configured)} != cache manifest snapshot_ids keys "
+                f"{sorted(cached)}. The config's table mapping must name exactly "
+                "the tables the cache was extracted from."
+            )
     if expected_snapshot_ids is not None:
         runlog.check_pinned_cache(manifest["snapshot_ids"], expected_snapshot_ids)
     else:

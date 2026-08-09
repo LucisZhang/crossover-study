@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval-extract-uncored eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -61,6 +61,16 @@ gold-features:
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.gold
 
 gold: gold-core gold-features
+
+# Un-cored gold projections (Phase 7 stretch item 3). Writes ONLY *_uncored
+# tables (+ one append to dq.dq_results from the join-loss measure); the
+# frozen 5-core tables and their snapshots are never touched.
+gold-uncored: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.gold \
+	  --five-core-table local.silver.interactions \
+	  --user-stats-table local.gold.user_stats_uncored \
+	  --item-features-table local.gold.item_features_uncored \
+	  --popularity-table local.gold.popularity_uncored
 
 # item_text (Phase 4, T9). Builds local.gold.item_text (5-core catalog x
 # item_features x bronze.items text fields), then runs the full contract audit
@@ -117,6 +127,16 @@ data-verify:
 # exists. Step A of the two-process eval design (see eval/extract.py docstring).
 eval-extract: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.extract
+
+# Un-cored eval cache: keyed by the silver.interactions snapshot id, in its
+# own root so cache resolution stays unambiguous per universe.
+eval-extract-uncored: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.extract \
+	  --out data/eval/cache_uncored --max-result-size 4g \
+	  --five-core-table local.silver.interactions \
+	  --user-stats-table local.gold.user_stats_uncored \
+	  --item-features-table local.gold.item_features_uncored \
+	  --popularity-table local.gold.popularity_uncored
 
 # Eval scoring (Phase 2, T5). Step B: pure numpy/scipy, no Spark. Scores one
 # config's model over the snapshot-keyed cache and APPENDS one record to

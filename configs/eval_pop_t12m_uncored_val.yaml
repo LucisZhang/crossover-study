@@ -1,0 +1,24 @@
+# Phase 7 stretch item 3: un-cored silver popularity — VAL pipeline-validation
+# twin of eval_pop_t12m_uncored_test.yaml (iteration allowed on VAL).
+kind: eval
+model:
+  name: popularity
+  params:
+    as_of: train_end
+    window_days: 365
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 128
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.silver.interactions
+  user_stats: local.gold.user_stats_uncored
+  item_features: local.gold.item_features_uncored
+  popularity: local.gold.popularity_uncored
+cache_dir: data/eval/cache_uncored

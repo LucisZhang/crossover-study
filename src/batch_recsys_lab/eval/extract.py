@@ -45,6 +45,17 @@ name/version identities come from the caller (the recorded record's
 ``contracts``) rather than live ``TBLPROPERTIES`` — because ``SHOW
 TBLPROPERTIES`` has no time-travel form, so a live read would silently stamp
 today's contract version onto a historical extract. Live mode is untouched.
+
+**Driver-side scale** — Phase 7, T-A2. Every bulk table -> driver transfer goes
+through Arrow (``toPandas``), never ``collect()`` into Python ``Row`` objects:
+the un-cored silver universe is 18.3M users / ~36M pairs / 1.6M items, where
+Row materialization alone is several GB and minutes of interpreter time. The
+driver-side result budget is therefore a real constraint —
+``spark.driver.maxResultSize`` is settable from the CLI (``--max-result-size``,
+default 4g) because it must be fixed before the JVM starts. Determinism is
+unchanged by the Arrow rewrite: ``toPandas`` collects partitions in the same
+order ``collect()`` does, so every ORDER BY-driven artifact keeps the exact
+ordering (and dtype) it had before — see the per-function notes.
 """
 
 from __future__ import annotations
@@ -58,6 +69,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 from pyspark.sql import SparkSession
@@ -171,15 +183,17 @@ def _build_item_index(
     # Catalog order = sorted ascending parent_asin from item_features. This
     # ordering IS the global deterministic tie-break used downstream (rank ties,
     # top-K argpartition ties) — every consumer of item_idx must derive it from
-    # this exact sort.
-    rows = (
+    # this exact sort. The ORDER BY does the sorting server-side and toPandas
+    # preserves partition order, so item_ids is byte-identical to the previous
+    # collect()-based build.
+    pdf = (
         _read_table(spark, item_features_table, snapshot_ids)
         .select("parent_asin")
         .distinct()
         .orderBy("parent_asin")
-        .collect()
+        .toPandas()
     )
-    item_ids = [r["parent_asin"] for r in rows]
+    item_ids = pdf["parent_asin"].tolist()
     n_5core_distinct = (
         _read_table(spark, five_core_table, snapshot_ids).select("parent_asin").distinct().count()
     )
@@ -193,12 +207,18 @@ def _build_user_index(
     out_dir: Path,
     snapshot_ids: dict[str, int] | None = None,
 ) -> list[str]:
+    # User order = sorted ascending user_id (the alignment contract for
+    # n_train/n_val/n_test and for every user_idx downstream). ORDER BY is
+    # server-side and toPandas preserves partition order, so user_ids and the
+    # three count vectors are byte-identical to the previous collect() build —
+    # the int32 casts below are the same narrowing the np.array(..., int32)
+    # constructor did, applied to the Arrow int64 columns.
     df = _read_table(spark, user_stats_table, snapshot_ids).orderBy("user_id")
-    rows = df.select("user_id", "n_train", "n_val", "n_test").collect()
-    user_ids = [r["user_id"] for r in rows]
-    n_train = np.array([r["n_train"] for r in rows], dtype=np.int32)
-    n_val = np.array([r["n_val"] for r in rows], dtype=np.int32)
-    n_test = np.array([r["n_test"] for r in rows], dtype=np.int32)
+    pdf = df.select("user_id", "n_train", "n_val", "n_test").toPandas()
+    user_ids = pdf["user_id"].tolist()
+    n_train = pdf["n_train"].to_numpy(dtype=np.int32)
+    n_val = pdf["n_val"].to_numpy(dtype=np.int32)
+    n_test = pdf["n_test"].to_numpy(dtype=np.int32)
     _save_string_column(user_ids, "user_id", out_dir)
     _save_npy(n_train, out_dir, "n_train")
     _save_npy(n_val, out_dir, "n_val")
@@ -223,11 +243,28 @@ def _build_pairs(
     (COO->CSR sorts) and for GT membership (``dataset._build_gt`` sorts by user);
     only the within-user GT item order can vary, which reproduce.py checks for
     explicitly (order-normalized cache digest) rather than assuming."""
+    # The idx maps ship to Spark through Arrow (pandas -> createDataFrame with an
+    # explicit schema), not as a Python list of tuples: at 18.3M users the list
+    # form is ~2GB of driver tuples plus a per-row pickle. Contents are identical
+    # — position i of the (sorted) id list is index i, declared int32/string by
+    # the same DDL as before — so the joins below are unchanged.
     user_idx_df = spark.createDataFrame(
-        [(uid, i) for i, uid in enumerate(user_ids)], "user_id string, user_idx int"
+        pd.DataFrame(
+            {
+                "user_id": pd.Series(user_ids, dtype=object),
+                "user_idx": np.arange(len(user_ids), dtype=np.int32),
+            }
+        ),
+        schema="user_id string, user_idx int",
     )
     item_idx_df = spark.createDataFrame(
-        [(iid, i) for i, iid in enumerate(item_ids)], "parent_asin string, item_idx int"
+        pd.DataFrame(
+            {
+                "parent_asin": pd.Series(item_ids, dtype=object),
+                "item_idx": np.arange(len(item_ids), dtype=np.int32),
+            }
+        ),
+        schema="parent_asin string, item_idx int",
     )
 
     base = _read_table(spark, five_core_table, snapshot_ids).select(
@@ -267,7 +304,6 @@ def _build_popularity_vectors(
 ) -> None:
     from pyspark.sql import functions as F
 
-    item_pos = {iid: i for i, iid in enumerate(item_ids)}
     n_items = len(item_ids)
     as_of_to_label = {
         splits.train_end: "train_end",
@@ -287,21 +323,31 @@ def _build_popularity_vectors(
             label_col
         )
     labeled = df.withColumn("as_of_label", label_col).where(F.col("as_of_label").isNotNull())
-    rows = labeled.collect()
+    pdf = labeled.select("as_of_label", "window_days", "parent_asin", "n_interactions").toPandas()
 
     buckets: dict[tuple[str, int], np.ndarray] = {}
     for label in as_of_to_label.values():
         for w in WINDOWS:
             buckets[(label, w)] = np.zeros(n_items, dtype=np.float32)
 
-    for r in rows:
-        w = int(r["window_days"])
-        if w not in WINDOWS:
-            continue
-        pos = item_pos.get(r["parent_asin"])
-        if pos is None:
-            continue
-        buckets[(r["as_of_label"], w)][pos] = float(r["n_interactions"])
+    # Vectorized equivalent of the previous per-Row loop, with the same two skip
+    # rules (window not in WINDOWS; parent_asin not in the catalog -> get_indexer
+    # returns -1) and the same last-row-wins behavior for a repeated
+    # (as_of, window, item) key: pandas keeps the collect() row order and numpy
+    # fancy-index assignment writes duplicates in order. int64 -> float32 is one
+    # round-to-nearest, exactly as float(int) -> float32 store was.
+    if len(pdf):
+        pos = pd.Index(item_ids).get_indexer(pdf["parent_asin"].to_numpy())
+        windows = pdf["window_days"].to_numpy(dtype=np.int64)
+        keep = (pos >= 0) & np.isin(windows, np.asarray(WINDOWS, dtype=np.int64))
+        pos = pos[keep]
+        windows = windows[keep]
+        labels = pdf["as_of_label"].to_numpy()[keep]
+        values = pdf["n_interactions"].to_numpy(dtype=np.float32)[keep]
+        for (label, w), vec in buckets.items():
+            sel = (labels == label) & (windows == w)
+            if sel.any():
+                vec[pos[sel]] = values[sel]
 
     for (label, w), vec in buckets.items():
         _save_npy(vec, out_dir, f"pop_{label}_{w}")
@@ -314,12 +360,11 @@ def _build_item_categories(
     out_dir: Path,
     snapshot_ids: dict[str, int] | None = None,
 ) -> None:
-    item_pos = {iid: i for i, iid in enumerate(item_ids)}
     n_items = len(item_ids)
-    rows = (
+    pdf = (
         _read_table(spark, item_features_table, snapshot_ids)
         .select("parent_asin", "main_category")
-        .collect()
+        .toPandas()
     )
 
     # "__unknown__" is always code 0, deterministic regardless of row order, so a
@@ -336,12 +381,18 @@ def _build_item_categories(
         return name_to_code[key]
 
     # Deterministic: process rows in a stable (sorted-by-parent_asin) order so
-    # new-category code assignment does not depend on Spark's collect() ordering.
-    for r in sorted(rows, key=lambda r: r["parent_asin"]):
-        pos = item_pos.get(r["parent_asin"])
-        if pos is None:
+    # new-category code assignment does not depend on Spark's row ordering. The
+    # sort is the same Python string comparison the previous ``sorted(rows,
+    # key=...)`` used, and it is stable, so the emitted code order is unchanged.
+    pdf = pdf.sort_values("parent_asin", kind="stable")
+    positions = pd.Index(item_ids).get_indexer(pdf["parent_asin"].to_numpy())
+    # Arrow hands NULL strings back as None; guard NaN too so a missing
+    # main_category can never become a category NAME (it is always code 0).
+    categories = [None if pd.isna(v) else v for v in pdf["main_category"].tolist()]
+    for pos, category in zip(positions, categories):
+        if pos < 0:
             continue
-        codes[pos] = _code_for(r["main_category"])
+        codes[pos] = _code_for(category)
 
     _save_npy(codes, out_dir, "item_category_codes")
     (out_dir / "item_category_names.json").write_text(json.dumps(names))
@@ -368,6 +419,11 @@ def extract(
     mode — see the module docstring. Both must cover all four tables.
     """
     start = time.perf_counter()
+    # Runtime-settable and performance-only: it selects the Arrow transport for
+    # toPandas()/createDataFrame(pandas) below. Output bytes do not depend on it
+    # (the fallback path produces the same rows in the same order); at un-cored
+    # scale the difference is minutes-to-hours of driver time.
+    spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
     splits = load_splits(splits_path)
     tables = (five_core_table, user_stats_table, item_features_table, popularity_table)
 
@@ -462,6 +518,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--master", default="local[10]")
     parser.add_argument("--driver-memory", default="8g")
     parser.add_argument(
+        "--max-result-size",
+        default="4g",
+        help=(
+            "spark.driver.maxResultSize. Every artifact here is collected to the "
+            "driver, and the un-cored universe (18.3M users / ~36M pairs) blows "
+            "past Spark's 1g default. Pre-JVM conf, so it is set at session build."
+        ),
+    )
+    parser.add_argument(
+        "--five-core-table",
+        default=FIVE_CORE,
+        help="interactions table; its snapshot id keys the cache directory",
+    )
+    parser.add_argument("--user-stats-table", default=USER_STATS)
+    parser.add_argument("--item-features-table", default=ITEM_FEATURES)
+    parser.add_argument("--popularity-table", default=POPULARITY)
+    parser.add_argument(
         "--pinned-record",
         default=None,
         help=(
@@ -485,11 +558,16 @@ def main(argv: list[str] | None = None) -> int:
         warehouse=args.warehouse,
         master=args.master,
         driver_memory=args.driver_memory,
+        extra_conf={"spark.driver.maxResultSize": args.max_result_size},
     )
     try:
         summary = extract(
             spark,
             out=args.out,
+            five_core_table=args.five_core_table,
+            user_stats_table=args.user_stats_table,
+            item_features_table=args.item_features_table,
+            popularity_table=args.popularity_table,
             pinned_snapshot_ids=pinned_snapshot_ids,
             pinned_contracts=pinned_contracts,
         )

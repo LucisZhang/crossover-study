@@ -219,6 +219,42 @@ def test_dirty_from_porcelain_excludes_run_outputs():
     )
 
 
+def test_harness_tables_mismatch_raises(spark, synthetic_gold, tmp_path):
+    """A config `tables:` block whose values don't match the cache manifest's
+    snapshot_ids keys must be refused before any scoring (T-A3)."""
+    cache_root = tmp_path / "cache"
+    summary = extract(
+        spark,
+        out=cache_root,
+        five_core_table=FIVE_CORE,
+        user_stats_table=USER_STATS,
+        item_features_table=ITEM_FEATURES,
+        popularity_table=POPULARITY,
+    )
+    assert summary["status"] == "built"
+
+    meta_file = (
+        spark.sql(f"SELECT file FROM {FIVE_CORE}.metadata_log_entries ORDER BY timestamp DESC LIMIT 1")
+        .first()[0]
+    )
+    for scheme in ("file://", "file:"):
+        if meta_file.startswith(scheme):
+            meta_file = meta_file[len(scheme):]
+            break
+    warehouse = str(Path(meta_file).parents[3])
+    results = tmp_path / "runs.jsonl"
+    per_user = tmp_path / "per_user"
+
+    pop_model = {"name": "popularity", "params": {"as_of": "train_end", "window_days": 365}}
+    cfg = _base_cfg(pop_model, "val", {"model": None}, cache_root, warehouse, per_user)
+    cfg["tables"] = dict(cfg["tables"])
+    cfg["tables"]["popularity"] = "local.gold.popularity_wrong"
+
+    with pytest.raises(RuntimeError, match="Tables guard"):
+        _run(cfg, tmp_path, "tables_mismatch", results, run_id="mismatch1")
+    assert not results.exists() or results.read_text() == ""
+
+
 def test_harness_smoke(spark, synthetic_gold, tmp_path, monkeypatch):
     cache_root = tmp_path / "cache"
     summary = extract(

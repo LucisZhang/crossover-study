@@ -17,6 +17,16 @@ order) via ``np.random.default_rng([seed, segment_ordinal])`` — NumPy's
 ``SeedSequence`` accepts a sequence of integers as entropy, so this gives each
 segment an independent, deterministic sub-stream without needing a global
 counter or hashing scheme.
+
+At un-cored scale the ``(n_resamples, n_users)`` int64 index matrix stops
+fitting in RAM (1000 x 2.5M x 8B = 20GB on a 16GB laptop), so
+:func:`ci_mean` and :func:`segment_cis` switch to a row-blocked draw above
+``MAX_RESAMPLE_ELEMENTS``. The switch is bit-neutral, not just
+statistically equivalent: sequential ``Generator.integers`` block calls from
+ONE rng consume the same bit stream as a single big call, so the chunked path
+returns byte-identical CIs (pinned by ``tests/test_bootstrap.py``). Every
+5-core size stays below the threshold (1000 x 228,153 = 2.3e8), so recorded
+results — and ``make reproduce-headline`` byte_exact — are untouched.
 """
 
 from __future__ import annotations
@@ -25,6 +35,13 @@ import numpy as np
 
 DEFAULT_N_RESAMPLES = 1000
 DEFAULT_SEED = 20260805
+
+# Switch threshold: above this many index elements (n_resamples * n_users) the
+# resample matrix is drawn in row blocks instead of one call. 5e8 int64 = 4GB.
+MAX_RESAMPLE_ELEMENTS = 500_000_000
+# Block size for the chunked path: 5e7 int64 = 400MB of indices per block (plus
+# the same again for the gathered values), i.e. 2 rows/block at 2.5M users.
+RESAMPLE_BLOCK_ELEMENTS = 50_000_000
 
 
 def resample_matrix(n_users: int, n_resamples: int, seed: int) -> np.ndarray:
@@ -39,23 +56,66 @@ def resample_matrix(n_users: int, n_resamples: int, seed: int) -> np.ndarray:
     return rng.integers(0, n_users, size=(n_resamples, n_users), dtype=np.int64)
 
 
+def _blocked_resampled_means(
+    rng: np.random.Generator,
+    values: np.ndarray,
+    n_resamples: int,
+    block_elements: int,
+) -> np.ndarray:
+    """Resampled means drawn in row blocks, never materializing the full matrix.
+
+    ``rng`` must be freshly seeded exactly as the single-call path would seed it
+    (:func:`resample_matrix`'s ``default_rng(seed)``, or ``default_rng([seed,
+    ordinal])`` per segment). Consecutive ``(rows, n_users)`` ``integers`` calls
+    consume the same bit stream as one ``(n_resamples, n_users)`` call, so the
+    means returned here are byte-identical to the unchunked path — that NumPy
+    property is pinned by the chunked-vs-single tests, not assumed.
+
+    Each block's indices are discarded as soon as its means are taken, so peak
+    extra memory is ``block_rows * n_users * 8`` bytes twice over (indices plus
+    gathered values), independent of ``n_resamples``.
+    """
+    n_users = int(values.shape[0])
+    block_rows = max(1, block_elements // n_users)
+    means: list[np.ndarray] = []
+    drawn = 0
+    while drawn < n_resamples:
+        rows = min(block_rows, n_resamples - drawn)
+        block = rng.integers(0, n_users, size=(rows, n_users), dtype=np.int64)
+        means.append(values[block].mean(axis=1))
+        drawn += rows
+    return np.concatenate(means)
+
+
 def ci_mean(
     values: np.ndarray,
     n_resamples: int = DEFAULT_N_RESAMPLES,
     seed: int = DEFAULT_SEED,
     resamples: np.ndarray | None = None,
+    max_resample_elements: int = MAX_RESAMPLE_ELEMENTS,
+    resample_block_elements: int = RESAMPLE_BLOCK_ELEMENTS,
 ) -> dict:
     """Bootstrap 95% CI of the mean of ``values`` (one row per user).
 
     ``ci_lo``/``ci_hi`` are the 2.5th/97.5th percentiles (linear interpolation,
     ``np.percentile`` default) of the resampled means. If ``resamples`` (a
     precomputed :func:`resample_matrix`) is given, it is used as-is; otherwise
-    a fresh matrix is built from ``(n_resamples, seed)``.
+    a fresh matrix is built from ``(n_resamples, seed)`` — unless that matrix
+    would exceed ``max_resample_elements`` indices, in which case the same
+    stream is consumed in ``resample_block_elements``-sized row blocks
+    (bit-identical result, bounded memory). The two keyword knobs exist so
+    tests can force the chunked path on tiny inputs; callers should not tune
+    them per run.
     """
     values = np.asarray(values)
-    if resamples is None:
-        resamples = resample_matrix(values.shape[0], n_resamples, seed)
-    resampled_means = values[resamples].mean(axis=1)
+    if resamples is None and n_resamples * values.shape[0] > max_resample_elements:
+        resampled_means = _blocked_resampled_means(
+            np.random.default_rng(seed), values, n_resamples, resample_block_elements
+        )
+    else:
+        if resamples is None:
+            resamples = resample_matrix(values.shape[0], n_resamples, seed)
+        resampled_means = values[resamples].mean(axis=1)
     lo, hi = np.percentile(resampled_means, [2.5, 97.5])
     return {"value": float(np.mean(values)), "ci_lo": float(lo), "ci_hi": float(hi)}
 
@@ -92,6 +152,8 @@ def segment_cis(
     segment_labels: np.ndarray,
     n_resamples: int = DEFAULT_N_RESAMPLES,
     seed: int = DEFAULT_SEED,
+    max_resample_elements: int = MAX_RESAMPLE_ELEMENTS,
+    resample_block_elements: int = RESAMPLE_BLOCK_ELEMENTS,
 ) -> dict[str, dict]:
     """Per-segment bootstrap CIs, resampling within each segment's own users.
 
@@ -104,6 +166,11 @@ def segment_cis(
     Segments with 0 users are omitted (never occurs from an array pass, kept
     for API completeness against a caller-supplied segment universe). Segments
     with exactly 1 user get a degenerate CI (``ci_lo == ci_hi == value``).
+
+    A segment whose matrix would exceed ``max_resample_elements`` indices draws
+    in row blocks off its own ``[seed, ordinal]`` stream (see :func:`ci_mean`);
+    the switch is per segment, so a big segment chunking never perturbs a small
+    one's CI.
     """
     values = np.asarray(values)
     segment_labels = np.asarray(segment_labels)
@@ -125,8 +192,13 @@ def segment_cis(
             out[label] = {"n_users": n_users, "value": v, "ci_lo": v, "ci_hi": v}
             continue
         rng = np.random.default_rng([seed, ordinal])
-        resamples = rng.integers(0, n_users, size=(n_resamples, n_users), dtype=np.int64)
-        resampled_means = seg_values[resamples].mean(axis=1)
+        if n_resamples * n_users > max_resample_elements:
+            resampled_means = _blocked_resampled_means(
+                rng, seg_values, n_resamples, resample_block_elements
+            )
+        else:
+            resamples = rng.integers(0, n_users, size=(n_resamples, n_users), dtype=np.int64)
+            resampled_means = seg_values[resamples].mean(axis=1)
         lo, hi = np.percentile(resampled_means, [2.5, 97.5])
         out[label] = {
             "n_users": n_users,

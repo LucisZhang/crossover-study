@@ -30,6 +30,7 @@ def get_spark(
     warehouse: str | Path = "data/warehouse",
     master: str = "local[10]",
     driver_memory: str = "8g",
+    extra_conf: dict[str, str] | None = None,
 ) -> SparkSession:
     """Build (or return the existing) Spark session wired for Iceberg.
 
@@ -47,6 +48,13 @@ def get_spark(
     driver_memory:
         Driver JVM heap (e.g. ``8g``). Must be set before JVM launch; honored
         only on the first call that starts the JVM in this process.
+    extra_conf:
+        Additional ``spark.*`` settings applied to the builder *before*
+        ``getOrCreate()``. This is the hook for conf that cannot be set at
+        runtime via ``spark.conf.set`` — notably ``spark.driver.maxResultSize``,
+        which the driver reads when the JVM starts. Applied last, so it can
+        override any of the defaults above. Same caveat as ``driver_memory``:
+        ignored if this call returns an already-running session.
 
     Returns
     -------
@@ -67,5 +75,8 @@ def get_spark(
         .config("spark.sql.catalog.local.warehouse", str(warehouse_path))
         .config("spark.sql.session.timeZone", "UTC")
     )
+
+    for key, value in (extra_conf or {}).items():
+        builder = builder.config(key, value)
 
     return builder.getOrCreate()

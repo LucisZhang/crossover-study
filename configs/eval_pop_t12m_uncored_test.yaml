@@ -1,0 +1,27 @@
+# Phase 7 stretch item 3: un-cored silver popularity on the frozen TEST split.
+# Quantifies the k-core inflation admitted in docs/case_study.md §10 bullet 4.
+# Pre-declared one-shot TEST run; comparison arm is the recorded 5-core record
+# 20260805T172047Z-035042b (pop t12m TEST, NDCG@10 0.005404). The comparison is
+# a protocol-matched ratio across universes, NOT a paired delta.
+kind: eval
+model:
+  name: popularity
+  params:
+    as_of: train_end
+    window_days: 365
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 128
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.silver.interactions
+  user_stats: local.gold.user_stats_uncored
+  item_features: local.gold.item_features_uncored
+  popularity: local.gold.popularity_uncored
+cache_dir: data/eval/cache_uncored

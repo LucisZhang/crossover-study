@@ -5,6 +5,8 @@ from __future__ import annotations
 import numpy as np
 
 from batch_recsys_lab.eval.bootstrap import (
+    MAX_RESAMPLE_ELEMENTS,
+    RESAMPLE_BLOCK_ELEMENTS,
     ci_mean,
     paired_delta_ci,
     resample_matrix,
@@ -118,3 +120,75 @@ def test_segment_cis_are_independent_across_segments():
 
     assert result_1["a"] == result_2["a"]
     assert result_1["b"] != result_2["b"]
+
+
+# --- Chunked (large-n) path -------------------------------------------------
+# Above MAX_RESAMPLE_ELEMENTS the resample matrix is drawn in row blocks off one
+# rng instead of one call. These tests force that path with tiny thresholds and
+# assert byte-identical output, which empirically pins the NumPy property the
+# design rests on: sequential Generator.integers block draws concatenate to the
+# same bit stream as a single big draw. If one of these ever fails on a NumPy
+# upgrade, the chunked path's seed semantics must be re-declared (nothing
+# recorded depends on the chunked stream today) — not silently patched.
+
+
+def test_default_thresholds_keep_realistic_sizes_on_single_call_path():
+    # The 5-core headline size (1000 x 228,153) must stay below the switch, or
+    # recorded results / reproduce-headline byte_exact would move.
+    assert 1000 * 228_153 < MAX_RESAMPLE_ELEMENTS
+    assert RESAMPLE_BLOCK_ELEMENTS < MAX_RESAMPLE_ELEMENTS
+
+
+def test_ci_mean_chunked_matches_single_call_byte_for_byte():
+    rng = np.random.default_rng(6)
+    values = rng.random(40)
+    n_resamples = 251  # not a multiple of block_rows -> ragged final block
+
+    single = ci_mean(values, n_resamples=n_resamples, seed=SEED)
+    chunked = ci_mean(
+        values,
+        n_resamples=n_resamples,
+        seed=SEED,
+        max_resample_elements=100,  # 251*40 = 10,040 > 100 -> chunked
+        resample_block_elements=100,  # block_rows = 100 // 40 = 2
+    )
+    assert chunked == single
+    assert chunked["ci_lo"] == single["ci_lo"]
+    assert chunked["ci_hi"] == single["ci_hi"]
+    assert chunked["value"] == single["value"]
+
+
+def test_ci_mean_chunked_single_row_blocks_match():
+    # block_rows floors to 1 when n_users exceeds the block budget: the extreme
+    # of the chunking (one integers() call per resample) must still match.
+    rng = np.random.default_rng(7)
+    values = rng.random(64)
+    single = ci_mean(values, n_resamples=97, seed=SEED)
+    chunked = ci_mean(
+        values,
+        n_resamples=97,
+        seed=SEED,
+        max_resample_elements=1,
+        resample_block_elements=1,
+    )
+    assert chunked == single
+
+
+def test_segment_cis_chunked_matches_single_call_byte_for_byte():
+    rng = np.random.default_rng(8)
+    labels = np.array(["a"] * 30 + ["b"] * 20 + ["solo"])
+    values = rng.random(51)
+
+    single = segment_cis(values, labels, n_resamples=133, seed=SEED)
+    chunked = segment_cis(
+        values,
+        labels,
+        n_resamples=133,
+        seed=SEED,
+        max_resample_elements=100,  # 133*30 and 133*20 both exceed it
+        resample_block_elements=100,  # block_rows = 3 (seg a) / 5 (seg b)
+    )
+    assert chunked == single
+    # Per-segment [seed, ordinal] streams are preserved, not collapsed.
+    assert single["a"]["ci_lo"] != single["b"]["ci_lo"]
+    assert chunked["solo"] == single["solo"]  # 1-user segment skips both paths

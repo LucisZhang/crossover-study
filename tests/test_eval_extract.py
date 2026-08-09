@@ -18,9 +18,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from batch_recsys_lab.eval import extract as extract_mod
 from batch_recsys_lab.eval.extract import _read_table, _snapshot_id, extract
 from batch_recsys_lab.eval.dataset import load_dataset
 from batch_recsys_lab.features.splits import load_splits
+from conftest import warehouse_of
 
 pytestmark = pytest.mark.spark
 
@@ -285,6 +287,109 @@ def test_pinned_extract_requires_complete_pins(spark, toy_gold, tmp_path):
             pinned_contracts={FIVE_CORE: contracts[FIVE_CORE]},
             **_extract_kwargs(),
         )
+
+
+class _SharedSession:
+    """Proxy that forwards everything to the session-scoped Spark session but
+    swallows ``stop()``.
+
+    ``extract.main`` owns its session's lifecycle (``spark.stop()`` in a
+    ``finally``); the fixture session is process-wide and shared with every other
+    spark-marked test, so stopping it would tear down the JVM for the rest of the
+    run. Recording the call instead lets the test assert main() did release it.
+    """
+
+    def __init__(self, session):
+        self._session = session
+        self.stopped = False
+
+    def __getattr__(self, name):
+        return getattr(self._session, name)
+
+    def stop(self) -> None:
+        self.stopped = True
+
+
+def test_main_table_overrides_build_the_same_cache(spark, toy_gold, tmp_path, monkeypatch, capsys):
+    """Phase 7, T-A2: the CLI must be able to point the extract at ANY four
+    tables (the un-cored universe lives in *_uncored tables) and must hand
+    ``spark.driver.maxResultSize`` to the session builder.
+
+    get_spark is stubbed because maxResultSize is pre-JVM conf: a real call in
+    this process returns the already-running fixture session and silently drops
+    the setting, so what is verifiable here is that main() *requests* it — that
+    ``get_spark`` then applies it to the builder is spark_session's contract.
+    """
+    captured: dict = {}
+    proxy = _SharedSession(spark)
+
+    def _fake_get_spark(**kwargs):
+        captured.update(kwargs)
+        return proxy
+
+    monkeypatch.setattr("batch_recsys_lab.spark_session.get_spark", _fake_get_spark)
+
+    out_dir = tmp_path / "cli_cache"
+    rc = extract_mod.main(
+        [
+            "--warehouse", warehouse_of(spark),
+            "--out", str(out_dir),
+            "--master", "local[2]",
+            "--driver-memory", "2g",
+            "--max-result-size", "6g",
+            "--five-core-table", FIVE_CORE,
+            "--user-stats-table", USER_STATS,
+            "--item-features-table", ITEM_FEATURES,
+            "--popularity-table", POPULARITY,
+        ]
+    )
+    assert rc == 0
+    assert captured["extra_conf"] == {"spark.driver.maxResultSize": "6g"}
+    assert captured["driver_memory"] == "2g"
+    assert proxy.stopped, "main() must release the session it built"
+
+    summary = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert summary["status"] == "built"
+    assert summary["split_pair_counts"] == {"train": 3, "val": 1, "test": 2}
+
+    # Same cache the in-process extract() call produces, asserted independently.
+    cache_dir = Path(summary["cache_dir"])
+    assert cache_dir.parent == out_dir
+    ds = load_dataset(cache_dir)
+    assert list(ds.item_ids) == ["P1", "P2", "P3", "P4"]
+    assert list(ds.user_ids) == ["U1", "U2"]
+    assert np.array_equal(np.load(cache_dir / "n_train.npy"), np.array([2, 1], dtype=np.int32))
+    assert np.load(cache_dir / "n_train.npy").dtype == np.int32
+    assert np.array_equal(np.load(cache_dir / "n_val.npy"), np.array([1, 0], dtype=np.int32))
+    assert np.array_equal(np.load(cache_dir / "n_test.npy"), np.array([0, 2], dtype=np.int32))
+
+    assert ds.train_csr.nnz == 3
+    assert ds.train_csr.shape == (2, 4)
+    assert list(ds.gt["val"].user_idx) == [0]
+    assert list(ds.gt["val"].item_idx) == [2]
+    test_gt = ds.gt["test"]
+    assert list(test_gt.user_idx) == [1]
+    assert set(test_gt.item_idx[test_gt.indptr[0]:test_gt.indptr[1]].tolist()) == {1, 3}
+
+    pop_train_0 = ds.pop[("train_end", 0)]
+    assert pop_train_0.dtype == np.float32
+    assert list(pop_train_0) == [2.0, 1.0, 0.0, 0.0]
+    assert list(ds.pop[("train_end", 365)]) == [2.0, 0.0, 0.0, 0.0]
+    assert list(ds.pop[("val_end", 0)]) == [2.0, 0.0, 0.0, 0.0]
+    assert list(ds.pop[("val_end", 365)]) == [0.0, 0.0, 1.0, 0.0]
+    assert list(ds.pop[("train_end", 30)]) == [0.0, 0.0, 0.0, 0.0]  # no rows for this window
+
+    assert ds.category_names[0] == "__unknown__"
+    assert ds.item_category_codes.dtype == np.int32
+    assert [ds.category_names[c] for c in ds.item_category_codes] == [
+        "Cat A", "Cat B", "__unknown__", "Cat A",
+    ]
+
+    manifest = ds.manifest
+    assert set(manifest["snapshot_ids"]) == set(TABLES)
+    assert manifest["catalog_size"] == 4
+    assert manifest["n_users"] == 2
+    assert manifest["split_pair_counts"] == {"train": 3, "val": 1, "test": 2}
 
 
 def test_extract_idempotent(spark, toy_gold, tmp_path, capsys):
