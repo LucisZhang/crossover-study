@@ -23,6 +23,13 @@ headline_run_id: "20260807T055333Z-c320c79"
 # for their chips anyway): the search exhibit's embedding-artifact receipt.
 extra_run_ids:
   - "20260807T090857Z-97af81f"   # kind=ann_receipt — MiniLM embeddings + ANN overlap
+  # Cited by the case study's prose (deep links #receipt-<run_id>) without
+  # traced numbers in demo/data — cards must exist for the drawer to open:
+  - "20260805T165630Z-2dcea79"
+  - "20260805T173018Z-035042b"
+  - "20260805T173520Z-035042b"
+  - "20260807T040118Z-5e212d7"
+  - "20260808T025446Z-1f1ab07"   # superseded dirty policy_grid emit — append-only, stays citable
 repro_command: "make reproduce-headline"
 
 split: test

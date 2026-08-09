@@ -3,11 +3,15 @@
   "generated_by": "batch_recsys_lab.demo.export_receipts",
   "headline_run_id": "20260807T055333Z-c320c79",
   "run_order": [
+    "20260805T165630Z-2dcea79",
     "20260805T172047Z-035042b",
+    "20260805T173018Z-035042b",
+    "20260805T173520Z-035042b",
     "20260805T185305Z-adbca99",
     "20260805T185935Z-adbca99",
     "20260806T082441Z-2f2f26d",
     "20260806T091202Z-4fcd2f2",
+    "20260807T040118Z-5e212d7",
     "20260807T050054Z-c320c79",
     "20260807T055333Z-c320c79",
     "20260807T082125Z-c320c79",
@@ -29,11 +33,45 @@
     "20260807T155734Z-dc1b1ff",
     "20260807T160910Z-739833b",
     "20260807T164622Z-3e2c665",
+    "20260808T025446Z-1f1ab07",
     "20260808T030659Z-43c90c8",
     "20260808T122329Z-6e9c66b"
   ],
   "note": "Every field below is copied verbatim from the matching results/runs.jsonl record (append-only). demo/data/trace_manifest.json re-resolves each one.",
   "runs": {
+    "20260805T165630Z-2dcea79": {
+      "run_id": "20260805T165630Z-2dcea79",
+      "kind": "eval",
+      "run_ts": "2026-08-05T17:18:02.730216+00:00",
+      "git_sha": "2dcea7989d04931fc72d0a25e1011bd64bf207f4",
+      "git_dirty": false,
+      "config_path": "configs/eval_random_test.yaml",
+      "config_hash": "sha256:7516a3655e98d0c609a6c4946a3b0dcc529c8a9901eae021d8f944b592c2da9c",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 13
+      },
+      "model": {
+        "name": "random",
+        "params": {
+          "seed": 13
+        }
+      },
+      "wall_clock_s": 1293.799,
+      "hardware": "arm64 · Darwin"
+    },
     "20260805T172047Z-035042b": {
       "run_id": "20260805T172047Z-035042b",
       "kind": "eval",
@@ -66,6 +104,75 @@
         }
       },
       "wall_clock_s": 570.663,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260805T173018Z-035042b": {
+      "run_id": "20260805T173018Z-035042b",
+      "kind": "eval",
+      "run_ts": "2026-08-05T17:35:19.204631+00:00",
+      "git_sha": "035042bbc4ce5284a4b7afd46f5dca574b5ddee4",
+      "git_dirty": false,
+      "config_path": "configs/eval_pop_alltime_test.yaml",
+      "config_hash": "sha256:0e6615d958a012830f7a680d852068c2bf12582c7258af44df180a761321ba73",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "popularity",
+        "params": {
+          "as_of": "train_end",
+          "window_days": 0
+        }
+      },
+      "wall_clock_s": 300.778,
+      "hardware": "arm64 · Darwin"
+    },
+    "20260805T173520Z-035042b": {
+      "run_id": "20260805T173520Z-035042b",
+      "kind": "eval",
+      "run_ts": "2026-08-05T18:22:11.664752+00:00",
+      "git_sha": "035042bbc4ce5284a4b7afd46f5dca574b5ddee4",
+      "git_dirty": false,
+      "config_path": "configs/eval_pop_category_test.yaml",
+      "config_hash": "sha256:5ea5625f0c8bd5fff5ef2122d14e38507c09e59e72a97b4203177656a8cda26e",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "popularity_category",
+        "params": {
+          "as_of": "train_end",
+          "window_days": 365,
+          "fallback": "global_pop"
+        }
+      },
+      "wall_clock_s": 2811.908,
       "hardware": "arm64 · Darwin"
     },
     "20260805T185305Z-adbca99": {
@@ -179,6 +286,56 @@
         "wall_clock_s",
         "hardware"
       ]
+    },
+    "20260807T040118Z-5e212d7": {
+      "run_id": "20260807T040118Z-5e212d7",
+      "kind": "eval",
+      "run_ts": "2026-08-07T04:45:05.073965+00:00",
+      "git_sha": "5e212d79005a6c3995d4df42ef237358399d0bb2",
+      "git_dirty": true,
+      "config_path": "configs/eval_hybrid_val.yaml",
+      "config_hash": "sha256:4420d443dbcbf3aae323a854c855e88301e1d545fb088d82b8cab58a6bef1c58",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "hybrid",
+        "params": {
+          "n_star": null,
+          "low": {
+            "name": "content_pop_blend",
+            "params": {
+              "alpha": 0.3,
+              "as_of": "train_end",
+              "window_days": 365,
+              "recipe_hash": "1f7878ff82bf",
+              "artifact_root": "data/eval/minilm"
+            }
+          },
+          "high": {
+            "name": "popularity",
+            "params": {
+              "as_of": "train_end",
+              "window_days": 365
+            }
+          }
+        }
+      },
+      "wall_clock_s": 2628.126,
+      "hardware": "arm64 · Darwin"
     },
     "20260807T050054Z-c320c79": {
       "run_id": "20260807T050054Z-c320c79",
@@ -646,6 +803,26 @@
         "seeds",
         "model",
         "wall_clock_s"
+      ]
+    },
+    "20260808T025446Z-1f1ab07": {
+      "run_id": "20260808T025446Z-1f1ab07",
+      "kind": "policy_grid",
+      "run_ts": "2026-08-08T02:54:46.836795+00:00",
+      "git_sha": "1f1ab078e8ae07b9b3c036cded101751b791d188",
+      "git_dirty": true,
+      "config_path": "configs/policy_grid_test.yaml",
+      "config_hash": "sha256:aa84536cda92499b6e10f2744af48cb67c8e39eb499ebc5f245b9e0e48fdf4bd",
+      "seeds": {
+        "bootstrap": 20260805
+      },
+      "wall_clock_s": 88.442,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "model"
       ]
     },
     "20260808T030659Z-43c90c8": {

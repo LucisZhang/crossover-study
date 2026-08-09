@@ -1312,3 +1312,64 @@ Fixes from the review, both applied and re-verified:
    leaves), full demo-verify green, 376 tests pass.
 
 T37 final copy proceeds.
+
+## Phase 6 T37 — §10 checklist review (2026-08-09)
+
+Final copy `docs/case_study.md` reviewed item-by-item against UPGRADE_PLAN
+§10. The draft (`docs/case_study_draft.md`) is left unedited for history.
+Every §10 requirement is enumerated below, verbatim-in-substance, against
+the chapter/section that carries it.
+
+### §10 — "How this was verified" (11 required items)
+
+| # | §10 requirement (verbatim-in-substance) | where it lands |
+|---|---|---|
+| 1 | Frozen dataset manifest: source URL, download date, SHA-256, published-count reconciliation | ch. 9 bullet 1 (`data/MANIFEST.md`, 2026-08-05, both SHA-256s, observed 43,886,944 / 1,610,012 vs rounded 43.9M / 1.61M with the delta stated); restated in ch. 3 ¶1 |
+| 2 | uv-locked environment + hardware documented (M4, 16GB, `local[10]`), stated plainly | ch. 9 bullet 2 (`uv.lock`, `uv sync --locked`, pyspark 4.0.4, Iceberg 1.11.0, project-local JDK 21; Apple M4 / 10 cores / 16GB / `local[10]` / ~8g driver); restated in ch. 3 ¶5 |
+| 3 | Deterministic `make data` and snapshot-pinned `make reproduce-headline` | ch. 9 bullet 3 (8/8 content-identical tables; `byte_exact` twice); full treatment in ch. 8 ¶1 with both reproduce records |
+| 4 | One-config-per-run + append-only JSONL results with git SHAs | ch. 9 bullet 4 (60 records, per-record fields incl. git SHA + dirty flag); mechanism in ch. 4 ¶5 |
+| 5 | User-bootstrap CIs on every headline number, paired deltas for every comparison | ch. 9 bullet 5; protocol in ch. 4 ¶4; every comparative claim in ch. 5–7 carries its CI |
+| 6 | Full-catalog ranking (no sampled negatives) stated explicitly | ch. 9 bullet 6 (368,228 items, TRAIN-seen masked); ch. 4 ¶3, incl. the `used_in_eval_metrics: false` flag on the ANN artifact |
+| 7 | Metric unit tests against a reference implementation | ch. 9 bullet 7 (`tests/test_metrics.py`: naive full-`argsort` reference, 50 seeded instances, edge cases) |
+| 8 | Contract engine + quarantine ledger with exact reconciliation | ch. 9 bullet 8; measured detail in ch. 3 ¶2 and ¶4 (7 contracts, `dq_results`, quarantine reasons, non-zero exit on drift) |
+| 9 | Embedding-artifact version + where it was computed | ch. 9 bullet 9 (HF revision `1110a243…`, recipe_hash `1f7878ff82bf`, 368,228 × 384 fp16, sha256, M4 via MPS, 2,115s) |
+| 10 | `EXPERIMENT_LOG.md` published including failed hypotheses | ch. 9 bullet 10 (kNN neighbor-list, ALS negative, content-alone, collapsed router, sub-expectation ANN overlap, aborted curation rule); the failures themselves are ch. 5–8 |
+| 11 | CI smoke eval on the bundled fixture | ch. 9 bullet 11 (Actions pins Java 21, installs from lockfile, fixture pipeline + end-to-end eval smoke over the committed ~50k-row fixture, `make fixture` byte-identical; 376 tests) |
+
+Phase 6 additions beyond the §10 minimum, all in ch. 9: static offline scan
+CLEAN (with the one real violation it found and the source fix);
+DNS-black-holed runtime proof (27/27 loopback page requests, 44.6MB
+model+payload from loopback, parity overlap@10 = 9/10, plus the
+bare-specifier defect only the runtime run could catch); `make demo-verify`
+re-resolving 4,617 manifest entries / 6,756 numeric leaves / 28 run_ids
+independently of the writer; the receipts drawer as the §9.6 mechanism; and
+the hash-not-URL fetch discipline with its truncated-download hard-fail.
+
+### §10 — "What this does not prove" (9 required items)
+
+| # | §10 requirement (verbatim-in-substance) | where it lands |
+|---|---|---|
+| 1 | No online evidence — every metric offline; ranking wins do not establish CTR/conversion/revenue lift | ch. 10 bullet 1 |
+| 2 | Feedback is missing-not-at-random and popularity-biased; no counterfactual correction (IPS/DR) | ch. 10 bullet 2 |
+| 2a | "the case study's offline-vs-online section is the extended version of this admission" | **Structural deviation, declared:** there is no separate offline-vs-online chapter. The Checkpoint 1 (T32) skeleton the owner signed off has 10 chapters with the admission consolidated into ch. 10 bullets 1–2, which carry it at full strength (incl. the "winner is a popularity variant, so this bias matters most, and that tension is not resolved here" sentence). Content complete; location differs from the plan's parenthetical. |
+| 3 | Reviews are not purchases — "interaction = positive" is a modeling assumption | ch. 10 bullet 3 |
+| 4 | k-core filtering inflates absolute metrics (measured where feasible, §8 P7) — compare within this protocol | ch. 10 bullet 4. **Declared gap:** the inflation is *not* quantified — the un-cored popularity comparison is a Phase 7 stretch item and has not been run. The bullet says so in bold ("**This inflation has not been quantified**") rather than implying a measurement exists. This is the only permitted gap. |
+| 5 | Single category (Electronics), single snapshot (ends 2023-09) — no generalization or freshness claim | ch. 10 bullet 5 |
+| 6 | Not a serving system — no latency/SLA/throughput claims beyond the demo's static assets | ch. 10 bullet 6 (incl. the ANN "latency" being an artifact receipt and the exact-scoring figure being amortized batch throughput, not a speedup ratio) |
+| 7 | Single-node Spark — distributed-scale behavior projected, not measured | ch. 10 bullet 7; the `[projected]` label is declared once in ch. 8 as the only projected claim in the document |
+| 8 | Iceberg ops exhibits are single-writer local-catalog scenarios, not concurrent-writer production evidence | ch. 10 bullet 8 |
+| 9 | Routing thresholds fitted to this dataset — no transfer claim | ch. 10 bullet 9 |
+
+Two bullets in ch. 10 go beyond the §10 minimum: the small size of the win
+(+5.96% relative, CI [+0.000200, +0.000449]), carried over from the draft;
+and a new one stating that the live-search exhibit's cosine similarities are
+a capability demonstration with no results-log record behind them, and are
+deliberately not drawn with the traced-number affordance — the only numbers
+on the site that are not evidence. Added because Phase 6 shipped that
+exhibit after the draft was written; strike it if the owner reads it as
+scope.
+
+**Verdict: checklist complete; gaps as declared** — one content gap (k-core
+inflation unquantified, marked as such in the text, Phase 7 item) and one
+structural deviation (no separate offline-vs-online section; the admission
+lives in ch. 10 bullets 1–2 per the Checkpoint 1 skeleton).

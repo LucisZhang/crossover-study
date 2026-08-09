@@ -260,6 +260,14 @@ export function initReceipts(root) {
     ev.preventDefault();
     openReceipt(target.getAttribute('data-run-id'));
   });
+
+  // Deep links: the case study cites records as #receipt-<run_id> (the fragment
+  // payload is byte-identical to the data-run-id the drawer keys on).
+  const fromHash = () => {
+    if (location.hash.startsWith('#receipt-')) openReceipt(location.hash.slice('#receipt-'.length));
+  };
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
 }
 
 /** Exhibit 6's own section: the index of every record the site can show. */

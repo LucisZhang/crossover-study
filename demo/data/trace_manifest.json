@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-09T03:49:32.143667+00:00",
+  "generated_at": "2026-08-09T04:05:10.843663+00:00",
   "runs_jsonl_sha256": "sha256:a7976dfc4c6059c87a47b18d644dbb7e38515cce03e6149bcea0e902125e52d7",
   "runs_log": "results/runs.jsonl",
   "files": [
@@ -22,7 +22,7 @@
     },
     {
       "name": "receipts.json",
-      "sha256": "sha256:28f9f9fb3f140ea01559b1e0c0fa8e6ba293aef12807f0bfa24a939603af9168"
+      "sha256": "sha256:f26e27f1fcee1a2d034a5fca1f22149f8aad267af87e903e770807aab0474c7c"
     },
     {
       "name": "shoppers.json",
@@ -48802,6 +48802,216 @@
     },
     {
       "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/run_id",
+      "value": "20260805T165630Z-2dcea79",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/run_ts",
+      "value": "2026-08-05T17:18:02.730216+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/git_sha",
+      "value": "2dcea7989d04931fc72d0a25e1011bd64bf207f4",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/config_path",
+      "value": "configs/eval_random_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/config_hash",
+      "value": "sha256:7516a3655e98d0c609a6c4946a3b0dcc529c8a9901eae021d8f944b592c2da9c",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/dataset_manifest_hash",
+      "value": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/splits/frozen_at",
+      "value": "2026-08-05",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/splits/file_hash",
+      "value": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/iceberg_snapshots/local.gold.interactions_5core",
+      "value": 8184397443787800955,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/iceberg_snapshots/local.gold.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/iceberg_snapshots/local.gold.user_stats",
+      "value": 7656304543449163695,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/iceberg_snapshots/local.gold.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/iceberg_snapshots/local.gold.item_features",
+      "value": 5841387267286613743,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/iceberg_snapshots/local.gold.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/iceberg_snapshots/local.gold.popularity",
+      "value": 1565243784354530213,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/iceberg_snapshots/local.gold.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/seeds/model",
+      "value": 13,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/model/name",
+      "value": "random",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/model/params/seed",
+      "value": 13,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/model/params/seed"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/wall_clock_s",
+      "value": 1293.799,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T165630Z-2dcea79/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T165630Z-2dcea79",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
       "pointer": "/runs/20260805T172047Z-035042b/run_id",
       "value": "20260805T172047Z-035042b",
       "source": {
@@ -49017,6 +49227,456 @@
       "source": {
         "kind": "runs_record",
         "run_id": "20260805T172047Z-035042b",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/run_id",
+      "value": "20260805T173018Z-035042b",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/run_ts",
+      "value": "2026-08-05T17:35:19.204631+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/git_sha",
+      "value": "035042bbc4ce5284a4b7afd46f5dca574b5ddee4",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/config_path",
+      "value": "configs/eval_pop_alltime_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/config_hash",
+      "value": "sha256:0e6615d958a012830f7a680d852068c2bf12582c7258af44df180a761321ba73",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/dataset_manifest_hash",
+      "value": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/splits/frozen_at",
+      "value": "2026-08-05",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/splits/file_hash",
+      "value": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/iceberg_snapshots/local.gold.interactions_5core",
+      "value": 8184397443787800955,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/iceberg_snapshots/local.gold.user_stats",
+      "value": 7656304543449163695,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/iceberg_snapshots/local.gold.item_features",
+      "value": 5841387267286613743,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/iceberg_snapshots/local.gold.popularity",
+      "value": 1565243784354530213,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/model/name",
+      "value": "popularity",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/model/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/model/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/model/params/window_days",
+      "value": 0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/model/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/wall_clock_s",
+      "value": 300.778,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173018Z-035042b/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173018Z-035042b",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/run_id",
+      "value": "20260805T173520Z-035042b",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/run_ts",
+      "value": "2026-08-05T18:22:11.664752+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/git_sha",
+      "value": "035042bbc4ce5284a4b7afd46f5dca574b5ddee4",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/config_path",
+      "value": "configs/eval_pop_category_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/config_hash",
+      "value": "sha256:5ea5625f0c8bd5fff5ef2122d14e38507c09e59e72a97b4203177656a8cda26e",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/dataset_manifest_hash",
+      "value": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/splits/frozen_at",
+      "value": "2026-08-05",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/splits/file_hash",
+      "value": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/iceberg_snapshots/local.gold.interactions_5core",
+      "value": 8184397443787800955,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/iceberg_snapshots/local.gold.user_stats",
+      "value": 7656304543449163695,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/iceberg_snapshots/local.gold.item_features",
+      "value": 5841387267286613743,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/iceberg_snapshots/local.gold.popularity",
+      "value": 1565243784354530213,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/iceberg_snapshots/local.gold.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/model/name",
+      "value": "popularity_category",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/model/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/model/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/model/params/window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/model/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/model/params/fallback",
+      "value": "global_pop",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/model/params/fallback"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/wall_clock_s",
+      "value": 2811.908,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260805T173520Z-035042b/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260805T173520Z-035042b",
         "source_pointer": "/hardware"
       }
     },
@@ -49678,6 +50338,306 @@
         "kind": "runs_record",
         "run_id": "20260806T091202Z-4fcd2f2",
         "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/run_id",
+      "value": "20260807T040118Z-5e212d7",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/run_ts",
+      "value": "2026-08-07T04:45:05.073965+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/git_sha",
+      "value": "5e212d79005a6c3995d4df42ef237358399d0bb2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/git_dirty",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/config_path",
+      "value": "configs/eval_hybrid_val.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/config_hash",
+      "value": "sha256:4420d443dbcbf3aae323a854c855e88301e1d545fb088d82b8cab58a6bef1c58",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/dataset_manifest_hash",
+      "value": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/splits/frozen_at",
+      "value": "2026-08-05",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/splits/file_hash",
+      "value": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/iceberg_snapshots/local.gold.interactions_5core",
+      "value": 8184397443787800955,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/iceberg_snapshots/local.gold.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/iceberg_snapshots/local.gold.user_stats",
+      "value": 7656304543449163695,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/iceberg_snapshots/local.gold.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/iceberg_snapshots/local.gold.item_features",
+      "value": 5841387267286613743,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/iceberg_snapshots/local.gold.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/iceberg_snapshots/local.gold.popularity",
+      "value": 1565243784354530213,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/iceberg_snapshots/local.gold.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/name",
+      "value": "hybrid",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/n_star",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/n_star"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/low/name",
+      "value": "content_pop_blend",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/low/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/low/params/alpha",
+      "value": 0.3,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/low/params/alpha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/low/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/low/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/low/params/window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/low/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/low/params/recipe_hash",
+      "value": "1f7878ff82bf",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/low/params/recipe_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/low/params/artifact_root",
+      "value": "data/eval/minilm",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/low/params/artifact_root"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/high/name",
+      "value": "popularity",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/high/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/high/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/high/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/model/params/high/params/window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/model/params/high/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/wall_clock_s",
+      "value": 2628.126,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260807T040118Z-5e212d7/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260807T040118Z-5e212d7",
+        "source_pointer": "/hardware"
       }
     },
     {
@@ -51797,6 +52757,106 @@
       "source": {
         "kind": "runs_record",
         "run_id": "20260807T164622Z-3e2c665",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/run_id",
+      "value": "20260808T025446Z-1f1ab07",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/kind",
+      "value": "policy_grid",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/run_ts",
+      "value": "2026-08-08T02:54:46.836795+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/git_sha",
+      "value": "1f1ab078e8ae07b9b3c036cded101751b791d188",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/git_dirty",
+      "value": true,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/config_path",
+      "value": "configs/policy_grid_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/config_hash",
+      "value": "sha256:aa84536cda92499b6e10f2744af48cb67c8e39eb499ebc5f245b9e0e48fdf4bd",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/wall_clock_s",
+      "value": 88.442,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/hardware",
+      "value": "arm64 · Darwin",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260808T025446Z-1f1ab07",
         "source_pointer": "/hardware"
       }
     },
@@ -56897,6 +57957,12 @@
       "pointer": "/runs/20260807T164622Z-3e2c665/fields_absent_in_record",
       "subtree": true,
       "note": "kind='reproduce' records do not carry these fields"
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260808T025446Z-1f1ab07/fields_absent_in_record",
+      "subtree": true,
+      "note": "kind='policy_grid' records do not carry these fields"
     },
     {
       "file": "receipts.json",
