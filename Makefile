@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval-extract-uncored eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval-extract-uncored eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -209,6 +209,16 @@ embed-items:
 # the receipt regardless. No JVM/Spark gate needed.
 ann-index:
 	$(CAFFEINATE) uv run --group embed python -m batch_recsys_lab.models.ann_index --measure
+
+# DuckDB single-node reality check (Phase 7 stretch item 1). JVM-free; reads
+# bronze via the DuckDB iceberg extension at the CURRENT snapshot, writes only
+# under data/bench/duckdb/, never the warehouse. 3 timed runs; --append adds
+# one kind="bench" record from a clean tree (use BENCH_FLAGS=--dry-run to
+# inspect first). Spark reference timings are quoted from
+# data/build_summary.jsonl inside the record, never re-run.
+BENCH_FLAGS ?= --append
+bench-duckdb:
+	$(CAFFEINATE) uv run --group bench python -m batch_recsys_lab.bench.duckdb_silver --runs 3 --content-parity $(BENCH_FLAGS)
 
 # Snapshot-pinned reproduction of the recorded headline eval (Phase 5, T18).
 # Reads configs/headline.yaml -> the pinned run_id, rebuilds the eval cache by
