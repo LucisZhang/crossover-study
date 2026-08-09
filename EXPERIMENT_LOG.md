@@ -1458,3 +1458,39 @@ gap had not yet opened. Mechanism is inference, not measured. The headline
 number stands regardless of the diagnosis: **coring inflates the popularity
 baseline's TEST NDCG@10 by ×1.20 globally and ×1.28–1.59 per segment.** Per
 protocol there is no re-run; the refuted clauses are published as declared.
+
+## Phase 7 stretch 1 — DuckDB single-node reality check (2026-08-10)
+
+**Hypothesis.** DuckDB rebuilds `silver.interactions` ≥2× faster than the
+recorded Spark `local[10]` ledger timings, with an exactly reconciling
+waterfall.
+
+**Result.** Record `20260809T212313Z-a5a9e6e` (kind="bench", clean tree,
+DuckDB 1.5.5, threads=10, memory_limit=12GB, iceberg_scan reader, 3 fresh-
+connection runs; outputs under `data/bench/duckdb/`, warehouse version-hints
+unchanged):
+
+| build | DuckDB (3 runs) | Spark ledger (`data/build_summary.jsonl`) |
+|---|---|---|
+| silver.interactions | 12.674 / 17.029 / 19.363 s | 316.413 / 474.250 / 569.081 s |
+| silver.items | 1.443 / 2.021 / 2.163 s | 12.553 / 15.645 / 23.609 s |
+
+Waterfall parity hard-asserted and exact: 43,886,944 in = 43,365,424 kept +
+2 rating_domain + 477,968 exact_duplicate + 43,550 superseded; items
+1,610,012 → 1,610,012 with the four dq_raw measures reproduced to the row
+(price_unparseable 316; brand sources 1,153,897 / 384,785 / 71,330).
+Content parity: 74 diff rows, within the 260-row keep-latest tie-group bound
+(xxhash64 tie-break unreproducible in DuckDB; measured, not patched).
+
+**Verdict.** Hypothesis confirmed, by ~28× at the median rather than 2× —
+with the declared scope asymmetry: Spark ledger numbers include the contract
+audit (43M-row FK join), dq writes, and Iceberg commits; the DuckDB port
+times the transform chain only. Both numbers and the asymmetry are published
+in case_study §3.
+
+**Diagnosis.** No surprise mechanism: single-machine columnar scan +
+vectorized hash operations vs JVM task scheduling and shuffle machinery at a
+scale (44M rows, ~4GB) that fits one node comfortably. The measured point is
+published as the §6.5 honesty item: Spark's value here is the Iceberg write
+path, contract engine integration, and cluster-portable semantics, not
+single-node throughput. Distributed behavior remains [projected].
