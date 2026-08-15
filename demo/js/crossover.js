@@ -9,7 +9,7 @@
 
 import { doc, getTraced, traceEntries } from './data.js';
 import { tracedSpan, tracedMetricWithCi, derivedSpan, runIdChip } from './receipts.js';
-import { segmentLineChart, SLOTS } from './charts.js';
+import { segmentLineChart, figureHeader, SLOTS } from './charts.js';
 import * as fmt from './fmt.js';
 
 const CX = 'crossover.json';
@@ -35,7 +35,12 @@ function nStarValue(raw) {
 
 // ------------------------------------------------------------------------ chart
 
-function buildChart(cx) {
+/**
+ * The chart spec, built once per render and consumed twice: figureHeader() draws
+ * the title/subtitle/legend as HTML above the plot, segmentLineChart() draws the
+ * plot itself. One object, so the legend can never disagree with the lines.
+ */
+function chartSpec(cx) {
   const order = cx.model_order;
   const series = [];
   order.forEach((key, i) => {
@@ -64,7 +69,7 @@ function buildChart(cx) {
   const ref = cx.models[order.find((k) => cx.models[k] && cx.models[k].plot !== false)];
   const nUsers = cx.segments.map((s) => ref.segments[s].n_users);
 
-  return segmentLineChart({
+  return {
     segments: cx.segments,
     nUsers,
     nUsersFmt: nUsers.map(fmt.int),
@@ -81,7 +86,7 @@ function buildChart(cx) {
     // the figure's small print: the browser wraps real text, and the chips stay
     // clickable. In-SVG text width can only be estimated here.
     footnote: 'rendered from demo/data/crossover.json, a projection of results/runs.jsonl (append-only)',
-  });
+  };
 }
 
 /** The reference figure's small-print receipts row, as flowing HTML. */
@@ -394,14 +399,21 @@ function render() {
 
   const hybrid = cx.models.hybrid;
   const hybridDelta = cx.paired_deltas && cx.paired_deltas.hybrid_vs_blend;
+  const spec = chartSpec(cx);
 
+  // The header sits OUTSIDE .scroll-x on purpose: the plot has a 720px floor and
+  // scrolls sideways on a narrow viewport, but the subtitle is prose and must
+  // wrap to the column instead of riding that scroller.
   root.innerHTML = `
     <div class="controls">
       <span class="control-label">metric</span>
       <div class="seg-switch">${metricBtns}</div>
       <span class="control-hint">split: <code>${fmt.esc(cx.split)}</code> · frozen TEST, one-shot</span>
     </div>
-    <div class="chart-wrap scroll-x"><div class="chart-box" id="cx-chart"></div></div>
+    <figure class="chart-figure">
+      ${figureHeader(spec)}
+      <div class="chart-wrap scroll-x"><div class="chart-box" id="cx-chart"></div></div>
+    </figure>
     ${receiptsStrip(cx)}
     <p class="caption"><strong>Derived overlay.</strong> The dashed line is the routed policy at the
       slider position — recomposed from the recorded one-shot TEST runs; no re-scoring. It is drawn
@@ -431,7 +443,7 @@ function render() {
       ${tracedSpan(CX, '/models/blend/catalog_size', fmt.int)}-item catalog with their TRAIN-seen
       items removed. No sampled negatives anywhere on this page.</p>`;
 
-  root.querySelector('#cx-chart').innerHTML = buildChart(cx);
+  root.querySelector('#cx-chart').innerHTML = segmentLineChart(spec);
   root.querySelector('#cx-policy').innerHTML = policyPanel();
   wire();
 }

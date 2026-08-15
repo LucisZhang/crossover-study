@@ -1,9 +1,8 @@
 // charts.js -- hand-rolled SVG, no chart library.
 //
-// The segment line chart is a direct port of the geometry, palette and
-// CI-band treatment of src/batch_recsys_lab/eval/crossover_chart.py, so the
-// on-site chart reads as the same object as the committed figure
-// results/figures/crossover_test.svg:
+// The segment line chart is a direct port of the geometry and CI-band treatment
+// of src/batch_recsys_lab/eval/crossover_chart.py, so the on-site chart reads as
+// the same object as the committed figure results/figures/crossover_test.svg:
 //
 //   * figure box 10.0 x 6.2 in  -> viewBox 1000 x 620 (1 pt = 1000/720 units)
 //   * axes rect from subplots_adjust(left .085, right .775, top .84, bottom .22)
@@ -14,6 +13,24 @@
 //     series colour -- the relief rule for the sub-3:1 palette slots)
 //   * segment sizes as a muted n= row under the ticks
 //
+// Two things the matplotlib figure keeps inside the canvas are HTML here, and
+// the divergence is deliberate:
+//
+//   * TITLE + SUBTITLE. SVG <text> does not wrap and this page's subtitle is a
+//     long provenance sentence, so in-canvas it was clipped at the viewBox edge
+//     ("... TEST = 2023-01-01 -> sna"). Real text in real HTML wraps at whatever
+//     width the column happens to be; nothing here has to estimate a glyph
+//     advance to stay inside the frame.
+//   * LEGEND. It used to be a framed box parked in the middle-left of the axes,
+//     where it sat on top of the plotted lines. There is no free interior region
+//     to move it to (the right margin already holds the direct end-labels), so
+//     it became an HTML list under the subtitle -- outside the data rectangle by
+//     construction, and no longer able to occlude anything.
+//
+// Both are produced by figureHeader() below and belong to the caller's markup,
+// which is the same trade already made for the per-series run-id receipts strip.
+// The chart's aria-label still carries the title, so the SVG stays self-describing.
+//
 // SVG is built as markup and handed to innerHTML rather than through
 // createElementNS: the HTML parser assigns the SVG namespace for us, so the SVG
 // namespace URI -- the one URL a hand-built chart would otherwise have to
@@ -22,14 +39,17 @@
 
 import { axisTick, esc } from './fmt.js';
 
-// --- dataviz reference palette (light mode), verbatim from crossover_chart.py ---
+// --- chart chrome, tracking css/site.css (portfolio palette) ---
+// Series colours (SLOTS) stay on the crossover_chart.py reference palette: they
+// are identity, and the committed figure must keep matching this one. Only the
+// non-data chrome moves.
 export const COLORS = {
-  SURFACE: '#fcfcfb',
-  INK: '#0b0b0b',
-  INK2: '#52514e',
-  MUTED: '#898781',
-  GRID: '#e1e0d9',
-  BASELINE: '#c3c2b7',
+  SURFACE: '#ffffff',
+  INK: '#151817',
+  INK2: '#5d6561',
+  MUTED: '#737b77',
+  GRID: '#d9dedb',
+  BASELINE: '#a9b1ad',
 };
 
 /** Categorical slots in fixed order; assigned by model_order index, never re-ranked. */
@@ -58,6 +78,12 @@ const PLOT = {
   y0: (1 - FIG.top) * FIG.h, // top edge in SVG coords
   y1: (1 - FIG.bottom) * FIG.h, // bottom edge in SVG coords
 };
+
+// The band matplotlib reserves for the title/suptitle is empty now that both are
+// HTML, so the viewBox starts below it. Cropping the viewport rather than moving
+// PLOT keeps every interior coordinate identical to the reference figure -- the
+// port stays a port, it just shows less blank paper.
+const VIEW_Y0 = 62;
 
 // ---------------------------------------------------------------- generic helpers
 
@@ -203,23 +229,9 @@ export function segmentLineChart(spec) {
 
   const parts = [];
 
-  // Surface + title block (figure-level, left-aligned with the axes).
+  // Surface. Title and subtitle are HTML (see figureHeader) -- see the file
+  // header for why.
   parts.push(svgRect(0, 0, FIG.w, FIG.h, { fill: COLORS.SURFACE }));
-  if (spec.title) {
-    parts.push(
-      svgText(PLOT.x0, (1 - 0.955) * FIG.h, spec.title, {
-        size: 15 * PT,
-        weight: 'bold',
-        fill: COLORS.INK,
-        baseline: 'top',
-      }),
-    );
-  }
-  if (spec.subtitle) {
-    parts.push(
-      svgText(PLOT.x0, (1 - 0.905) * FIG.h, spec.subtitle, { size: 9.5 * PT, fill: COLORS.INK2, baseline: 'top' }),
-    );
-  }
 
   // Chrome: recessive solid hairline grid, baseline-weight left/bottom spines only.
   for (const t of ticks) {
@@ -357,53 +369,7 @@ export function segmentLineChart(spec) {
     );
   });
 
-  // Legend, center-left inside the axes, surface frame so lines stay legible under it.
-  const lf = 8.5 * PT;
-  const rowH = lf * 1.5;
-  const handle = 1.6 * lf;
-  const pad = 0.4 * lf;
-  const boxW = pad * 2 + handle + 0.8 * lf + Math.max(...series.map((s) => estWidth(s.label, lf)));
-  const boxH = pad * 2 + rowH * series.length;
-  const bx = PLOT.x0 + 0.4 * lf;
-  const by = (PLOT.y0 + PLOT.y1) / 2 - boxH / 2;
-  parts.push(
-    svgRect(bx, by, boxW, boxH, {
-      fill: COLORS.SURFACE,
-      stroke: COLORS.GRID,
-      width: 0.8 * PT,
-      rx: 3,
-      fillOpacity: 0.95,
-    }),
-  );
-  series.forEach((s, i) => {
-    const ly = by + pad + rowH * (i + 0.5);
-    parts.push(
-      svgLine(bx + pad, ly, bx + pad + handle, ly, {
-        stroke: s.color,
-        width: (s.highlight ? 3.0 : 2.0) * PT,
-        dash: s.dash || null,
-      }),
-    );
-    parts.push(
-      `<circle ${attrs({
-        cx: bx + pad + handle / 2,
-        cy: ly,
-        r: ((s.highlight ? 6.5 : 5.0) / 2) * PT,
-        fill: s.color,
-        stroke: COLORS.SURFACE,
-        'stroke-width': 1.0 * PT,
-      })} />`,
-    );
-    parts.push(
-      svgText(bx + pad + handle + 0.8 * lf, ly, s.label, {
-        size: lf,
-        baseline: 'central',
-        fill: COLORS.INK2,
-        cls: 'traced-svg',
-        runId: s.runId || null,
-      }),
-    );
-  });
+  // No in-canvas legend: figureHeader() renders it as HTML above the plot.
 
   // Receipts small print (every number traces to the log).
   const foot = [];
@@ -438,9 +404,36 @@ export function segmentLineChart(spec) {
 
   // font-family is set as an attribute, not left to the stylesheet: the chart
   // must render identically if the SVG is ever pulled out of the page.
-  return `<svg class="chart" viewBox="0 0 ${FIG.w} ${
-    FIG.h
+  return `<svg class="chart" viewBox="0 ${VIEW_Y0} ${FIG.w} ${
+    FIG.h - VIEW_Y0
   }" preserveAspectRatio="xMidYMid meet" font-family="${SANS}" role="img" aria-label="${esc(
     spec.title || 'segment chart',
   )}">${parts.join('')}</svg>`;
+}
+
+/**
+ * The figure's title, subtitle and legend as HTML, for placement directly above
+ * the chart. Takes the same `spec` object as segmentLineChart (only .title,
+ * .subtitle and .series are read), so the two cannot drift apart.
+ *
+ * The legend swatch is a flat colour chip rather than a miniature of the line:
+ * dash pattern and stroke weight are already carried by the plotted line itself
+ * and by the caption, and a 10px dashed rule reproduces as mush.
+ */
+export function figureHeader(spec) {
+  const series = spec.series || [];
+  const items = series
+    .map(
+      (s) =>
+        `<li class="chart-legend-item">
+          <span class="swatch${s.highlight ? ' swatch-hl' : ''}" style="background:${esc(s.color)}"></span>
+          <span class="${s.highlight ? 'chart-legend-hl' : ''}">${esc(s.label)}</span>
+        </li>`,
+    )
+    .join('');
+  return `<div class="chart-head">
+    ${spec.title ? `<p class="chart-title">${esc(spec.title)}</p>` : ''}
+    ${spec.subtitle ? `<p class="chart-subtitle">${esc(spec.subtitle)}</p>` : ''}
+    ${items ? `<ul class="chart-legend">${items}</ul>` : ''}
+  </div>`;
 }

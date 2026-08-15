@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Batch Recsys Lab — exhibits</title>
-<meta name="description" content="Static, offline exhibits for Batch Recsys Lab: crossover explorer, pick-a-shopper, semantic search, data-quality dashboard, pipeline lineage, receipts.">
+<title>Crossover Study — exhibits</title>
+<meta name="description" content="Static, offline exhibits for Crossover Study: crossover explorer, pick-a-shopper, semantic search, data-quality dashboard, pipeline lineage, receipts.">
 <!--
   Zero external references by construction: no CDN, no webfont, no analytics,
   no favicon fetch. Everything this page loads is a relative path under demo/.
@@ -22,7 +22,7 @@
 <header class="site-head">
   <div class="wrap">
     <div class="brand">
-      <h1>Batch Recsys Lab</h1>
+      <h1>Crossover Study</h1>
       <p class="brand-sub">43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg
         lakehouse; popularity, item-kNN, ALS, content and blend evaluated under a frozen temporal
         split with full-catalog ranking and bootstrap CIs.</p>
@@ -46,9 +46,14 @@
       <span class="exhibit-num">Exhibit 1</span>
       <h2 id="h-crossover">Crossover explorer</h2>
       <p class="lede">How much history does a user need before personalization beats popularity?
-        One line per model across the five frozen history-depth segments, 95% bootstrap CI bands,
-        and the n* slider that shows what the routing threshold would have bought at every recorded
-        grid position. Every number is clickable — it opens the results-log record it came from.</p>
+        The measured answer here is that it doesn't: ALS and item-kNN sit below the popularity
+        baseline in every one of the five frozen history-depth segments, and while the deficit is
+        smaller at 20+ interactions than in the shallow segments, it is still open at the deepest
+        segment this 5-core TEST set contains. The only model that clears popularity is the blend
+        that contains it. That absence is the finding — the exhibit below is what it looks like:
+        one line per model, 95% bootstrap CI bands, and the n* slider that shows what a routing
+        threshold would have bought at every recorded grid position. Every number is clickable —
+        it opens the results-log record it came from.</p>
     </div>
     <div class="exhibit-body" id="exhibit-crossover">
       <p class="muted">Loading…</p>
