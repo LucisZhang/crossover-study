@@ -1,9 +1,22 @@
 # JDK pin (critical — see docs/ENVIRONMENT.md).
 # Spark 4.x supports Java 17/21 only; host default java is 25.
-# ?= so CI's setup-java env can override.
+# ?= so an already-exported JAVA_HOME (CI's setup-java, or a Linux host's
+# /usr/lib/jvm/java-21-openjdk-amd64) overrides; the homebrew path below is
+# the macOS laptop fallback.
 JAVA_HOME ?= /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 export JAVA_HOME
 export PATH := $(JAVA_HOME)/bin:$(PATH)
+# Spark host sizing (spark_session.py reads these; empty = shipped defaults
+# local[10] / 8g, unchanged for the laptop). Override per host, e.g. the rented
+# 16-vCPU box: make data RECSYS_SPARK_MASTER='local[12]' RECSYS_SPARK_DRIVER_MEMORY=32g
+# RECSYS_SPARK_LOCAL_DIR must point at the data disk on hosts whose /tmp is
+# small (Spark shuffle spill lands there otherwise).
+RECSYS_SPARK_MASTER ?=
+RECSYS_SPARK_DRIVER_MEMORY ?=
+RECSYS_SPARK_LOCAL_DIR ?=
+export RECSYS_SPARK_MASTER
+export RECSYS_SPARK_DRIVER_MEMORY
+export RECSYS_SPARK_LOCAL_DIR
 # Force Spark's driver to bind loopback: this host cannot resolve its own hostname
 # for the SparkContext bind (harmless where hostname resolution already works).
 export SPARK_LOCAL_IP := 127.0.0.1
