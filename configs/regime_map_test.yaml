@@ -1,0 +1,43 @@
+# Catalog-learnability regime map on the frozen TEST split (Phase 8, T8-1;
+# UPGRADE_PLAN.md §8b). Pure recomposition of the per-user top-50 lists already
+# recorded by the one-shot TEST eval runs below, crossed with the leak-free
+# per-item TRAIN aggregate from `make item-train-stats` — no re-scoring, no
+# refitting, no threshold tuning (every bucket edge is preregistered in
+# EXPERIMENT_LOG.md 2026-08-17).
+kind: regime_map
+
+# Canonical TEST run_ids. pop_t12m is the headline baseline (identical to
+# configs/crossover_test.yaml); als is the primary-seed (seeds.model=20260805)
+# TEST evaluation of the selected rank=128/reg=0.01/alpha=10/iter=25 config.
+# The un-cored popularity run 20260809T160227Z-5c70b7c is deliberately NOT here:
+# it scores a different user/item universe.
+run_ids:
+  pop_t12m: "20260805T172047Z-035042b"
+  als: "20260806T082441Z-2f2f26d"
+
+# Paired delta direction, matching the Phase 4 exhibits (ALS minus popularity).
+delta:
+  minuend: als
+  subtrahend: pop_t12m
+
+split: test
+expected_n_users: 228153
+
+# Metrics carried per cell. Both are exactly recomposable from the stored top-50
+# (recall@K needs K <= 50; NDCG@10 only scores ranks <= 10).
+cell_metrics: ["ndcg@10", "recall@20"]
+k_list: [10, 20, 50]
+
+# Same bootstrap protocol as the eval records being recomposed; per-cell child
+# seeds are derived from this base seed (see eval/regime_map.py SEED_SCHEME).
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+
+# Snapshot-keyed inputs. Both are resolved to the single snapshot subdir and
+# cross-checked against each other and against both source records.
+cache_dir: data/eval/cache
+item_stats_dir: data/eval/item_train_stats
+five_core_table: local.gold.interactions_5core
+
+results_path: results/runs.jsonl

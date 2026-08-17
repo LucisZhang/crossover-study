@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval-extract-uncored eval eval-baselines als-train eval-als compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -175,6 +175,39 @@ eval-als: java-check
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_als_*.yaml"; exit 1; }
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.models.als_train --config $(CONFIG)
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
+
+# --- Phase 8: Crossover Study Part II (§8b) -----------------------------------
+
+# T8-1 Step A: per-item TRAIN support / last-TRAIN recency / first-seen date over
+# local.gold.interactions_5core. ONE Spark aggregation; TRAIN columns use
+# ts <= train_end only (leak-free), first_seen spans all splits and is used ONLY
+# to date items (disclosed proxy). Writes data/eval/item_train_stats/<snapshot>/
+# and nothing else — never the warehouse, never results/runs.jsonl. Idempotent:
+# skips when the manifest already matches the live 5-core snapshot (--force to
+# rebuild).
+item-train-stats: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.item_train_stats $(ITEM_STATS_FLAGS)
+
+# T8-1 Step B: the regime map — user history depth x item learnability at the
+# train cutoff. JVM-free recomposition of the per-user top-50 lists already
+# committed by the runs named in the config, crossed with the item-train-stats
+# parquet. Appends one kind="regime_map" record; --dry-run prints everything and
+# appends nothing (TEST runs additionally refuse a dirty tree).
+#   make regime-map CONFIG=configs/regime_map_test.yaml
+#   make regime-map CONFIG=configs/regime_map_val.yaml REGIME_FLAGS=--dry-run
+regime-map:
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/regime_map_*.yaml"; exit 1; }
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.regime_map --config $(CONFIG) $(REGIME_FLAGS)
+
+# T8-3: deeper history-depth buckets (20-49 / 50-99 / 100+), EXPLORATORY/derived.
+# Regroups the persisted per-user metric values only (top-50 unused); the four
+# buckets that coincide with frozen segments are asserted equal to the recorded
+# per-segment means before anything is emitted. Appends one kind="deep_buckets"
+# record; --dry-run appends nothing.
+#   make deep-buckets CONFIG=configs/deep_buckets_test.yaml
+deep-buckets:
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/deep_buckets_*.yaml"; exit 1; }
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.deep_buckets --config $(CONFIG) $(DEEP_FLAGS)
 
 # Paired-bootstrap delta between two eval runs (Phase 2, T5). Pure numpy.
 #   make compare CONFIG=configs/compare_als_vs_itemknn_val.yaml

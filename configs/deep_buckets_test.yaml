@@ -1,0 +1,35 @@
+# Deep history-depth buckets on the frozen TEST split (Phase 8, T8-3;
+# UPGRADE_PLAN.md §8b). EXPLORATORY/DERIVED: boundaries 20-49 / 50-99 / 100+
+# preregistered in EXPERIMENT_LOG.md 2026-08-17 before any per-bucket outcome
+# was computed, but motivated by the observed narrowing — no confirmatory weight.
+#
+# Pure regrouping of the per-user metric values already committed by the two
+# one-shot TEST eval runs below (the top-50 column is not read). The first four
+# buckets coincide with frozen segments and are asserted equal to those records'
+# per-segment means before anything is emitted.
+kind: deep_buckets
+
+run_ids:
+  pop_t12m: "20260805T172047Z-035042b"
+  als: "20260806T082441Z-2f2f26d"
+
+delta:
+  minuend: als
+  subtrahend: pop_t12m
+
+split: test
+expected_n_users: 228153
+
+metrics: ["ndcg@10", "recall@20"]
+
+self_check:
+  tolerance: 1.0e-9
+
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+
+cache_dir: data/eval/cache
+five_core_table: local.gold.interactions_5core
+
+results_path: results/runs.jsonl

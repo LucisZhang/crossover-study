@@ -1,0 +1,33 @@
+# VAL rehearsal of the T8-1 regime map (Phase 8). Identical mechanics to
+# configs/regime_map_test.yaml against the VAL arms, so the code path, the
+# alignment guards and the cell grid are exercised without touching the frozen
+# TEST split (CLAUDE.md invariant #1: iteration happens on VAL).
+#
+# Arms: the VAL pop-t12m record and the VAL ALS record for the SELECTED config
+# (rank=128 / reg=0.01 / alpha=10 / iter=25 / binary, seeds.model=20260805) —
+# i.e. the VAL counterparts of the two TEST arms.
+kind: regime_map
+
+run_ids:
+  pop_t12m: "20260806T113427Z-e056a2a"
+  als: "20260806T033333Z-acd1f81"
+
+delta:
+  minuend: als
+  subtrahend: pop_t12m
+
+split: val
+expected_n_users: 356362
+
+cell_metrics: ["ndcg@10", "recall@20"]
+k_list: [10, 20, 50]
+
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+
+cache_dir: data/eval/cache
+item_stats_dir: data/eval/item_train_stats
+five_core_table: local.gold.interactions_5core
+
+results_path: results/runs.jsonl

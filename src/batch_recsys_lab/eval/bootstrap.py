@@ -18,6 +18,15 @@ order) via ``np.random.default_rng([seed, segment_ordinal])`` — NumPy's
 segment an independent, deterministic sub-stream without needing a global
 counter or hashing scheme.
 
+**Sequence seeds.** Every ``seed`` parameter here is passed straight to
+``np.random.default_rng``, which accepts a *sequence* of integers as
+``SeedSequence`` entropy as readily as a single int. Callers that need an
+independent, deterministic sub-stream per analysis cell therefore pass a list —
+``[base_seed, axis_ordinal, …]`` — exactly as :func:`segment_cis` does
+internally for its per-segment ordinals (Phase 8 T8-1/T8-3 use the same trick
+for their per-cell / per-bucket streams). Nothing about the draw changes; only
+the entropy does, so a cell's CI never moves when another cell's values move.
+
 At un-cored scale the ``(n_resamples, n_users)`` int64 index matrix stops
 fitting in RAM (1000 x 2.5M x 8B = 20GB on a 16GB laptop), so
 :func:`ci_mean` and :func:`segment_cis` switch to a row-blocked draw above
@@ -31,7 +40,13 @@ results — and ``make reproduce-headline`` byte_exact — are untouched.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 import numpy as np
+
+# Anything ``np.random.default_rng`` accepts as entropy: a single int, or a
+# sequence of ints for a deterministic sub-stream (see the module docstring).
+SeedLike = int | Sequence[int]
 
 DEFAULT_N_RESAMPLES = 1000
 DEFAULT_SEED = 20260805
@@ -44,7 +59,7 @@ MAX_RESAMPLE_ELEMENTS = 500_000_000
 RESAMPLE_BLOCK_ELEMENTS = 50_000_000
 
 
-def resample_matrix(n_users: int, n_resamples: int, seed: int) -> np.ndarray:
+def resample_matrix(n_users: int, n_resamples: int, seed: SeedLike) -> np.ndarray:
     """(n_resamples, n_users) int64 user-index matrix, drawn with replacement.
 
     ``np.random.default_rng(seed).integers(0, n_users, size=(n_resamples, n_users))``.
@@ -90,7 +105,7 @@ def _blocked_resampled_means(
 def ci_mean(
     values: np.ndarray,
     n_resamples: int = DEFAULT_N_RESAMPLES,
-    seed: int = DEFAULT_SEED,
+    seed: SeedLike = DEFAULT_SEED,
     resamples: np.ndarray | None = None,
     max_resample_elements: int = MAX_RESAMPLE_ELEMENTS,
     resample_block_elements: int = RESAMPLE_BLOCK_ELEMENTS,
@@ -124,7 +139,7 @@ def paired_delta_ci(
     a: np.ndarray,
     b: np.ndarray,
     n_resamples: int = DEFAULT_N_RESAMPLES,
-    seed: int = DEFAULT_SEED,
+    seed: SeedLike = DEFAULT_SEED,
 ) -> dict:
     """Bootstrap 95% CI of ``mean(a) - mean(b)`` for user-aligned vectors ``a``, ``b``.
 
@@ -151,7 +166,7 @@ def segment_cis(
     values: np.ndarray,
     segment_labels: np.ndarray,
     n_resamples: int = DEFAULT_N_RESAMPLES,
-    seed: int = DEFAULT_SEED,
+    seed: SeedLike = DEFAULT_SEED,
     max_resample_elements: int = MAX_RESAMPLE_ELEMENTS,
     resample_block_elements: int = RESAMPLE_BLOCK_ELEMENTS,
 ) -> dict[str, dict]:

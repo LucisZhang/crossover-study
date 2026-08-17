@@ -1,0 +1,30 @@
+# VAL rehearsal of the T8-3 deep buckets (Phase 8). Same mechanics as
+# configs/deep_buckets_test.yaml against the VAL arms (pop-t12m VAL and the VAL
+# ALS record for the selected rank=128/reg=0.01/alpha=10/iter=25 config), so the
+# self-check and bucket grid are exercised without touching frozen TEST.
+kind: deep_buckets
+
+run_ids:
+  pop_t12m: "20260806T113427Z-e056a2a"
+  als: "20260806T033333Z-acd1f81"
+
+delta:
+  minuend: als
+  subtrahend: pop_t12m
+
+split: val
+expected_n_users: 356362
+
+metrics: ["ndcg@10", "recall@20"]
+
+self_check:
+  tolerance: 1.0e-9
+
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+
+cache_dir: data/eval/cache
+five_core_table: local.gold.interactions_5core
+
+results_path: results/runs.jsonl

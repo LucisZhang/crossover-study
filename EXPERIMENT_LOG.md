@@ -1494,3 +1494,45 @@ scale (44M rows, ~4GB) that fits one node comfortably. The measured point is
 published as the §6.5 honesty item: Spark's value here is the Iceberg write
 path, contract engine integration, and cluster-portable semantics, not
 single-node throughput. Distributed behavior remains [projected].
+
+## Phase 8 T8-1/T8-3 preregistration — regime-map thresholds, gate rule, deep buckets (2026-08-17)
+
+Registered 2026-08-17T09:31Z, BEFORE any per-cell or per-bucket outcome is
+computed (plan §8b, approved at commit c3f38a2). All thresholds below are
+anchored to constants already frozen elsewhere in the lab, not tuned.
+
+**T8-1 hypothesis — the churn diagnosis, finally measured.** Phases 2–4
+*inferred* that 2023 TEST ground truth concentrates on items with little or
+no TRAIN mass ("catalog churn"); it was never directly measured
+(case_study line 178 concedes this). H-churn: **≥25% of TEST ground-truth
+interactions land on items with zero or low (1–4) TRAIN support.**
+Pre-declared gate (§8b guard): zero+low share **<10%** ⇒ near-total
+TRAIN/TEST catalog overlap, churn diagnosis recorded as WRONG, STOP —
+T8-2's design must be revisited before proceeding; **10–25%** ⇒ partial
+support, T8-2 proceeds with the measured share disclosed as a caveat;
+**≥25%** ⇒ diagnosis converts from derived to measured-and-supported.
+
+**Fixed axes and thresholds:**
+- Item TRAIN support: **zero** = 0 TRAIN interactions; **low** = 1–4
+  (below the k=5 core degree); **high** = ≥5. Anchored to the 5-core k.
+- Recency of last TRAIN interaction: ≤90d / 91–365d / >365d before
+  train_end 2022-06-30 (the frozen popularity windows), plus absent-in-TRAIN.
+- First-seen: calendar-year of the item's earliest 5-core interaction
+  (≤2019 / 2020 / 2021 / 2022-H1 / post-cutoff) — an interaction-based
+  proxy for release date, disclosed as such.
+- User axis: the frozen 5 history-depth segments (0 / 1-4 / 5-9 / 10-19 / 20+).
+- **T8-3 deep buckets: 20-49 / 50-99 / 100+** from `n_train`, fixed here
+  before any per-bucket outcome is examined. Labeled exploratory/derived
+  (motivated by the observed narrowing), not confirmatory; thin buckets are
+  expected and will be disclosed via user counts and CI widths.
+
+**Arms and mechanics (no retraining, no new TEST model scoring).**
+pop-t12m TEST `20260805T172047Z-035042b` vs ALS TEST primary seed
+(model seed 20260805; run_id resolved from `results/runs.jsonl` and recorded
+in the output record). Per-cell/per-bucket metrics are recomposed exactly
+from the persisted per-user `top50` lists (Recall@{10,20,50} and NDCG@10
+restricted to any GT subset are exact for K ≤ 50). Bootstrap: 1,000
+resamples, seed 20260805, within-cell user resampling with per-cell child
+seeds (mirroring `segment_cis`). Max-attainable factor-model recall per
+cell = share of GT interactions on items with TRAIN support ≥1 (a
+TRAIN-frozen factor model cannot score an item it never saw).

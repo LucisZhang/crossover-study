@@ -33,6 +33,37 @@ def segment_of(n_train: np.ndarray) -> np.ndarray:
     return labels[idx]
 
 
+# --- exploratory deep depth buckets (Phase 8, T8-3) ---------------------------
+#
+# The frozen five segments above are the CONFIRMATORY axis: every eval record,
+# the crossover chart and the routing policy are reported on them. The seven
+# buckets below split the open-ended "20+" segment into 20-49 / 50-99 / 100+ and
+# are labelled EXPLORATORY/DERIVED (UPGRADE_PLAN §8b T8-1/T8-3 preregistration,
+# 2026-08-17): the boundaries were fixed in EXPERIMENT_LOG.md *before* any
+# per-bucket outcome was computed, but they were motivated by an observed
+# pattern (the monotonically narrowing ALS deficit), so they carry no
+# confirmatory weight. The first four labels are identical to SEGMENT_LABELS by
+# construction, which is what makes the deep-bucket recomposition checkable
+# against the recorded per-segment numbers.
+DEEP_BUCKET_LABELS = ("0", "1-4", "5-9", "10-19", "20-49", "50-99", "100+")
+
+_DEEP_BUCKET_EDGES = np.array([0, 4, 9, 19, 49, 99], dtype=np.int64)
+
+
+def deep_bucket_of(n_train: np.ndarray) -> np.ndarray:
+    """Vectorized mapping from ``n_train`` to a :data:`DEEP_BUCKET_LABELS` string.
+
+    0 -> "0"; 1..4 -> "1-4"; 5..9 -> "5-9"; 10..19 -> "10-19"; 20..49 -> "20-49";
+    50..99 -> "50-99"; >=100 -> "100+". Same ``searchsorted(side="left")``
+    construction as :func:`segment_of`, so the first four buckets partition
+    exactly the same users as the corresponding frozen segments.
+    """
+    n = np.asarray(n_train)
+    idx = np.searchsorted(_DEEP_BUCKET_EDGES, n, side="left")
+    labels = np.array(DEEP_BUCKET_LABELS, dtype=object)
+    return labels[idx]
+
+
 @dataclass(frozen=True)
 class EvalProtocol:
     """The evaluation protocol knobs (UPGRADE_PLAN.md §8 "Config YAML" block)."""
