@@ -135,6 +135,14 @@ def align_ages(
     cached_keys = _composite_keys(cached_user_idx, cached_item_idx, n_items)
     pair_keys = _composite_keys(pair_user_idx, pair_item_idx, n_items)
 
+    cached_sorted_keys = np.sort(cached_keys)
+    if len(cached_sorted_keys) > 1 and (np.diff(cached_sorted_keys) == 0).any():
+        n_dup = int((np.diff(cached_sorted_keys) == 0).sum())
+        raise ValueError(
+            f"cached TRAIN pairs contain {n_dup} duplicate (user, item) keys; "
+            f"the cache is corrupt — aborting without writing."
+        )
+
     order = np.argsort(pair_keys, kind="stable")
     sorted_keys = pair_keys[order]
     if len(sorted_keys) > 1 and (np.diff(sorted_keys) == 0).any():

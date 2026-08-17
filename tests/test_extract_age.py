@@ -83,6 +83,19 @@ def test_duplicate_pair_aborts():
         align_ages(CACHED_U, CACHED_I, u, i, a, N_ITEMS)
 
 
+def test_cached_side_duplicate_pair_aborts():
+    # Cached pairs have a duplicate key; recomputed side is duplicate-free and
+    # has equal length, so without an explicit cached-side check the gather
+    # would silently drop (0, 1) and return [age(0,0), age(0,0)] instead.
+    cached_u = np.array([0, 0], dtype=np.int32)
+    cached_i = np.array([0, 0], dtype=np.int32)
+    pair_u = np.array([0, 0], dtype=np.int32)
+    pair_i = np.array([0, 1], dtype=np.int32)
+    pair_a = np.array([1.0, 2.0])
+    with pytest.raises(ValueError, match="cached TRAIN pairs contain"):
+        align_ages(cached_u, cached_i, pair_u, pair_i, pair_a, N_ITEMS)
+
+
 def test_ragged_input_columns_abort():
     u, i, a = _shuffled([0, 1, 2, 3])
     with pytest.raises(ValueError, match="disagree in length"):
