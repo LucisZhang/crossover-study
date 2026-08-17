@@ -1536,3 +1536,91 @@ resamples, seed 20260805, within-cell user resampling with per-cell child
 seeds (mirroring `segment_cis`). Max-attainable factor-model recall per
 cell = share of GT interactions on items with TRAIN support ≥1 (a
 TRAIN-frozen factor model cannot score an item it never saw).
+
+## Phase 8 T8-1 — churn regime map: diagnosis MEASURED AND SUPPORTED, gate passed (2026-08-17)
+
+**Result.** Record `20260817T095926Z-633d454` (kind="regime_map", clean tree
+at 633d454, wall 41.0s). Disclosure: an accidental second invocation of the
+same target appended `20260817T100112Z-633d454`; the two records' `results`
+payloads compare equal field-for-field (only run_id/run_ts/wall_clock_s
+differ — determinism held), both stand per invariant #3, citing either is
+valid. Arms: pop-t12m `20260805T172047Z-035042b` vs ALS primary seed
+`20260806T082441Z-2f2f26d`; 228,153 TEST users, 498,906 GT interactions,
+catalog 368,228; item stats at snapshot 8184397443787800955 (coverage exact:
+0 missing, 0 extra). Identity anchor: single-bucket recomposition reproduces
+the recorded per-user metric vectors, max |diff| 1.11e-16.
+
+**(a) The churn receipt.** TEST GT interaction share on TRAIN-support-zero
+items **0.3454** (172,302), on low (1–4) **0.0658** (32,813) — combined
+**zero+low = 0.4111**; distinct-item shares 0.2018 / 0.1282. Concentration:
+5.19% of the catalog (19,118 zero-support items, all post-cutoff first-seen
+by construction) absorbs 34.5% of TEST purchase mass, a 6.7×
+over-representation; conversely the 57.3% of catalog stale >365d in TRAIN
+draws 2.0%. Independently cross-checked via a separate cache-bincount code
+path (no shared module): counts identical, 0/368,228 support mismatches
+vs the Spark job.
+
+**Gate (preregistered bands <0.10 wrong / 0.10–0.25 partial / ≥0.25
+supported): measured 0.4111 ⇒ the churn diagnosis converts from derived to
+MEASURED-AND-SUPPORTED. The §8b near-total-overlap guard does not trip;
+T8-2 proceeds as designed.** VAL rehearsal (same pipeline, dry-run) put
+zero+low at 0.2792 — the unreachable share grows sharply with distance from
+the cutoff (2022-H2 → 2023), i.e. churn is a rate, not a fixed offset.
+
+**(b) Per-cell (segment × support, NDCG@10, paired ALS−pop, 1,000
+resamples, seed 20260805, per-cell child seeds).** Both arms score exactly
+0.000000 in all 10 zero/low cells (41.1% of GT mass) — structural, not
+null: a t12m-popularity top-50 contains only recently-supported items, and
+ALS has no factor for TRAIN-unseen items (the identity anchor is what
+licenses reading these zeros as real). The arm contrast therefore lives
+entirely in the 5 high cells: pop-t12m wins all five with CI excluding zero;
+the deficit narrows −0.003481 (1–4) → −0.002001 (20+) — endpoints separate,
+but mid-segment CIs overlap, so no monotonicity claim. Sharpest cell:
+seg 0 × high, ALS exactly 0 vs pop 0.010984 (n=10,148). Recency axis is
+near-degenerate with support (absent ≡ zero; ≤90d ≈ high) except: ALS is
+slightly positive on 91–365d / >365d cells where pop is structurally 0
+(~0.02% of GT mass; no TEST CI excludes zero) — recorded as the pre-T8-2
+baseline for the one axis a time-decayed ALS should move.
+
+**(c) Factor-model ceilings (max attainable recall, any K).** Global cap
+**0.6546** at support ≥1 (0.5889 at support ≥5). Inverted-U in history
+depth: 0.5676 (seg 0) → peak 0.7255 (10–19) → 0.4326 (100+): the deepest
+users buy the newest items hardest, so the arm with the most history to
+exploit faces the weakest ceiling — an independent, non-modeling reason
+deep buckets look bad for ALS, to be stated alongside T8-3's thin-CI caveat.
+
+**Verdict.** H-churn confirmed at 1.6× the support threshold and 4.1× the
+refutation floor. The Phase 2–4 mechanism claim is no longer inference: a
+TRAIN-frozen model was structurally capped at 65.5% of TEST ground truth
+before any modeling question was asked, and the frozen-vs-fresh gap, not
+representation quality, is the first-order fact of this regime.
+
+## Phase 8 T8-3 — deep depth buckets (exploratory/derived): no crossover; ≥50 too thin to resolve (2026-08-17)
+
+**Result.** Record `20260817T100253Z-633d454` (kind="deep_buckets",
+`exploratory_derived: true`, wall 23.0s). Buckets 20-49 / 50-99 / 100+
+fixed from `n_train` in the 2026-08-17 preregistration before any outcome
+was examined. Self-check: buckets 0/1-4/5-9/10-19 reproduce the recorded
+TEST per-segment means for both arms and both metrics bit-identically
+(16/16 comparisons, max |diff| 0.0).
+
+NDCG@10, paired ALS−pop-t12m:
+
+| bucket | users | share | delta | 95% CI | width | ≠0 |
+|---|---|---|---|---|---|---|
+| 20-49 | 16,528 | 0.0724 | −0.001806 | [−0.002563, −0.001083] | 0.001479 | yes |
+| 50-99 | 2,591 | 0.0114 | **+0.000523** | [−0.001005, +0.002184] | 0.003189 | **no** |
+| 100+ | 609 | 0.0027 | −0.000414 | [−0.002484, +0.001209] | 0.003693 | **no** |
+
+Recall@20 is negative with CI excluding zero in ALL seven buckets,
+including −0.003965 [−0.007471, −0.000394] at 50-99 and −0.004796 at 100+.
+CI widths at 50-99/100+ are 3.9–4.5× the 1-4 bucket's — the thin buckets
+the preregistration predicted, disclosed as such.
+
+**Verdict.** Through 20-49 the null is significant and still narrowing
+(−0.002562 at 1-4 → −0.001806 at 20-49). At 50-99 the study's first
+sign flip appears (+0.000523 NDCG@10) but its CI straddles zero and the
+same bucket is significantly negative on Recall@20, so the flip does not
+survive a change of metric: **not a crossover**. 100+ reverts negative
+(ns), consistent with its collapsed factor ceiling (0.4326, see T8-1(c)).
+Exploratory/derived; no confirmatory claim is made beyond 20-49.
