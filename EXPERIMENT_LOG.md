@@ -1624,3 +1624,102 @@ same bucket is significantly negative on Recall@20, so the flip does not
 survive a change of metric: **not a crossover**. 100+ reverts negative
 (ns), consistent with its collapsed factor ceiling (0.4326, see T8-1(c)).
 Exploratory/derived; no confirmatory claim is made beyond 20-49.
+
+## Phase 8 T8-2 preregistration — recency-matched arms: hypotheses, half-life grid, selection rule, decision rules (2026-08-17)
+
+Registered 2026-08-17T11:44Z, BEFORE any T8-2 VAL or TEST run and before
+any T8-2 model code exists (plan §8b T8-2, approved at c3f38a2; T8-1 gate
+passed at 0.4111 ≥ 0.25, so T8-2 proceeds as designed). Grid values below
+are anchored to constants already frozen in the lab, not tuned.
+
+**Hypothesis (H-fair).** Phase 4's comparison was unfair in one axis:
+popularity got a trailing-12m recency window while every CF arm was static
+all-history. H-fair: giving classical CF the same recency treatment moves
+it toward pop-t12m — specifically, (i) the per-segment ALS−pop deficit
+shrinks vs the recorded static-ALS baseline, and (ii) time-decayed ALS
+becomes positive-with-CI on the stale-item regime-map cells (91–365d,
+>365d) where T8-1(b) found static ALS faintly positive and pop-t12m
+structurally zero. H-fair does NOT predict the zero/low-support cells
+move: 41.1% of TEST GT mass is on TRAIN-unseen or sub-core items and no
+TRAIN-frozen model, decayed or not, can rank those (T8-1 ceiling 0.6546).
+A full crossover therefore requires the high-support cells to flip, which
+H-fair treats as possible but not likely; the preregistered expectation is
+"deficit narrows, null likely survives."
+
+**Exactly two new arms, both classical (plan text is binding):**
+1. **item-kNN-t12m** — co-occurrence/similarity computed ONLY on TRAIN
+   interactions in the pop-t12m window: `2021-06-30T23:59:59.999Z < ts ≤
+   2022-06-30T23:59:59.999Z` (identical boundary semantics to the frozen
+   popularity build: strict lower, inclusive upper). All other kNN
+   hyperparameters held at the Phase 3 chosen config (top_n=50,
+   shrinkage=0.0, cosine, deterministic tie-break). User profile vectors
+   at scoring time remain full TRAIN history — the recency treatment is
+   on the item-side co-occurrence, mirroring how pop-t12m's recency is on
+   the item side. No tuning; kNN-t12m has zero free parameters.
+2. **ALS-decay** — implicit ALS with time-decayed confidence. Existing
+   chosen config held fixed: rank=128, reg_param=0.01, alpha=10,
+   max_iter=25, seeds {20260805 primary, 20260806, 20260807}. Per
+   (user,item) TRAIN pair, age_days = (train_end − latest interaction ts)
+   in days, train_end = 2022-06-30T23:59:59.999Z; confidence input
+   r = 2^(−age_days / half_life_days), entering Spark ALS as ratingCol
+   under implicitPrefs (c = 1 + α·r), α unchanged. At age 0, r = 1 —
+   identical to the binary baseline; decay only removes stale confidence.
+   **Only the half-life is tuned.**
+
+**Half-life grid (preregistered, 3 values): {90, 365, 1460} days.**
+Anchors: 90d and 365d are the lab's frozen popularity/recency windows
+(§8b regime-map recency axis ≤90d / 91–365d / >365d; pop-t12m window);
+1460d (4y) is a deliberately mild decay — TRAIN spans ~2016→2022-06, so
+1460d leaves multi-year-old signal at ≥quarter weight, probing whether
+any decay at all beats none. No other half-life values may be evaluated.
+
+**VAL selection rule.** All tuning on VAL only, primary model seed
+20260805 only (matching Phase 3 tuning practice). Selected half-life =
+argmax global VAL NDCG@10 (the lab's primary metric). Ties within
+overlapping 95% CIs → smaller half-life (stronger recency treatment,
+cheaper to defend as "recency-matched"). If ALL three half-lives score
+below the recorded static-ALS VAL baseline on global NDCG@10, the decay
+mechanism itself failed on VAL; the best of the three still goes to TEST
+(the confirmatory question is vs pop-t12m, not vs static ALS) with the
+VAL regression disclosed. kNN-t12m: no free parameters; one VAL run is
+recorded as its selection record (sanity, not selection).
+
+**TEST protocol (frozen-TEST invariant).** Exactly ONE TEST evaluation
+per selected arm, no iteration: (a) kNN-t12m — one TEST record
+(deterministic, no seed); (b) ALS-decay at the selected half-life —
+3-seed TEST records (mean±sd reported; primary seed 20260805 carries the
+per-user artifact used for paired deltas and recomposition), mirroring
+the Phase 4 ALS TEST protocol. Comparators: pop-t12m TEST
+`20260805T172047Z-035042b` and blend TEST `20260807T055333Z-c320c79`.
+For each new arm: paired-bootstrap deltas vs both comparators (1,000
+resamples, seed 20260805, per-segment child seeds), identical
+history-depth segment breakdown (0 / 1-4 / 5-9 / 10-19 / 20+) and CI
+machinery as the existing exhibits. Additionally each new arm's per-user
+TEST scores are recomposed through the committed T8-1 regime-map
+machinery (same cell axes, same seeds) against the recorded baseline
+records `20260817T095926Z-633d454` (dup `20260817T100112Z-633d454`
+disclosed, untouched).
+
+**Decision rules (both outcomes ship):**
+- **Crossover** = at any history-depth segment OR any regime-map cell, a
+  new arm beats pop-t12m on TEST NDCG@10 with the paired-delta 95% CI
+  excluding zero (Recall@20 checked as the metric-robustness guard, as
+  in T8-3). Then the headline answer becomes "personalization needs
+  history AND freshness", the crossover chart and routing narrative are
+  updated, and T8-4 (ML-32M contrast) is likely skipped per the §8b gate.
+- **Null** = no such segment/cell. Then the Phase 4 null is robust to the
+  recency asymmetry, the fairness objection is discharged by measurement,
+  and T8-4 becomes the capstone (regime contrast on a low-churn catalog).
+- Either way: verdict logged here, records in runs.jsonl, case_study/demo
+  updated only where existing numbers are directly superseded.
+
+**Mechanics note (declared before implementation).** Timestamps are not
+persisted in the eval cache; a one-shot deterministic Spark job will
+extend the cache with per-TRAIN-pair age_days at the same pinned Iceberg
+snapshot (8184397443787800955), with an exact-alignment assertion against
+the existing cached pair arrays (any mismatch aborts). ALS param identity:
+half_life_days enters canonical params and the param hash ONLY when
+weighting="time_decay", so all existing artifact hashes are unchanged.
+kNN-t12m identity: train_window_days=365 recorded in the run record's
+model params. Unit tests for the decay formula, window boundary, and
+hash back-compat land with the implementation, before any VAL run.
