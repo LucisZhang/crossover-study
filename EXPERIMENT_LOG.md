@@ -1723,3 +1723,69 @@ weighting="time_decay", so all existing artifact hashes are unchanged.
 kNN-t12m identity: train_window_days=365 recorded in the run record's
 model params. Unit tests for the decay formula, window boundary, and
 hash back-compat land with the implementation, before any VAL run.
+
+## Phase 8 T8-2 substrate — migration: rented Linux box is the machine of record from T8-2 onward (2026-08-17)
+
+**Decision.** All Phase 8 work from T8-2 (VAL grid onward) runs on a rented
+Linux box, not the 16GB MacBook. The box was verified by a full fresh
+rebuild — raw bytes → bronze → silver → gold with contracts and the
+reconciliation waterfall — before any model run.
+
+**Hardware / OS / toolchain (machine of record).**
+- Rented container (AutoDL), Ubuntu 22.04, root. cgroup quota **16 vCPU /
+  120GB RAM** (nproc/free show the 128-core host; the quota is
+  authoritative). Shared box: an unrelated GPU training job co-tenants;
+  Spark is sized to leave it headroom.
+- Data disk: 150GB XFS at `/root/autodl-tmp`. Repo clone:
+  `/root/autodl-tmp/crossover-study` (bare remote
+  `/root/autodl-tmp/crossover-study.git`, named `gpu` on the Mac).
+  System disk is ~12GB free — everything big (raw, warehouse, uv cache,
+  Spark scratch) lives on the data disk.
+- OpenJDK 21.0.11 (apt, `/usr/lib/jvm/java-21-openjdk-amd64`), uv 0.12.5,
+  Python 3.12.14 (uv-managed), pyspark 4.0.4 + iceberg-spark-runtime
+  1.11.0, numpy 2.5.1, scipy 1.18.0, pyarrow 25.0.0.
+- Spark sizing: `local[12]`, driver 32g, `spark.local.dir=
+  /root/autodl-tmp/spark-tmp` — via the `RECSYS_SPARK_*` env overrides
+  added in commit 327c417 (laptop defaults unchanged). Env lives in
+  `/etc/profile.d/crossover-study.sh` on the box.
+- The Mac's `uv run pytest` spawn breakage does NOT reproduce on Linux;
+  bare `uv run pytest` works there.
+
+**Fresh rebuild, not a warehouse copy.** The Mac warehouse was not
+copied (its metadata carries absolute paths; and a fresh rebuild is a
+live test of the determinism claim). Raw `.gz` files were transported
+from the Mac's copies (UCSD origin per `data/MANIFEST.md`) and SHA-256
+verified on the box against the recorded manifest hashes — both OK, so
+the input bytes are identical to the recorded download.
+
+**Result: exact reproduction.** `make data` (run
+`20260817T154801Z-327c417`, commit 327c417) reconciles exactly: every
+count in the waterfall and all 17 k-core funnel iterations
+(rows/users/items per iteration) are identical to the Mac build of
+2026-08-05 — bronze 43,886,944 reviews / 1,610,012 items, silver
+43,365,424 / 1,610,012, gold 5-core 15,473,536 rows × 1,641,026 users ×
+368,228 items. Only run ids, timestamps and wall-clocks differ (the box
+is ~3× faster per funnel iteration). Contracts all pass; quarantine
+ledger reproduced (same 2 rating_domain rows).
+
+One fresh-warehouse ordering wrinkle, recorded honestly: plain
+`make data` on an empty warehouse fails at the contract audit because
+`contracts/gold_item_text.yaml` grades `gold.item_text`, which is built
+by the Phase 4 target `make gold-item-text`, not by `make data` (on the
+Mac the table predated the audit). Sequence used: bronze ingest →
+`make data` (failed at audit as above; silver/gold builds themselves
+green) → `make gold-item-text` → `make data` end-to-end green.
+
+Test suite on the box: 455 passed / 1 failed / 3 skipped, the failure
+being a bitwise-equality assertion on two BLAS GEMM shapes that differ
+by 1 float32 ulp on x86 OpenBLAS (identical on Apple Accelerate) —
+relaxed to rtol/atol 1e-6 in commit a0ad01a (intent was row alignment,
+not numeric identity); suite green after. This is exactly the expected
+cross-platform float behavior: **counts are identical, floats may drift
+in the last ulp** — which is why T8-2 VAL/TEST must not mix machines.
+
+**No cross-machine contamination.** T8-2 VAL/TEST had NOT started on the
+Mac: zero T8-2 records in `results/runs.jsonl` (67 records total; none
+matching the T8-2 configs — hl90/hl365/hl1460, alsdecay, itemknn_t12m),
+verified 2026-08-17 before migration. Every T8-2 run will execute and be
+recorded on this box.

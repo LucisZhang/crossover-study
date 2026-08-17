@@ -52,13 +52,11 @@ bronze.reviews projects out the `text` and `images` columns per UPGRADE_PLAN.md 
 
 Note: published figures are rounded (per the Amazon Reviews 2023 / Hou et al. 2024 release site); the observed bronze count is canonical. Delta is observed minus the literal rounded published number, not a measure of ingestion correctness.
 
-Ingest wall-clock: reviews=509s, items=926s
-
-Last verified: 2026-08-05T08:38:24Z
+Last verified: 2026-08-17T15:35:45Z
 
 ## Reconciliation waterfall
 
-Run ID: `20260805T143256Z-7406fc1` · generated 2026-08-05T15:00:25.583617+00:00
+Run ID: `20260817T154801Z-327c417` · generated 2026-08-17T15:56:55.922854+00:00
 
 Every dropped row carries a reason; per edge, Σ reason-rows == the source count AND the `kept` count == the live Iceberg table count (re-read at publish time). Assertions are enforced in code (non-zero exit on drift).
 
@@ -80,27 +78,27 @@ Reconciliation checks:
 - bronze → silver: Σ = 43,886,944 = source 43,886,944 ✓; target `local.silver.interactions` count = 43,365,424 ✓
 - silver → gold: Σ = 43,365,424 = source 43,365,424 ✓; target `local.gold.interactions_5core` count = 15,473,536 ✓
 
-#### k-core funnel (reviews, run `20260805T143256Z-7406fc1`)
+#### k-core funnel (reviews, run `20260817T154801Z-327c417`)
 
 | iteration | rows | users | items | converged | wall_clock_s |
 |---|---|---|---|---|---|
-| 0 | 43,365,424 | 18,286,190 | 1,609,860 | False | 72.936 |
-| 1 | 16,883,417 | 1,847,620 | 603,239 | False | 112.928 |
-| 2 | 15,929,364 | 1,743,137 | 383,259 | False | 45.231 |
-| 3 | 15,541,920 | 1,650,879 | 375,640 | False | 57.281 |
-| 4 | 15,497,125 | 1,646,183 | 368,980 | False | 94.57 |
-| 5 | 15,477,434 | 1,641,604 | 368,626 | False | 61.215 |
-| 6 | 15,475,048 | 1,641,345 | 368,288 | False | 123.025 |
-| 7 | 15,473,873 | 1,641,077 | 368,262 | False | 131.175 |
-| 8 | 15,473,705 | 1,641,061 | 368,236 | False | 91.103 |
-| 9 | 15,473,597 | 1,641,037 | 368,233 | False | 47.451 |
-| 10 | 15,473,576 | 1,641,034 | 368,230 | False | 45.324 |
-| 11 | 15,473,556 | 1,641,029 | 368,230 | False | 68.288 |
-| 12 | 15,473,552 | 1,641,029 | 368,229 | False | 48.103 |
-| 13 | 15,473,544 | 1,641,027 | 368,229 | False | 44.771 |
-| 14 | 15,473,540 | 1,641,027 | 368,228 | False | 52.57 |
-| 15 | 15,473,536 | 1,641,026 | 368,228 | False | 50.26 |
-| 16 | 15,473,536 | 1,641,026 | 368,228 | True | 49.719 |
+| 0 | 43,365,424 | 18,286,190 | 1,609,860 | False | 20.239 |
+| 1 | 16,883,417 | 1,847,620 | 603,239 | False | 28.727 |
+| 2 | 15,929,364 | 1,743,137 | 383,259 | False | 15.397 |
+| 3 | 15,541,920 | 1,650,879 | 375,640 | False | 18.095 |
+| 4 | 15,497,125 | 1,646,183 | 368,980 | False | 19.351 |
+| 5 | 15,477,434 | 1,641,604 | 368,626 | False | 15.676 |
+| 6 | 15,475,048 | 1,641,345 | 368,288 | False | 17.941 |
+| 7 | 15,473,873 | 1,641,077 | 368,262 | False | 16.646 |
+| 8 | 15,473,705 | 1,641,061 | 368,236 | False | 15.403 |
+| 9 | 15,473,597 | 1,641,037 | 368,233 | False | 15.994 |
+| 10 | 15,473,576 | 1,641,034 | 368,230 | False | 16.294 |
+| 11 | 15,473,556 | 1,641,029 | 368,230 | False | 15.915 |
+| 12 | 15,473,552 | 1,641,029 | 368,229 | False | 16.766 |
+| 13 | 15,473,544 | 1,641,027 | 368,229 | False | 16.724 |
+| 14 | 15,473,540 | 1,641,027 | 368,228 | False | 15.234 |
+| 15 | 15,473,536 | 1,641,026 | 368,228 | False | 13.331 |
+| 16 | 15,473,536 | 1,641,026 | 368,228 | True | 13.848 |
 
 ### items  (raw → bronze → silver)
 
