@@ -1,0 +1,16 @@
+# RUN_ID SET AFTER THE TEST RUN — do not run before the TEST record exists
+# Paired-bootstrap delta: ALS-decay (selected half-life, primary seed 20260805) vs the content+popularity blend, TEST (Phase 8, T8-2).
+# Arms and comparators were pre-declared in the T8-2 preregistration
+# (EXPERIMENT_LOG.md 2026-08-17T11:44Z) before any T8-2 TEST number was seen;
+# the decision rule is "crossover = NDCG@10 delta with 95% CI excluding zero in
+# any history-depth segment, Recall@20 checked as the metric-robustness guard".
+kind: paired_delta
+a:
+  # TBD: run_id of eval_alsdecay_test_seed1.yaml
+  run_id: "TBD"
+b:
+  run_id: "20260807T055333Z-c320c79"
+metrics: [recall@10, recall@20, recall@50, ndcg@10, ndcg@20, mrr, hitrate@10]
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805

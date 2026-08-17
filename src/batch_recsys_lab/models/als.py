@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -42,7 +43,10 @@ from batch_recsys_lab.eval.dataset import EvalDataset
 FIVE_CORE_TABLE = "local.gold.interactions_5core"
 
 # The exact param set that defines an ALS artifact's identity (order-independent).
+# ``half_life_days`` is a CONDITIONAL seventh key — see canonical_params.
 HASH_KEYS = ("rank", "reg_param", "alpha", "max_iter", "weighting", "seed")
+TIME_DECAY = "time_decay"
+WEIGHTINGS = ("binary", "rating", TIME_DECAY)
 
 
 # --- shared helpers (numpy-only; imported by Step A without circularity) ------
@@ -55,14 +59,22 @@ def canonical_params(
     max_iter: int,
     weighting: str,
     seed: int,
+    half_life_days: float | None = None,
 ) -> dict:
     """Normalize the identity params to canonical types.
 
     Both Step A and Step B build this dict from the same eval config, so the
     normalized types must be pinned (int/float/str/int) for the param hash and
     the fit-time equality assertions to agree byte-for-byte.
+
+    ``half_life_days`` (Phase 8, T8-2) enters the canonical dict — and therefore
+    the param hash and the artifact path — ONLY when ``weighting == "time_decay"``.
+    For ``binary``/``rating`` it is dropped even if supplied, so every artifact,
+    manifest and param hash recorded before T8-2 keeps its identity byte-for-byte.
+    A ``time_decay`` config without a positive, finite half-life is an error, not
+    a default: the half-life is the one tuned quantity of the arm.
     """
-    return {
+    canon = {
         "rank": int(rank),
         "reg_param": float(reg_param),
         "alpha": float(alpha),
@@ -70,15 +82,48 @@ def canonical_params(
         "weighting": str(weighting),
         "seed": int(seed),
     }
+    if canon["weighting"] == TIME_DECAY:
+        if half_life_days is None:
+            raise ValueError(
+                "weighting='time_decay' requires params.half_life_days (the T8-2 "
+                "preregistered grid is {90, 365, 1460} days)."
+            )
+        hl = float(half_life_days)
+        if not math.isfinite(hl) or hl <= 0:
+            raise ValueError(f"half_life_days must be finite and > 0, got {half_life_days!r}")
+        canon["half_life_days"] = hl
+    return canon
+
+
+def time_decay_confidence(age_days: np.ndarray, half_life_days: float) -> np.ndarray:
+    """``r = 2^(-age_days / half_life_days)`` as float32 (Phase 8, T8-2).
+
+    ``age_days`` is the per-TRAIN-pair staleness at the train cutoff written by
+    ``eval/extract_age.py``. ``r`` is fed to Spark ALS as ``ratingCol`` under
+    ``implicitPrefs=True``, i.e. confidence ``c = 1 + α·r`` with α unchanged: a
+    pair observed exactly at ``train_end`` has ``r = 1`` and is therefore
+    identical to the binary baseline, and decay only ever REMOVES stale
+    confidence (``0 < r <= 1``, monotonically decreasing in age).
+    """
+    hl = float(half_life_days)
+    if not math.isfinite(hl) or hl <= 0:
+        raise ValueError(f"half_life_days must be finite and > 0, got {half_life_days!r}")
+    age = np.asarray(age_days, dtype=np.float32)
+    if age.size and (not np.isfinite(age).all() or (age < 0).any()):
+        raise ValueError("age_days must be finite and non-negative")
+    return np.exp2(-(age / np.float32(hl))).astype(np.float32, copy=False)
 
 
 def als_param_hash(params: dict) -> str:
     """First 12 hex chars of ``sha256`` over canonical JSON of exactly the six
-    identity keys (``sorted_keys``, compact separators).
+    identity keys — seven for ``weighting == "time_decay"`` (``sorted_keys``,
+    compact separators).
 
     Order-independent (keys are sorted) and type-normalized (via
-    :func:`canonical_params`), so two configs that name the same six values in a
-    different order or with ``int``/``float`` drift hash identically.
+    :func:`canonical_params`), so two configs that name the same values in a
+    different order or with ``int``/``float`` drift hash identically. A
+    ``half_life_days`` entry on a binary/rating param dict is ignored, which is
+    what keeps every pre-T8-2 hash unchanged.
     """
     canon = canonical_params(
         rank=params["rank"],
@@ -87,6 +132,7 @@ def als_param_hash(params: dict) -> str:
         max_iter=params["max_iter"],
         weighting=params["weighting"],
         seed=params["seed"],
+        half_life_days=params.get("half_life_days"),
     )
     blob = json.dumps(canon, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:12]
@@ -122,6 +168,10 @@ class ALSRecommender:
     Cold users / untrained items have zero factor rows and therefore score 0 for
     every item — see the module docstring's "segment-0 collapse" note; this is
     intentional and matches item-kNN's precedent.
+
+    ``half_life_days`` (Phase 8, T8-2) is carried for identity only: the time
+    decay is applied by Step A when it builds ``ratingCol``, so Step B just has
+    to name the right artifact.
     """
 
     name = "als"
@@ -135,6 +185,7 @@ class ALSRecommender:
         weighting: str,
         seed: int,
         factors_root: str | Path = "data/eval/als",
+        half_life_days: float | None = None,
     ):
         self.rank = int(rank)
         self.reg_param = float(reg_param)
@@ -143,6 +194,9 @@ class ALSRecommender:
         self.weighting = str(weighting)
         self.seed = int(seed)
         self.factors_root = str(factors_root)
+        # Identity-bearing only under weighting='time_decay' (see canonical_params);
+        # Step B itself never applies the decay — it scores persisted factors.
+        self.half_life_days = None if half_life_days is None else float(half_life_days)
         # JSON-serializable, echoed into the run record. fit() augments this with
         # param_hash and the factor sha256s (read from the manifest, not
         # recomputed) so provenance lands in results/runs.jsonl.
@@ -153,6 +207,7 @@ class ALSRecommender:
             max_iter=max_iter,
             weighting=weighting,
             seed=seed,
+            half_life_days=half_life_days,
         )
         self._U: np.ndarray | None = None
         self._V: np.ndarray | None = None

@@ -32,12 +32,24 @@ away; the only approximation introduced by truncation is that similarity mass
 below each item's top_n-th neighbor is floored to 0. ``top_n`` is recorded in
 the run record's model params. (CLAUDE.md invariant #4 context: this
 documentation is what keeps the exhibit honest.)
+
+Trailing window (Phase 8, T8-2)
+-------------------------------
+``train_window_days`` restricts the interactions that build ``S`` to TRAIN pairs
+younger than the window at the train cutoff (``age_days < window``, the same
+strict-lower/inclusive-upper boundary the frozen pop-t12m build uses). It
+defaults to 0 = all history, which leaves every pre-Phase-8 code path and record
+untouched. The user profile vectors used at scoring time are always the FULL
+``train_csr``: per the T8-2 preregistration the recency treatment is on the
+item-side co-occurrence only.
 """
 
 from __future__ import annotations
 
 import numpy as np
 import scipy.sparse as sp
+
+from batch_recsys_lab.eval.dataset import attach_train_pairs
 
 
 def build_similarity(
@@ -152,6 +164,50 @@ def build_similarity(
     return S.tocsr()
 
 
+def build_windowed_csr(
+    user_idx: np.ndarray,
+    item_idx: np.ndarray,
+    age_days: np.ndarray,
+    window_days: float,
+    shape: tuple[int, int],
+) -> sp.csr_matrix:
+    """Binary U×I TRAIN matrix restricted to pairs newer than ``window_days``
+    (Phase 8, T8-2).
+
+    The retention rule is ``age_days < window_days`` — STRICT, on fractional
+    days. Given ``age_days = train_end − ts`` this is exactly the frozen
+    popularity-window semantics ``ts > as_of − window`` at ``as_of ==
+    train_end`` (strict lower bound, inclusive upper bound at ``ts ==
+    train_end`` ⇔ ``age == 0``), so kNN-t12m and pop-t12m see the same window
+    of history rather than two nearly-equal ones.
+
+    Construction mirrors ``eval.dataset.load_dataset``'s TRAIN CSR exactly
+    (COO → CSR, data clipped to 1.0, zeros eliminated), so with a window wide
+    enough to keep every pair the result is the full ``train_csr``.
+    """
+    user_idx = np.asarray(user_idx)
+    item_idx = np.asarray(item_idx)
+    age_days = np.asarray(age_days)
+    if not (len(user_idx) == len(item_idx) == len(age_days)):
+        raise ValueError(
+            f"TRAIN pair columns disagree in length: user {len(user_idx)}, item "
+            f"{len(item_idx)}, age {len(age_days)}"
+        )
+    keep = age_days < float(window_days)
+    coo = sp.coo_matrix(
+        (
+            np.ones(int(keep.sum()), dtype=np.float32),
+            (user_idx[keep], item_idx[keep]),
+        ),
+        shape=shape,
+        dtype=np.float32,
+    )
+    csr = coo.tocsr()
+    csr.data[:] = 1.0
+    csr.eliminate_zeros()
+    return csr
+
+
 class ItemKNNRecommender:
     """Item-kNN recommender: ``score = user_history @ S`` (no exclusion here).
 
@@ -159,28 +215,68 @@ class ItemKNNRecommender:
     ``fit``, ``score_batch``) without importing ``models.base`` — the harness
     masks TRAIN-seen items after scoring, so ``score_batch`` returns raw scores
     for the full catalog.
+
+    ``train_window_days`` (Phase 8, T8-2; default 0 == all history, byte-identical
+    to the Phase 2/3 arm) restricts the CO-OCCURRENCE matrix to TRAIN pairs newer
+    than the window. Scoring still uses the user's FULL TRAIN profile: the
+    preregistered recency treatment is item-side only, mirroring how pop-t12m's
+    recency lives on the item side. It is recorded in the run record's model
+    params only when it is in force, so every pre-T8-2 kNN record stays
+    reproducible field-for-field.
     """
 
     name = "item_knn"
 
-    def __init__(self, top_n: int, shrinkage: float = 0.0, block_size: int = 8192):
+    def __init__(
+        self,
+        top_n: int,
+        shrinkage: float = 0.0,
+        block_size: int = 8192,
+        train_window_days: int = 0,
+    ):
         self.top_n = top_n
         self.shrinkage = shrinkage
         self.block_size = block_size
+        self.train_window_days = int(train_window_days)
+        if self.train_window_days < 0:
+            raise ValueError(
+                f"train_window_days must be >= 0 (0 == all history), got "
+                f"{train_window_days!r}"
+            )
         # block_size is an implementation knob but recorded for reproducibility.
         self.params = {
             "top_n": top_n,
             "shrinkage": shrinkage,
             "block_size": block_size,
         }
+        if self.train_window_days > 0:
+            self.params["train_window_days"] = self.train_window_days
         self.ds = None
         self.S: sp.csr_matrix | None = None
 
     def fit(self, ds) -> "ItemKNNRecommender":
-        """Keep the dataset reference and build the truncated similarity matrix."""
+        """Keep the dataset reference and build the truncated similarity matrix.
+
+        With ``train_window_days > 0`` the similarity is built from the windowed
+        TRAIN matrix (which needs the cache's ``train_age_days.npy``; a missing
+        age array is a hard error naming ``make extract-age``, never a silent
+        fall-back to all history). ``self.ds`` — and therefore scoring — keeps
+        the full ``train_csr``.
+        """
         self.ds = ds
+        if self.train_window_days > 0:
+            attach_train_pairs(ds, require_age=True)
+            fit_csr = build_windowed_csr(
+                ds.train_user_idx,
+                ds.train_item_idx,
+                ds.train_age_days,
+                self.train_window_days,
+                ds.train_csr.shape,
+            )
+        else:
+            fit_csr = ds.train_csr
         self.S = build_similarity(
-            ds.train_csr,
+            fit_csr,
             top_n=self.top_n,
             shrinkage=self.shrinkage,
             block_size=self.block_size,

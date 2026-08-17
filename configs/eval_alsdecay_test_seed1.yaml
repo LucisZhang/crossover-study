@@ -1,0 +1,37 @@
+# HALF-LIFE SET AFTER VAL SELECTION — do not run before EXPERIMENT_LOG selection note
+# ALS-decay on the frozen TEST split (Phase 8, T8-2): seed 20260805.
+# half_life_days below is the PLACEHOLDER middle value of the preregistered grid
+# {90, 365, 1460}. The owner replaces it with the VAL-selected half-life (argmax
+# global VAL NDCG@10, ties -> smaller half-life) AFTER the selection note is
+# written to EXPERIMENT_LOG.md. TEST is touched exactly once per seed
+# (invariant #1): never iterate this file against TEST.
+# Requires train_age_days.npy in the cache:  make extract-age  first.
+kind: eval
+model:
+  name: als
+  params:
+    rank: 128
+    reg_param: 0.01
+    alpha: 10.0
+    max_iter: 25
+    weighting: time_decay
+    half_life_days: 365   # PLACEHOLDER — set from the VAL selection
+    factors_root: data/eval/als
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: 20260805
+train:
+  checkpoint_interval: 1
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache

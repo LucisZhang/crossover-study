@@ -11,7 +11,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -127,6 +127,17 @@ data-verify:
 # exists. Step A of the two-process eval design (see eval/extract.py docstring).
 eval-extract: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.extract
+
+# One-shot ADDITIVE cache extension (Phase 8, T8-2): per-TRAIN-pair age in
+# fractional days at train_end, written as train_age_days.npy next to the
+# existing train_*_idx.npy. Reads local.gold.interactions_5core by Iceberg TIME
+# TRAVEL at the snapshot the cache dir is keyed by, asserts the recomputed
+# (user, item) multiset is EXACTLY the cached one, and aborts without writing on
+# any mismatch. Touches no warehouse table and no results/runs.jsonl. Idempotent
+# (AGE_FLAGS=--force rebuilds).
+#   make extract-age
+extract-age: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.extract_age $(AGE_FLAGS)
 
 # Un-cored eval cache: keyed by the silver.interactions snapshot id, in its
 # own root so cache resolution stays unambiguous per universe.

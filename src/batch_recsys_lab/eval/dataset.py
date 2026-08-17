@@ -20,6 +20,13 @@ POP_AS_OF_LABELS = ("train_end", "val_end")
 POP_WINDOWS = (0, 30, 90, 365)
 GT_SPLITS = ("val", "test")
 
+# Optional cache extension written by ``eval/extract_age.py`` (Phase 8, T8-2):
+# float32 age-at-train_end in fractional days, one entry per TRAIN pair, aligned
+# to train_user_idx/train_item_idx. Absent from caches built before T8-2 — every
+# consumer must treat it as optional.
+TRAIN_AGE_STEM = "train_age_days"
+TRAIN_AGE_FILE = f"{TRAIN_AGE_STEM}.npy"
+
 
 @dataclass
 class GroundTruth:
@@ -46,6 +53,13 @@ class EvalDataset:
     item_category_codes: np.ndarray = None  # int32, len I
     category_names: list = field(default_factory=list)
     gt: dict = field(default_factory=dict)  # "val"|"test" -> GroundTruth
+    # Optional TRAIN pair columns (Phase 8, T8-2). ``None`` unless the caller asked
+    # for them (``load_dataset(..., with_train_pairs=True)`` or
+    # :func:`attach_train_pairs`): at full scale they are ~57MB each, and only the
+    # recency-windowed arms need them. All three are aligned row-for-row.
+    train_user_idx: np.ndarray = None  # int32, len == TRAIN pairs
+    train_item_idx: np.ndarray = None  # int32, len == TRAIN pairs
+    train_age_days: np.ndarray = None  # float32, days before train_end
 
 
 def _read_string_column(path: Path) -> np.ndarray:
@@ -81,9 +95,65 @@ def _build_gt(user_idx: np.ndarray, item_idx: np.ndarray) -> GroundTruth:
     )
 
 
-def load_dataset(cache_dir: str | Path) -> EvalDataset:
+def attach_train_pairs(ds: EvalDataset, *, require_age: bool = False) -> EvalDataset:
+    """Populate ``ds.train_user_idx``/``train_item_idx`` (and ``train_age_days``
+    when present) from ``ds.cache_dir``; a no-op if they are already loaded.
+
+    Kept out of the default load path because the pair arrays are ~57MB each at
+    full scale and only the recency-windowed arms (Phase 8, T8-2) read them.
+    Mutates and returns ``ds``.
+
+    ``require_age=True`` turns a missing ``train_age_days.npy`` into a hard error
+    naming the Make target that writes it — a silently all-history fit would be a
+    quietly wrong experiment, not a degraded one.
+    """
+    if (
+        ds.train_user_idx is not None
+        and ds.train_item_idx is not None
+        and ds.train_age_days is not None
+    ):
+        return ds
+    need_pairs = ds.train_user_idx is None or ds.train_item_idx is None
+    if ds.cache_dir is None:
+        if not (need_pairs or require_age):
+            return ds  # nothing more is obtainable, and nothing more is needed
+        raise ValueError(
+            "EvalDataset has no cache_dir, so TRAIN pair columns cannot be loaded; "
+            "pass train_user_idx/train_item_idx/train_age_days explicitly."
+        )
+    cache_dir = Path(ds.cache_dir)
+    if need_pairs:
+        ds.train_user_idx = np.load(cache_dir / "train_user_idx.npy", allow_pickle=False)
+        ds.train_item_idx = np.load(cache_dir / "train_item_idx.npy", allow_pickle=False)
+    if ds.train_age_days is None:
+        age_path = cache_dir / TRAIN_AGE_FILE
+        if age_path.exists():
+            ds.train_age_days = np.load(age_path, allow_pickle=False).astype(
+                np.float32, copy=False
+            )
+        elif require_age:
+            raise FileNotFoundError(
+                f"{age_path} is missing: this cache predates the T8-2 age extension. "
+                f"Build it once with:  make extract-age  (one-shot Spark job, reads "
+                f"the SAME pinned snapshot this cache is keyed by and writes only "
+                f"{TRAIN_AGE_FILE})."
+            )
+    if ds.train_age_days is not None and len(ds.train_age_days) != len(ds.train_user_idx):
+        raise ValueError(
+            f"{TRAIN_AGE_FILE} has {len(ds.train_age_days)} entries but the cache has "
+            f"{len(ds.train_user_idx)} TRAIN pairs — the age array is not aligned."
+        )
+    return ds
+
+
+def load_dataset(cache_dir: str | Path, *, with_train_pairs: bool = False) -> EvalDataset:
     """Load a cache directory (built by ``eval.extract.extract``) into an
-    ``EvalDataset``."""
+    ``EvalDataset``.
+
+    ``with_train_pairs=True`` additionally retains the raw TRAIN pair index
+    arrays and, if the cache carries it, ``train_age_days`` (see
+    :func:`attach_train_pairs`). Default ``False`` keeps the load byte-for-byte
+    and memory-for-memory what it has always been."""
     cache_dir = Path(cache_dir)
     manifest = json.loads((cache_dir / "cache_manifest.json").read_text())
 
@@ -125,7 +195,7 @@ def load_dataset(cache_dir: str | Path) -> EvalDataset:
         i = np.load(i_path, allow_pickle=False) if i_path.exists() else np.array([], dtype=np.int32)
         gt[split] = _build_gt(u, i)
 
-    return EvalDataset(
+    ds = EvalDataset(
         cache_dir=cache_dir,
         manifest=manifest,
         item_ids=item_ids,
@@ -137,3 +207,8 @@ def load_dataset(cache_dir: str | Path) -> EvalDataset:
         category_names=category_names,
         gt=gt,
     )
+    if with_train_pairs:
+        ds.train_user_idx = train_user_idx
+        ds.train_item_idx = train_item_idx
+        attach_train_pairs(ds)
+    return ds

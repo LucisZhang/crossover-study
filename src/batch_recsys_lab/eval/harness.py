@@ -97,6 +97,8 @@ def _build_model(model_cfg: dict, seeds: dict):
             top_n=int(params["top_n"]),
             shrinkage=float(params.get("shrinkage", 0.0)),
             block_size=int(params.get("block_size", 8192)),
+            # 0 (default) == all TRAIN history, the pre-Phase-8 behavior.
+            train_window_days=int(params.get("train_window_days", 0)),
         )
     if name == "als":
         seed = seeds.get("model")
@@ -110,6 +112,9 @@ def _build_model(model_cfg: dict, seeds: dict):
             weighting=str(params["weighting"]),
             seed=int(seed),
             factors_root=params.get("factors_root", "data/eval/als"),
+            # Identity-bearing only for weighting='time_decay' (Phase 8, T8-2);
+            # ignored — and hash-neutral — for binary/rating.
+            half_life_days=params.get("half_life_days"),
         )
     if name == "content":
         return ContentRecommender(

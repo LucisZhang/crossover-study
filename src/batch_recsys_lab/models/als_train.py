@@ -39,13 +39,17 @@ import numpy as np
 import pyarrow.parquet as pq
 
 from batch_recsys_lab.eval import runlog
+from batch_recsys_lab.eval.dataset import TRAIN_AGE_FILE
 from batch_recsys_lab.eval.harness import _resolve_cache_dir
 from batch_recsys_lab.models.als import (
+    TIME_DECAY,
+    WEIGHTINGS,
     als_param_hash,
     artifact_dir,
     canonical_params,
     five_core_snapshot_id,
     sha256_file,
+    time_decay_confidence,
 )
 
 
@@ -67,6 +71,68 @@ def _artifact_up_to_date(adir: Path, param_hash: str, params: dict, snap: int) -
         and am.get("params") == params
         and int(am.get("five_core_snapshot_id", -1)) == snap
     )
+
+
+def training_ratings(
+    cache_dir: Path,
+    weighting: str,
+    n_train_pairs: int,
+    half_life_days: float | None = None,
+) -> np.ndarray:
+    """The ``ratingCol`` values ALS is trained on, as float32 aligned to the
+    cache's TRAIN pair arrays.
+
+    * ``binary``     — every observed pair is a 1.0 positive (``train_rating.npy``
+      is not read, and may be absent).
+    * ``rating``     — the star rating from ``train_rating.npy``.
+    * ``time_decay`` — ``2^(-age_days / half_life_days)`` over the ages written by
+      ``eval/extract_age.py`` (Phase 8, T8-2). Under ``implicitPrefs=True`` this
+      is confidence ``c = 1 + α·r`` with α untouched, so a pair observed at
+      ``train_end`` is exactly the binary baseline and older pairs decay toward
+      "no evidence".
+
+    Pure numpy (no Spark), so the weighting math is unit-testable on its own.
+    """
+    if weighting not in WEIGHTINGS:
+        raise ValueError(f"weighting must be one of {WEIGHTINGS}, got {weighting!r}")
+
+    if weighting == "rating":
+        rating_path = cache_dir / "train_rating.npy"
+        if not rating_path.exists():
+            raise FileNotFoundError(
+                f"weighting='rating' needs {rating_path}, which is missing. Rebuild "
+                f"the eval cache (make eval-extract) so train_rating.npy is present, "
+                f"or use weighting='binary'."
+            )
+        rating = np.load(rating_path, allow_pickle=False).astype(np.float32, copy=False)
+    elif weighting == TIME_DECAY:
+        age_path = cache_dir / TRAIN_AGE_FILE
+        if not age_path.exists():
+            raise FileNotFoundError(
+                f"weighting='time_decay' needs {age_path}, which is missing. Build it "
+                f"once with:  make extract-age  (one-shot Spark job; reads the SAME "
+                f"pinned snapshot this cache is keyed by and writes only "
+                f"{TRAIN_AGE_FILE})."
+            )
+        age_days = np.load(age_path, allow_pickle=False)
+        if len(age_days) != n_train_pairs:
+            raise ValueError(
+                f"{age_path} has {len(age_days)} entries but the cache has "
+                f"{n_train_pairs} TRAIN pairs — the age array is not aligned; re-run "
+                f"make extract-age against this cache."
+            )
+        rating = time_decay_confidence(age_days, half_life_days)
+    else:
+        # Binary implicit feedback: every observed pair is a 1.0 positive. A
+        # missing train_rating.npy is tolerated here (ratings are unused).
+        rating = np.ones(n_train_pairs, dtype=np.float32)
+
+    if len(rating) != n_train_pairs:
+        raise ValueError(
+            f"weighting={weighting!r} produced {len(rating)} ratings for "
+            f"{n_train_pairs} TRAIN pairs"
+        )
+    return rating
 
 
 def _scatter_factors(parquet_dir: Path, n_rows: int, rank: int) -> np.ndarray:
@@ -100,6 +166,7 @@ def train_als(
     factors_root: str | Path = "data/eval/als",
     git_sha: str | None = None,
     checkpoint_interval: int = 5,
+    half_life_days: float | None = None,
 ) -> Path:
     """Train ALS on one snapshot-keyed cache dir and persist the artifact.
 
@@ -120,6 +187,7 @@ def train_als(
         max_iter=max_iter,
         weighting=weighting,
         seed=seed,
+        half_life_days=half_life_days,
     )
     param_hash = als_param_hash(params)
     adir = artifact_dir(factors_root, snap, param_hash)
@@ -128,8 +196,8 @@ def train_als(
         print(f"artifact exists, skipping: {adir}")
         return adir
 
-    if weighting not in ("binary", "rating"):
-        raise ValueError(f"weighting must be 'binary' or 'rating', got {weighting!r}")
+    if weighting not in WEIGHTINGS:
+        raise ValueError(f"weighting must be one of {WEIGHTINGS}, got {weighting!r}")
 
     n_users = int(manifest["n_users"])
     n_items = int(manifest["catalog_size"])
@@ -140,19 +208,7 @@ def train_als(
     train_item_idx = np.load(cache_dir / "train_item_idx.npy", allow_pickle=False)
     n_train_pairs = int(len(train_user_idx))
 
-    rating_path = cache_dir / "train_rating.npy"
-    if weighting == "rating":
-        if not rating_path.exists():
-            raise FileNotFoundError(
-                f"weighting='rating' needs {rating_path}, which is missing. Rebuild "
-                f"the eval cache (make eval-extract) so train_rating.npy is present, "
-                f"or use weighting='binary'."
-            )
-        rating = np.load(rating_path, allow_pickle=False).astype(np.float32, copy=False)
-    else:
-        # Binary implicit feedback: every observed pair is a 1.0 positive. A
-        # missing train_rating.npy is tolerated here (ratings are unused).
-        rating = np.ones(n_train_pairs, dtype=np.float32)
+    rating = training_ratings(cache_dir, weighting, n_train_pairs, half_life_days)
 
     # Build the training DataFrame with a fixed layout (repartition by user_idx).
     # Via pandas so createDataFrame takes the Arrow path (never a per-row Python
@@ -222,6 +278,9 @@ def train_als(
         "params": params,
         "seed": int(seed),
         "weighting": weighting,
+        # None for binary/rating (where the half-life carries no identity — see
+        # models.als.canonical_params); the float value for time_decay.
+        "half_life_days": params.get("half_life_days"),
         "param_hash": param_hash,
         "snapshot_ids": manifest["snapshot_ids"],
         "five_core_snapshot_id": snap,
@@ -238,9 +297,11 @@ def train_als(
         "checkpoint_interval": int(checkpoint_interval),
     }
     (adir / "als_manifest.json").write_text(json.dumps(als_manifest, indent=2))
+    hl_note = f" half_life_days={params['half_life_days']}" if weighting == TIME_DECAY else ""
     print(
         f"trained ALS: {adir}  n_users={n_users} n_items={n_items} "
-        f"n_train_pairs={n_train_pairs} rank={rank} weighting={weighting} wall={wall}s"
+        f"n_train_pairs={n_train_pairs} rank={rank} weighting={weighting}{hl_note} "
+        f"wall={wall}s"
     )
     return adir
 
@@ -275,6 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     # determined by the cache manifest + params, no JVM required.
     manifest = _load_cache_manifest(cache_dir)
     snap = five_core_snapshot_id(manifest)
+    half_life_days = params.get("half_life_days")
     canon = canonical_params(
         rank=int(params["rank"]),
         reg_param=float(params["reg_param"]),
@@ -282,6 +344,7 @@ def main(argv: list[str] | None = None) -> int:
         max_iter=int(params["max_iter"]),
         weighting=str(params["weighting"]),
         seed=int(seed),
+        half_life_days=half_life_days,
     )
     param_hash = als_param_hash(canon)
     adir = artifact_dir(factors_root, snap, param_hash)
@@ -309,6 +372,7 @@ def main(argv: list[str] | None = None) -> int:
             seed=int(seed),
             factors_root=factors_root,
             checkpoint_interval=checkpoint_interval,
+            half_life_days=half_life_days,
         )
     finally:
         spark.stop()

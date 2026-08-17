@@ -1,0 +1,31 @@
+# item-kNN-t12m (Phase 8, T8-2): co-occurrence built ONLY from TRAIN pairs inside
+# the frozen pop-t12m window (2021-06-30T23:59:59.999Z < ts <= 2022-06-30T23:59:59.999Z,
+# i.e. age_days < 365 at train_end); user profile vectors at scoring time stay the
+# FULL TRAIN history. Zero free parameters — top_n/shrinkage are held at the Phase 2
+# chosen kNN config, so this arm is not tuned: the VAL run is a sanity record, and
+# the TEST run is the single confirmatory one (invariant #1).
+# Requires train_age_days.npy in the cache:  make extract-age  first.
+kind: eval
+model:
+  name: item_knn
+  params:
+    top_n: 50
+    shrinkage: 0.0
+    block_size: 8192
+    train_window_days: 365
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold.interactions_5core
+  user_stats: local.gold.user_stats
+  item_features: local.gold.item_features
+  popularity: local.gold.popularity
+cache_dir: data/eval/cache
