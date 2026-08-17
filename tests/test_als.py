@@ -125,7 +125,12 @@ def test_score_batch_equals_u_at_vt(tmp_path):
     assert scores.dtype == np.float32
     np.testing.assert_allclose(scores, (U[idx] @ V.T), rtol=1e-6, atol=1e-6)
     # row alignment: single-user request equals the multi-user row for that user.
-    np.testing.assert_array_equal(model.score_batch(np.array([2]))[0], scores[1])
+    # Tight tolerance, not bitwise equality: BLAS backends may pick different
+    # kernel paths for 1-row vs batched GEMM (observed 1-ulp float32 drift on
+    # x86 OpenBLAS; Apple Accelerate happened to be bitwise-identical).
+    np.testing.assert_allclose(
+        model.score_batch(np.array([2]))[0], scores[1], rtol=1e-6, atol=1e-6
+    )
 
 
 # --------------------------------------------------------------------------- #
