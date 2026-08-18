@@ -15,7 +15,7 @@ kind: regime_map
 # it scores a different user/item universe.
 run_ids:
   pop_t12m: "20260805T172047Z-035042b"
-  knn_t12m: "TBD"           # run_id of eval_itemknn_t12m_test.yaml
+  knn_t12m: "20260818T054430Z-109c271"           # run_id of eval_itemknn_t12m_test.yaml
 
 # Paired delta direction, matching the Phase 4/T8-1 exhibits (kNN-t12m minus popularity).
 delta:

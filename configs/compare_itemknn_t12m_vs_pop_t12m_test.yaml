@@ -6,8 +6,7 @@
 # any history-depth segment, Recall@20 checked as the metric-robustness guard".
 kind: paired_delta
 a:
-  # TBD: run_id of eval_itemknn_t12m_test.yaml
-  run_id: "TBD"
+  run_id: "20260818T054430Z-109c271"
 b:
   run_id: "20260805T172047Z-035042b"
 metrics: [recall@10, recall@20, recall@50, ndcg@10, ndcg@20, mrr, hitrate@10]

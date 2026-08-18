@@ -16,7 +16,7 @@ kind: regime_map
 # it scores a different user/item universe.
 run_ids:
   pop_t12m: "20260805T172047Z-035042b"
-  alsdecay: "TBD"           # run_id of eval_alsdecay_test_seed1.yaml (primary seed)
+  alsdecay: "20260818T060704Z-109c271"           # run_id of eval_alsdecay_test_seed1.yaml (primary seed)
 
 # Paired delta direction, matching the Phase 4/T8-1 exhibits (ALS-decay minus popularity).
 delta:
