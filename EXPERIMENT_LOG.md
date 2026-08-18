@@ -1974,3 +1974,74 @@ outcome, and discharged the old line-178 caveats one by one — same commit).
 The §12 cut order already ranked T8-4 first to cut, so this outcome needs no
 cut-order edit. Demo work (§8b line 277, crossover explorer) is tracked
 separately and is not part of this entry.
+
+## `make reproduce-headline` — headline pin repointed to the machine-of-record run; original record superseded, not edited (2026-08-19)
+
+**What changed.** `configs/headline.yaml`'s `headline_run_id` now points at
+`20260818T181443Z-6744efc` instead of the original `20260807T055333Z-c320c79`.
+The original record is untouched in `results/runs.jsonl` — this is a
+supersession, per the append-only invariant's own language (CLAUDE.md #3:
+"a wrong run gets a superseding entry, not a rewrite"; here the prior run
+wasn't wrong, it was superseded by the T8-2 machine-of-record migration
+(EXPERIMENT_LOG entry above, commit `d4605c4`)).
+
+**Why a repoint was needed.** `make reproduce-headline` reconstructs the
+recorded headline eval by Iceberg time travel at the exact snapshot IDs the
+recorded run carries (`src/batch_recsys_lab/eval/reproduce.py`). Those IDs
+are generated per-write and are not portable across warehouses: the original
+pin's snapshot IDs belong to the old Mac warehouse, which no longer exists
+on the machine of record (the remote box, verified exact-match rebuild,
+commit `d4605c4`). Time travel to those IDs cannot resolve there, so
+`make reproduce-headline` could not run to completion on the machine of
+record without a new pin.
+
+**How the new pin was minted.** On the remote box, the ORIGINAL headline
+config (`configs/eval_blend_test.yaml`, `content_pop_blend` alpha=0.3, TEST,
+config_hash unchanged) was re-run end to end — Spark item-text export,
+MiniLM re-embedding of the rebuilt warehouse's 368,228-item catalog
+(`sentence-transformers/all-MiniLM-L6-v2`, same recipe hash `1f7878ff82bf`,
+device=cpu), then the eval — producing one new `kind=eval` record,
+`20260818T181443Z-6744efc`, against the rebuilt warehouse's own snapshot
+IDs.
+
+**Gate: old record vs new record, both `content_pop_blend` alpha=0.3 TEST.**
+
+| metric | recorded (`c320c79`, Mac/MPS) | new (`6744efc`, remote/CPU) | diff | within recorded 95% CI? |
+|---|---|---|---|---|
+| recall@10 | 0.010282977196998225 | 0.010282977196998225 | 0 | yes (exact) |
+| recall@20 | 0.018436684314898002 | 0.018436684314898002 | 0 | yes (exact) |
+| recall@50 | 0.032366429095647416 | 0.032366429095647416 | 0 | yes (exact) |
+| hitrate@10 | 0.017944098916078247 | 0.017944098916078247 | 0 | yes (exact) |
+| ndcg@10 | 0.005726134272789762 | 0.005726160835093965 | +2.66e-08 | yes (CI width ≈4.2e-4) |
+| ndcg@20 | 0.008063604584335545 | 0.008063631146639747 | +2.66e-08 | yes |
+| mrr | 0.008668393396127867 | 0.008668475698452858 | +8.23e-08 | yes |
+
+Recall/hitrate metrics are bit-for-bit identical; ndcg/mrr differ in the 8th
+significant digit, consistent with float summation order under a different
+BLAS/backend (CPU on the remote box vs Apple MPS on the original Mac run) —
+the exact kind of variation the module docstring for `reproduce.py`
+anticipates, and far inside the recorded bootstrap CIs. The deterministic
+record fields (`config_hash`, `splits`, `protocol`, `model`, `seeds`) were
+identical except for the (expected) `iceberg_snapshots` and `dataset_manifest_hash`
+fields, which differ because they name the rebuilt warehouse.
+
+**`make reproduce-headline` against the new pin.** Green end to end:
+verdict `byte_exact`, exit 0. Pinned-cache-manifest match, model artifact
+hash match, deterministic-field diff empty, per-user artifact arrays
+identical. Wall-clock: pinned extract 32.12s, eval re-run 2004.37s (≈33.7
+min). (Two informational checks — strict cache-file sha256 and
+order-normalized pair-array digest against the pre-existing *live* cache
+directory — reported FAIL; these are not part of the `byte_exact` gate by
+design, per `reproduce.py`'s own criterion, and reflect the live cache
+having been rebuilt independently just before this run, not a determinism
+bug in the pinned reproduction itself.)
+
+**What this does not change.** The original record `20260807T055333Z-c320c79`
+remains in `results/runs.jsonl`, byte-identical, and remains authoritative
+history for what ran on the Mac warehouse. No prior run, comparison, or
+regime-map record that cited it is altered. `docs/case_study.md`'s headline
+numbers were already sourced from this record's metrics, which are
+unchanged by the repoint (only their provenance pin moved).
+
+Commits: `58f064f` (repoint + disclosure), `cd779b3` (reproduce record,
+remote), merged to `main` via `07afd2e`.
