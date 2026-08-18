@@ -43,3 +43,29 @@ item_stats_dir: data/eval/item_train_stats
 five_core_table: local.gold.interactions_5core
 
 results_path: results/runs.jsonl
+
+# Single-use input-equivalence exception (EXPERIMENT_LOG.md 2026-08-17, "Phase 8
+# T8-2 substrate — migration: rented Linux box is the machine of record from T8-2
+# onward"). The pop_t12m comparator was scored ONCE on the Mac, on the frozen TEST
+# split, against gold 5-core snapshot 8184397443787800955; the byte-identical
+# rebuild on the machine of record carries a new Iceberg snapshot id
+# (7217506217965106727). The presence of this block is the authorization — there
+# is no enable flag — and eval/regime_map.py accepts it only after proving the two
+# universes are the same bytes (item_train_stats parquet digest vs the local
+# manifest, vs the expectation below, and vs the manifest embedded in the
+# reference regime-map record), that the comparator artifact is byte-identical,
+# and that no OTHER arm needs the exception. Everything it authorizes is
+# disclosed verbatim in the emitted run record.
+regime_map_input_equivalence:
+  schema_version: 1
+  exception_id: "t8-2-linux-rebuild-20260818"
+  table: "local.gold.interactions_5core"
+  record_snapshot_id: 8184397443787800955
+  cache_snapshot_id: 7217506217965106727
+  applies_to:
+    arm: "pop_t12m"
+    run_id: "20260805T172047Z-035042b"
+  proof:
+    kind: "item_train_stats_parquet_sha256"
+    reference_regime_map_run_id: "20260817T095926Z-633d454"
+    expected_sha256: "sha256:72a71aee1c689dbed1259da720f3c8671f5f7721fae2373f2028c2065734dbbf"

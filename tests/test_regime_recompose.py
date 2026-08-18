@@ -16,6 +16,10 @@ edge cases that would silently produce plausible-but-wrong numbers:
 * a user with no GT at all (empty CSR row).
 
 Pure numpy — no Spark, no cache, no artifacts.
+
+A second section at the bottom grades the T8-2 *input-equivalence exception* to
+the module's snapshot-lineage guard, against a hand-built toy warehouse in
+``tmp_path`` (still no Spark).
 """
 
 from __future__ import annotations
@@ -286,3 +290,433 @@ def test_deep_buckets_refine_the_frozen_segments() -> None:
         else:
             assert s == "20+"
     assert set(deep) <= set(DEEP_BUCKET_LABELS)
+
+
+# --- T8-2 input-equivalence exception (the lineage guard) ---------------------
+#
+# `regime_map.build_regime_map` requires every source eval record to carry the
+# same gold 5-core snapshot id as the eval cache. The T8-2 recomposition runs on
+# a rebuilt Linux warehouse whose bytes are identical to the Mac's but whose
+# Iceberg snapshot id is new, so ONE preregistered, frozen-TEST comparator record
+# carries the old id. These tests grade the narrowly-scoped exception that
+# authorizes exactly that: what it must still reject (unattested mismatch,
+# tampered proof, an exception nobody needed, a second mismatching arm) and what
+# it must disclose when it passes.
+#
+# Everything below is a toy warehouse in tmp_path — eight items, six users, two
+# arms — assembled by hand. No Spark, no cache, no real artifacts.
+
+import json  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+import pyarrow as pa  # noqa: E402
+import pyarrow.parquet as pq  # noqa: E402
+import yaml  # noqa: E402
+
+from batch_recsys_lab.eval import runlog  # noqa: E402
+from batch_recsys_lab.eval import regime_map  # noqa: E402
+from batch_recsys_lab.features import item_train_stats  # noqa: E402
+from batch_recsys_lab.features.splits import load_splits  # noqa: E402
+
+TABLE = "local.gold.interactions_5core"
+CACHE_SID = 7217506217965106727      # rebuilt Linux warehouse (the box of record)
+RECORD_SID = 8184397443787800955     # the Mac warehouse the comparator was scored on
+POP_RUN = "20260805T172047Z-035042b"
+ALT_RUN = "20260818T060704Z-109c271"
+REF_RUN = "20260817T095926Z-633d454"
+DUP_RUN = "20260817T100112Z-633d454"  # the disclosed duplicate: same content, other run_id
+
+ASINS = [f"i{j}" for j in range(8)]
+N_TRAIN = np.array([0, 2, 7, 12, 25, 3], dtype=np.int64)  # one user per frozen segment
+GT_PAIRS = [(0, 1), (0, 5), (1, 2), (2, 3), (3, 0), (3, 6), (4, 7), (5, 4)]
+TOPK = {
+    "pop_t12m": [[1, 0, 2, 3], [2, 4, 5, 6], [3, 1, 0, 2], [0, 6, 7, 1], [7, 3, 2, 1], [4, 5, 6, 0]],
+    "alt": [[5, 1, 0, 2], [3, 2, 7, 6], [2, 3, 4, 1], [6, 0, 5, 7], [1, 7, 4, 3], [0, 4, 2, 6]],
+}
+K_LIST = (10, 20, 50)
+
+
+def _gt_csr() -> tuple[np.ndarray, np.ndarray]:
+    users = np.array([u for u, _ in GT_PAIRS], dtype=np.int32)
+    items = np.array([i for _, i in GT_PAIRS], dtype=np.int32)
+    order = np.argsort(users, kind="stable")
+    sizes = np.bincount(users[order], minlength=len(N_TRAIN))
+    indptr = np.zeros(len(N_TRAIN) + 1, dtype=np.int64)
+    np.cumsum(sizes, out=indptr[1:])
+    return indptr, items[order]
+
+
+def _write_artifact(path: Path, arm: str) -> str:
+    """Per-user artifact whose metric columns are computed by the naive reference
+    loop above — so the identity anchor passes for reasons independent of the
+    kernel under test."""
+    topk = np.asarray(TOPK[arm], dtype=np.int32)
+    indptr, items = _gt_csr()
+    whole = _reference(topk, indptr, items, np.zeros(len(ASINS), dtype=np.int8), 1, K_LIST)
+    cols = {
+        "user_id": [f"u{u}" for u in range(len(N_TRAIN))],
+        "user_idx": np.arange(len(N_TRAIN), dtype=np.int64),
+        "segment": [str(s) for s in segment_of(N_TRAIN)],
+        "top50": [list(map(int, row)) for row in topk],
+        "ndcg@10": whole["ndcg@10"][:, 0],
+    }
+    for k in K_LIST:
+        cols[f"recall@{k}"] = whole[f"recall@{k}"][:, 0]
+    pq.write_table(pa.table(cols), path)
+    return runlog.sha256_file(path)
+
+
+def _write_cache(cache_dir: Path) -> None:
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / "cache_manifest.json").write_text(
+        json.dumps(
+            {
+                "snapshot_ids": {TABLE: CACHE_SID},
+                "contract_identities": {TABLE: {"name": "gold_interactions_5core", "version": "1"}},
+            }
+        )
+    )
+    pq.write_table(pa.table({"item_id": ASINS}), cache_dir / "item_ids.parquet")
+    np.save(cache_dir / "test_user_idx.npy", np.array([u for u, _ in GT_PAIRS], dtype=np.int32))
+    np.save(cache_dir / "test_item_idx.npy", np.array([i for _, i in GT_PAIRS], dtype=np.int32))
+    np.save(cache_dir / "n_train.npy", N_TRAIN)
+
+
+def _write_item_stats(stats_dir: Path) -> dict:
+    stats_dir.mkdir(parents=True, exist_ok=True)
+    support = np.array([0, 1, 4, 5, 9, 0, 7, 2], dtype=np.int64)
+    last = [
+        None if s == 0 else TRAIN_END_MS - d * DAY_MS
+        for s, d in zip(support, [0, 10, 100, 400, 30, 0, 200, 5])
+    ]
+    first = [TRAIN_END_MS - d * DAY_MS for d in [1200, 900, 700, 500, 300, -30, 100, 50]]
+    table = pa.table(
+        {
+            "parent_asin": ASINS,
+            "n_train_support": support,
+            "last_train_ts": pa.array(last, type=pa.timestamp("ms", tz="UTC")),
+            "first_seen_ts": pa.array(first, type=pa.timestamp("ms", tz="UTC")),
+        },
+        schema=item_train_stats.STATS_SCHEMA,
+    )
+    stats_path = stats_dir / item_train_stats.STATS_FILENAME
+    pq.write_table(table, stats_path)
+    manifest = {
+        "schema_version": 1,
+        "created_ts": "2026-08-18T04:00:00.000000+00:00",
+        "source_table": TABLE,
+        "interactions_5core_snapshot_id": CACHE_SID,
+        "train_end": load_splits(runlog.DEFAULT_SPLITS_PATH).train_end.isoformat(),
+        "splits_version": 1,
+        "n_items": len(ASINS),
+        "stats_parquet": item_train_stats.STATS_FILENAME,
+        "stats_parquet_sha256": runlog.sha256_file(stats_path),
+    }
+    (stats_dir / item_train_stats.MANIFEST_FILENAME).write_text(json.dumps(manifest, indent=2))
+    return manifest
+
+
+def _exception(**overrides) -> dict:
+    exc = {
+        "schema_version": 1,
+        "exception_id": "t8-2-linux-rebuild-20260818",
+        "table": TABLE,
+        "record_snapshot_id": RECORD_SID,
+        "cache_snapshot_id": CACHE_SID,
+        "applies_to": {"arm": "pop_t12m", "run_id": POP_RUN},
+        "proof": {
+            "kind": "item_train_stats_parquet_sha256",
+            "reference_regime_map_run_id": REF_RUN,
+            "expected_sha256": "PLACEHOLDER",
+        },
+    }
+    for key, val in overrides.items():
+        if isinstance(val, dict) and isinstance(exc.get(key), dict):
+            exc[key] = {**exc[key], **val}
+        else:
+            exc[key] = val
+    return exc
+
+
+def _toy_env(
+    tmp_path: Path,
+    *,
+    pop_snapshot_id: int = CACHE_SID,
+    alt_snapshot_id: int = CACHE_SID,
+    exception: dict | None = None,
+    with_reference: bool = True,
+    ref_patch=None,
+    manifest_patch=None,
+) -> tuple[dict, Path, Path]:
+    """A complete toy input set for :func:`regime_map.build_regime_map`.
+
+    ``exception`` is inserted verbatim (its ``proof.expected_sha256`` is filled
+    in with the real parquet digest when left as ``"PLACEHOLDER"``, so a test
+    that wants a *tampered* proof passes its own value).
+    """
+    cache_dir = tmp_path / "cache" / str(CACHE_SID)
+    _write_cache(cache_dir)
+    stats_root = tmp_path / "item_train_stats"
+    manifest = _write_item_stats(stats_root / str(CACHE_SID))
+
+    artifacts = {arm: tmp_path / f"{arm}.parquet" for arm in ("pop_t12m", "alt")}
+    shas = {arm: _write_artifact(path, arm) for arm, path in artifacts.items()}
+
+    if manifest_patch:
+        manifest = {**manifest, **manifest_patch}
+        (stats_root / str(CACHE_SID) / item_train_stats.MANIFEST_FILENAME).write_text(
+            json.dumps(manifest, indent=2)
+        )
+
+    lines = [
+        {
+            "kind": "eval",
+            "run_id": run_id,
+            "per_user_artifact": str(artifacts[arm]),
+            "model": {"name": arm},
+            "protocol": {"eval_split": "test"},
+            "iceberg_snapshots": {TABLE: sid},
+        }
+        for arm, run_id, sid in (
+            ("pop_t12m", POP_RUN, pop_snapshot_id),
+            ("alt", ALT_RUN, alt_snapshot_id),
+        )
+    ]
+    if with_reference:
+        ref = {
+            "kind": "regime_map",
+            "run_id": REF_RUN,
+            "iceberg_snapshots": {TABLE: RECORD_SID},
+            "source_run_ids": {"pop_t12m": POP_RUN, "als": "20260806T082441Z-2f2f26d"},
+            "source_artifact_sha256s": {"pop_t12m": shas["pop_t12m"], "als": "sha256:00"},
+            "item_stats": {
+                "manifest": {
+                    **manifest,
+                    "created_ts": "2026-08-17T09:48:51.778123+00:00",
+                    "interactions_5core_snapshot_id": RECORD_SID,
+                }
+            },
+            "results": {"identity_check": {"passed": True}},
+        }
+        if ref_patch:
+            ref = ref_patch(ref)
+        lines.append(ref)
+        # The disclosed duplicate of the reference run: same content, DIFFERENT
+        # run_id. Filtering by run_id must still yield exactly one.
+        lines.append({**ref, "run_id": DUP_RUN})
+
+    results_path = tmp_path / "runs.jsonl"
+    results_path.write_text("".join(json.dumps(rec) + "\n" for rec in lines))
+
+    config = {
+        "kind": "regime_map",
+        "run_ids": {"pop_t12m": POP_RUN, "alt": ALT_RUN},
+        "delta": {"minuend": "alt", "subtrahend": "pop_t12m"},
+        "split": "test",
+        "cell_metrics": ["ndcg@10", "recall@20"],
+        "k_list": list(K_LIST),
+        "bootstrap": {"n_resamples": 8, "seed": 20260805},
+        "cache_dir": str(cache_dir),
+        "item_stats_dir": str(stats_root),
+        "five_core_table": TABLE,
+        "splits_path": str(runlog.DEFAULT_SPLITS_PATH),
+        "results_path": str(results_path),
+    }
+    if exception is not None:
+        proof = dict(exception["proof"])
+        if proof.get("expected_sha256") == "PLACEHOLDER":
+            proof["expected_sha256"] = manifest["stats_parquet_sha256"]
+        config[regime_map.INPUT_EQUIVALENCE_KEY] = {**exception, "proof": proof}
+
+    config_path = tmp_path / "regime_map_toy.yaml"
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False))
+    return config, config_path, results_path
+
+
+# --- (i) the guard without an exception is untouched --------------------------
+
+
+def test_unattested_snapshot_mismatch_still_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(tmp_path, pop_snapshot_id=RECORD_SID)
+    with pytest.raises(RuntimeError, match=r"pop_t12m .* was scored on .* != cache snapshot"):
+        regime_map.build_regime_map(config, results_path)
+
+
+def test_toy_env_without_mismatch_is_clean(tmp_path: Path) -> None:
+    """Control: the same toy warehouse with matching snapshots computes fine —
+    so the failures below are about lineage, not about the fixture."""
+    config, _, results_path = _toy_env(tmp_path)
+    out = regime_map.build_regime_map(config, results_path)
+    assert out["identity_check"]["passed"] is True
+    assert out["input_equivalence"] is None
+
+
+# --- (ii) a declared exception with a broken proof is still fatal -------------
+
+
+def test_exception_with_wrong_expected_sha_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(
+        tmp_path,
+        pop_snapshot_id=RECORD_SID,
+        exception=_exception(proof={"expected_sha256": "sha256:" + "0" * 64}),
+    )
+    with pytest.raises(RuntimeError, match="proof.expected_sha256"):
+        regime_map.build_regime_map(config, results_path)
+
+
+def test_exception_with_tampered_local_manifest_sha_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(
+        tmp_path,
+        pop_snapshot_id=RECORD_SID,
+        exception=_exception(),
+        manifest_patch={"stats_parquet_sha256": "sha256:" + "1" * 64},
+    )
+    with pytest.raises(RuntimeError, match="its local manifest records"):
+        regime_map.build_regime_map(config, results_path)
+
+
+def test_exception_with_tampered_reference_record_raises(tmp_path: Path) -> None:
+    """The reference regime-map record is evidence, so every field the exception
+    leans on is checked: parquet digest, comparator artifact digest, and the
+    identity anchor that record itself passed."""
+    def _bad_stats_sha(ref: dict) -> dict:
+        ref["item_stats"]["manifest"]["stats_parquet_sha256"] = "sha256:" + "2" * 64
+        return ref
+
+    def _bad_artifact_sha(ref: dict) -> dict:
+        ref["source_artifact_sha256s"]["pop_t12m"] = "sha256:" + "3" * 64
+        return ref
+
+    def _identity_failed(ref: dict) -> dict:
+        ref["results"]["identity_check"]["passed"] = False
+        return ref
+
+    for patch, message in (
+        (_bad_stats_sha, "item_stats parquet sha"),
+        (_bad_artifact_sha, "comparator artifact"),
+        (_identity_failed, "identity_check.passed"),
+    ):
+        config, _, results_path = _toy_env(
+            tmp_path / message.replace(" ", "_").replace(".", "_"),
+            pop_snapshot_id=RECORD_SID,
+            exception=_exception(),
+            ref_patch=patch,
+        )
+        with pytest.raises(RuntimeError, match=message):
+            regime_map.build_regime_map(config, results_path)
+
+
+def test_exception_with_missing_reference_record_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(
+        tmp_path, pop_snapshot_id=RECORD_SID, exception=_exception(), with_reference=False
+    )
+    with pytest.raises(RuntimeError, match="expected exactly 1 kind=regime_map record"):
+        regime_map.build_regime_map(config, results_path)
+
+
+# --- (iii) an exception nobody needed is stale authorization ------------------
+
+
+def test_unused_exception_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(tmp_path, exception=_exception())
+    with pytest.raises(RuntimeError, match="already matches the cache snapshot"):
+        regime_map.build_regime_map(config, results_path)
+
+
+# --- (v) the exception covers ONE arm, not "mismatches in general" ------------
+
+
+def test_second_mismatching_arm_still_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(
+        tmp_path,
+        pop_snapshot_id=RECORD_SID,
+        alt_snapshot_id=123456789,
+        exception=_exception(),
+    )
+    with pytest.raises(RuntimeError, match="does NOT cover"):
+        regime_map.build_regime_map(config, results_path)
+
+
+def test_exception_naming_a_different_run_id_raises(tmp_path: Path) -> None:
+    config, _, results_path = _toy_env(
+        tmp_path,
+        pop_snapshot_id=RECORD_SID,
+        exception=_exception(applies_to={"run_id": "20990101T000000Z-deadbee"}),
+    )
+    with pytest.raises(RuntimeError, match="applies_to names run_id"):
+        regime_map.build_regime_map(config, results_path)
+
+
+# --- (iv) the happy path, and what it must disclose ---------------------------
+
+
+def test_valid_exception_is_honored_for_the_named_arm_only(tmp_path: Path) -> None:
+    exc = _exception()
+    config, config_path, results_path = _toy_env(
+        tmp_path / "excepted", pop_snapshot_id=RECORD_SID, exception=exc
+    )
+    out = regime_map.build_regime_map(config, results_path)
+
+    block = out["input_equivalence"]
+    assert block["exception_used"] is True
+    assert block["declaration"] == config[regime_map.INPUT_EQUIVALENCE_KEY]  # verbatim
+    assert block["applied_to"] == {
+        "arm": "pop_t12m",
+        "run_id": POP_RUN,
+        "record_snapshot_id": RECORD_SID,
+        "cache_snapshot_id": CACHE_SID,
+    }
+    val = block["validation"]
+    assert val["status"] == "passed"
+    assert val["reference_regime_map_run_id"] == REF_RUN
+    assert (
+        val["computed_stats_parquet_sha256"]
+        == val["local_manifest_stats_parquet_sha256"]
+        == val["reference_stats_parquet_sha256"]
+    )
+    assert val["manifests_equal_except"] == ["created_ts", "interactions_5core_snapshot_id"]
+    assert (
+        val["local_computed_comparator_artifact_sha256"]
+        == val["reference_comparator_artifact_sha256"]
+    )
+    # The unconditional guards still ran, and the analysis is the normal one.
+    assert out["identity_check"]["passed"] is True
+    assert out["n_users"] == len(N_TRAIN)
+
+    record = regime_map.build_record(config, config_path, out)
+    # The record keeps the BOX's actual snapshot ids; the exception is disclosed
+    # alongside them, never substituted for them.
+    assert record["iceberg_snapshots"][TABLE] == CACHE_SID
+    assert record[regime_map.INPUT_EQUIVALENCE_KEY] == block
+
+    # Without an exception the record shape is exactly what it has always been.
+    clean_cfg, clean_path, clean_results = _toy_env(tmp_path / "clean")
+    clean_out = regime_map.build_regime_map(clean_cfg, clean_results)
+    clean_record = regime_map.build_record(clean_cfg, clean_path, clean_out)
+    assert regime_map.INPUT_EQUIVALENCE_KEY not in clean_record
+    assert set(record) - set(clean_record) == {regime_map.INPUT_EQUIVALENCE_KEY}
+    assert set(clean_record) - set(record) == set()
+
+
+# --- the block's own schema ---------------------------------------------------
+
+
+def test_input_equivalence_block_schema_is_strict() -> None:
+    key = regime_map.INPUT_EQUIVALENCE_KEY
+    assert regime_map._parse_input_equivalence({}) is None
+    with pytest.raises(RuntimeError, match="unknown key"):
+        regime_map._parse_input_equivalence({key: {**_exception(), "enabled": True}})
+    with pytest.raises(RuntimeError, match="missing required key"):
+        regime_map._parse_input_equivalence(
+            {key: {k: v for k, v in _exception().items() if k != "proof"}}
+        )
+    with pytest.raises(RuntimeError, match="record_snapshot_id must be int"):
+        regime_map._parse_input_equivalence({key: _exception(record_snapshot_id="8184397443787800955")})
+    with pytest.raises(RuntimeError, match="schema_version"):
+        regime_map._parse_input_equivalence({key: _exception(schema_version=2)})
+    with pytest.raises(RuntimeError, match="proof.kind"):
+        regime_map._parse_input_equivalence({key: _exception(proof={"kind": "trust_me"})})
+    with pytest.raises(RuntimeError, match="unknown key"):
+        regime_map._parse_input_equivalence(
+            {key: _exception(applies_to={"arm": "pop_t12m", "run_id": POP_RUN, "why": "x"})}
+        )

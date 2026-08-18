@@ -1829,3 +1829,36 @@ equal the VAL selection; comments updated to record that 365 is now the
 selected value. TEST protocol next: exactly one TEST evaluation per arm
 (kNN-t12m deterministic; ALS-decay hl365 3 seeds), then regime-map
 recomposition. No TEST iteration.
+
+## Phase 8 T8-2 — regime-map lineage exception: one-time, single-arm, digest-gated (2026-08-18)
+
+Declared BEFORE the regime-map runs that use it. The T8-2 recomposition
+must cross the recorded Mac-era comparator (pop-t12m TEST
+20260805T172047Z-035042b, scored on gold snapshot 8184397443787800955)
+with the box cache (snapshot 7217506217965106727). regime_map.py's
+lineage guard — correctly — refuses: the machine-of-record migration
+rebuilt the warehouse, so the snapshot IDs differ even though the data
+was verified identical (see the 2026-08-17 substrate entry).
+
+Resolution (adversarially reviewed by two independent advisors;
+narrow-exception design chosen over a general equivalence registry):
+a config-declared `regime_map_input_equivalence` block, recognized only
+by regime_map.py, scoped to exactly this one arm + run_id + directed
+snapshot pair, honored only after ALL of: (a) every other arm matches
+the cache normally and an unused exception is itself an error; (b) the
+box item_train_stats parquet raw-byte sha256 equals both its own
+manifest and the proof pin — and it equals the Mac build byte-for-byte:
+sha256 72a71aee1c689dbed1259da720f3c8671f5f7721fae2373f2028c2065734dbbf
+on BOTH machines (the cell axes are literally the same bytes); (c) the
+committed T8-1 reference record 20260817T095926Z-633d454 confirms the
+same parquet sha, the comparator's artifact sha, and a passed identity
+check; (d) the two item-stats manifests are equal except created_ts and
+snapshot id; (e) the rsync'd comparator artifact hashes to the sha the
+T8-1 record committed (3a0419da…, re-verified after transfer). The
+output record disclones the verbatim declaration and every digest;
+records without the block are shape-identical to before. The existing
+identity anchor still recomposes the comparator's recorded metrics
+bit-for-bit (recall) / at 1e-12 (ndcg) — a live end-to-end receipt that
+artifact, cache and axes agree across the migration. 13 new unit tests
+cover tampered digests, unused exceptions, second-arm mismatches, and
+schema strictness.

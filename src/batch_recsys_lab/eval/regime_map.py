@@ -452,6 +452,322 @@ def _shares(counts: np.ndarray, labels: tuple[str, ...], total: int) -> dict:
     }
 
 
+# --- input-equivalence exception (Phase 8 T8-2) --------------------------------
+#
+# WHY this exists. The lineage guard in :func:`build_regime_map` requires every
+# source eval record to have been scored on the SAME ``gold.interactions_5core``
+# snapshot the eval cache carries — the cheapest available proof that the arms,
+# the ground truth and the item axis all describe one universe. On the machine of
+# record (the Linux box the warehouse was rebuilt on, EXPERIMENT_LOG.md
+# 2026-08-17) that guard fires for one record and one only: the preregistered
+# popularity comparator was scored ONCE on the Mac, on a frozen TEST split that
+# must never be re-scored, and the rebuilt warehouse produces byte-identical data
+# under a NEW Iceberg snapshot id. The snapshot id is a *label*; the guard would
+# reject on the label while the *bytes* agree.
+#
+# So the exception is deliberately not a boolean escape hatch. It is a config
+# block that must NAME the single (arm, run_id) it covers and the two snapshot
+# ids it bridges, and must carry a falsifiable proof that the two universes are
+# the same data: the item_train_stats parquet digest, cross-checked against the
+# local manifest, against the declared expectation, and against the manifest
+# embedded in the earlier regime-map record produced on the OLD snapshot — plus
+# that record's own comparator-artifact digest against the local artifact. Every
+# one of those is a hard failure, an exception that is declared but never needed
+# is a hard failure, and a mismatch on any other arm stays fatal. Presence of the
+# block is the authorization; there is no enable flag to leave switched on.
+#
+# The disclosure object this produces is written verbatim into the run record, so
+# the exception can never be exercised without appearing in the published
+# evidence.
+
+INPUT_EQUIVALENCE_KEY = "regime_map_input_equivalence"
+INPUT_EQUIVALENCE_SCHEMA_VERSION = 1
+INPUT_EQUIVALENCE_PROOF_KIND = "item_train_stats_parquet_sha256"
+# The only two item_train_stats manifest fields a byte-identical rebuild may
+# differ in: the wall clock it was written at, and the snapshot label itself.
+# Row count, train_end, splits hash, bucket counts and the parquet digest must
+# all match exactly — that is what makes "same data, new label" checkable.
+INPUT_EQUIVALENCE_MANIFEST_EXEMPT = ("created_ts", "interactions_5core_snapshot_id")
+
+_IE_FIELDS: dict[str, type] = {
+    "schema_version": int,
+    "exception_id": str,
+    "table": str,
+    "record_snapshot_id": int,
+    "cache_snapshot_id": int,
+    "applies_to": dict,
+    "proof": dict,
+}
+_IE_APPLIES_TO_FIELDS: dict[str, type] = {"arm": str, "run_id": str}
+_IE_PROOF_FIELDS: dict[str, type] = {
+    "kind": str,
+    "reference_regime_map_run_id": str,
+    "expected_sha256": str,
+}
+
+
+def _typed_mapping(block: object, spec: dict[str, type], where: str) -> dict:
+    """Exact-key, strict-type validation of one config mapping.
+
+    Unknown keys are rejected rather than ignored: a typo in an authorization
+    block must fail loudly, not silently widen or narrow what was authorized.
+    ``bool`` is not accepted where ``int`` is required (Python would).
+    """
+    if not isinstance(block, dict):
+        raise RuntimeError(f"{where} must be a mapping, got {type(block).__name__}")
+    unknown = sorted(set(block) - set(spec))
+    if unknown:
+        raise RuntimeError(
+            f"{where}: unknown key(s) {unknown}; allowed keys are {sorted(spec)}"
+        )
+    missing = sorted(set(spec) - set(block))
+    if missing:
+        raise RuntimeError(f"{where}: missing required key(s) {missing}")
+    for key, typ in spec.items():
+        val = block[key]
+        ok = (
+            isinstance(val, int) and not isinstance(val, bool)
+            if typ is int
+            else isinstance(val, typ)
+        )
+        if not ok:
+            raise RuntimeError(
+                f"{where}.{key} must be {typ.__name__}, got "
+                f"{type(val).__name__} ({val!r})"
+            )
+    return block
+
+
+def _parse_input_equivalence(config: dict) -> dict | None:
+    """Validate and return the config's input-equivalence block, or ``None``.
+
+    Shape only — the substantive checks (which arm, which snapshots, which
+    digests) happen in :func:`_apply_input_equivalence`, after every arm's own
+    lineage verdict is known.
+    """
+    exc = config.get(INPUT_EQUIVALENCE_KEY)
+    if exc is None:
+        return None
+    _typed_mapping(exc, _IE_FIELDS, INPUT_EQUIVALENCE_KEY)
+    if exc["schema_version"] != INPUT_EQUIVALENCE_SCHEMA_VERSION:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}.schema_version {exc['schema_version']} != supported "
+            f"{INPUT_EQUIVALENCE_SCHEMA_VERSION}"
+        )
+    _typed_mapping(exc["applies_to"], _IE_APPLIES_TO_FIELDS, f"{INPUT_EQUIVALENCE_KEY}.applies_to")
+    _typed_mapping(exc["proof"], _IE_PROOF_FIELDS, f"{INPUT_EQUIVALENCE_KEY}.proof")
+    if exc["proof"]["kind"] != INPUT_EQUIVALENCE_PROOF_KIND:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}.proof.kind {exc['proof']['kind']!r} is not the only "
+            f"implemented proof {INPUT_EQUIVALENCE_PROOF_KIND!r}"
+        )
+    if exc["record_snapshot_id"] == exc["cache_snapshot_id"]:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}: record_snapshot_id == cache_snapshot_id "
+            f"({exc['record_snapshot_id']}) — there is nothing to except"
+        )
+    return exc
+
+
+def _find_regime_map_records(run_id: str, results_path: Path) -> list[dict]:
+    """Every ``kind="regime_map"`` record with this ``run_id`` (0, 1 or more).
+
+    Unlike :func:`_find_eval_record` this does NOT take the last match: the
+    reference record is evidence, so "how many are there" is itself a check.
+    """
+    out: list[dict] = []
+    for line in results_path.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        rec = json.loads(line)
+        if rec.get("kind") == "regime_map" and rec.get("run_id") == run_id:
+            out.append(rec)
+    return out
+
+
+def _apply_input_equivalence(
+    exc: dict,
+    *,
+    mismatches: list[dict],
+    five_core_table: str,
+    cache_sid: int,
+    run_ids: dict[str, str],
+    stats_dir: Path,
+    stats_manifest: dict,
+    artifact_paths: dict[str, str],
+    results_path: Path,
+) -> dict:
+    """Adjudicate the declared exception against every arm's lineage verdict.
+
+    ``mismatches`` holds one entry per arm whose recorded 5-core snapshot differs
+    from the cache's. Returns the disclosure block for the run record; every
+    failure path raises :class:`RuntimeError` and nothing is assembled or
+    appended.
+    """
+    arm = exc["applies_to"]["arm"]
+    declared_run_id = exc["applies_to"]["run_id"]
+    record_sid = exc["record_snapshot_id"]
+
+    # -- (a) the exception covers exactly the one (arm, run_id) it names --------
+    if exc["table"] != five_core_table:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}.table {exc['table']!r} != the config's lineage table "
+            f"{five_core_table!r}"
+        )
+    if cache_sid != exc["cache_snapshot_id"]:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}.cache_snapshot_id {exc['cache_snapshot_id']} != the "
+            f"active eval-cache {five_core_table} snapshot {cache_sid}: the exception was "
+            "declared against a different local warehouse"
+        )
+    if arm not in run_ids:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}.applies_to.arm {arm!r} is not one of run_ids "
+            f"{sorted(run_ids)}"
+        )
+    if run_ids[arm] != declared_run_id:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY}.applies_to names run_id {declared_run_id!r} for arm "
+            f"{arm!r}, but this config scores {run_ids[arm]!r}"
+        )
+    others = [m for m in mismatches if m["arm"] != arm]
+    if others:
+        raise RuntimeError(
+            "5-core snapshot mismatch on arm(s) the input-equivalence exception does NOT "
+            "cover (it covers only "
+            f"{arm}/{declared_run_id}): "
+            + "; ".join(
+                f"{m['arm']} ({m['run_id']}) scored on {m['recorded_snapshot_id']} != cache "
+                f"{cache_sid}"
+                for m in others
+            )
+        )
+    covered = [m for m in mismatches if m["arm"] == arm]
+    if not covered:
+        raise RuntimeError(
+            f"{INPUT_EQUIVALENCE_KEY} is declared (exception_id={exc['exception_id']!r}) but "
+            f"arm {arm} ({declared_run_id}) already matches the cache snapshot {cache_sid}: an "
+            "unused exception is stale authorization and must be removed from the config"
+        )
+    got_sid = covered[0]["recorded_snapshot_id"]
+    if got_sid != record_sid:
+        raise RuntimeError(
+            f"{arm} ({declared_run_id}) was scored on {five_core_table} snapshot {got_sid}, "
+            f"but {INPUT_EQUIVALENCE_KEY}.record_snapshot_id declares {record_sid}"
+        )
+
+    # -- (b) the local item-stats parquet is the bytes the proof names ---------
+    stats_parquet = Path(stats_dir) / stats_manifest.get(
+        "stats_parquet", item_train_stats.STATS_FILENAME
+    )
+    computed_sha = runlog.sha256_file(stats_parquet)
+    local_sha = stats_manifest.get("stats_parquet_sha256")
+    expected_sha = exc["proof"]["expected_sha256"]
+    if computed_sha != local_sha:
+        raise RuntimeError(
+            f"item_train_stats parquet {stats_parquet} hashes to {computed_sha} but its local "
+            f"manifest records {local_sha}: the local item axis is not the file it claims"
+        )
+    if computed_sha != expected_sha:
+        raise RuntimeError(
+            f"item_train_stats parquet {stats_parquet} hashes to {computed_sha} != "
+            f"{INPUT_EQUIVALENCE_KEY}.proof.expected_sha256 {expected_sha}: the rebuilt gold "
+            "5-core is NOT byte-identical to the one the comparator was scored on"
+        )
+
+    # -- (c) the reference regime-map record produced on the OLD snapshot ------
+    ref_run_id = exc["proof"]["reference_regime_map_run_id"]
+    found = _find_regime_map_records(ref_run_id, results_path)
+    if len(found) != 1:
+        raise RuntimeError(
+            f"expected exactly 1 kind=regime_map record with run_id={ref_run_id!r} in "
+            f"{results_path}, found {len(found)}"
+        )
+    ref = found[0]
+    ref_sids = ref.get("iceberg_snapshots") or {}
+    if int(ref_sids.get(five_core_table, -1)) != record_sid:
+        raise RuntimeError(
+            f"reference regime_map {ref_run_id} was computed on {five_core_table} snapshot "
+            f"{ref_sids.get(five_core_table)} != declared record_snapshot_id {record_sid}"
+        )
+    ref_source = (ref.get("source_run_ids") or {}).get(arm)
+    if ref_source != declared_run_id:
+        raise RuntimeError(
+            f"reference regime_map {ref_run_id} sourced arm {arm} from run_id {ref_source!r} "
+            f"!= the excepted {declared_run_id!r}"
+        )
+    ref_manifest = ((ref.get("item_stats") or {}).get("manifest")) or {}
+    if int(ref_manifest.get("interactions_5core_snapshot_id", -1)) != record_sid:
+        raise RuntimeError(
+            f"reference regime_map {ref_run_id} item_stats manifest snapshot "
+            f"{ref_manifest.get('interactions_5core_snapshot_id')} != declared "
+            f"record_snapshot_id {record_sid}"
+        )
+    ref_stats_sha = ref_manifest.get("stats_parquet_sha256")
+    if ref_stats_sha != expected_sha:
+        raise RuntimeError(
+            f"reference regime_map {ref_run_id} item_stats parquet sha {ref_stats_sha} != "
+            f"{INPUT_EQUIVALENCE_KEY}.proof.expected_sha256 {expected_sha}"
+        )
+    ref_identity = ((ref.get("results") or {}).get("identity_check") or {}).get("passed")
+    if ref_identity is not True:
+        raise RuntimeError(
+            f"reference regime_map {ref_run_id} identity_check.passed is {ref_identity!r}, "
+            "not true: it cannot serve as evidence for anything"
+        )
+
+    # -- (d) the two item-stats manifests agree except for time and label ------
+    def _strip(manifest: dict) -> dict:
+        return {
+            k: v for k, v in manifest.items() if k not in INPUT_EQUIVALENCE_MANIFEST_EXEMPT
+        }
+
+    local_stripped, ref_stripped = _strip(stats_manifest), _strip(ref_manifest)
+    if local_stripped != ref_stripped:
+        differing = sorted(
+            k
+            for k in set(local_stripped) | set(ref_stripped)
+            if local_stripped.get(k, "<absent>") != ref_stripped.get(k, "<absent>")
+        )
+        raise RuntimeError(
+            "local and reference item_train_stats manifests differ in field(s) "
+            f"{differing} (only {list(INPUT_EQUIVALENCE_MANIFEST_EXEMPT)} may differ): "
+            "the rebuilt aggregate is not the same aggregate"
+        )
+
+    # -- (e) the comparator's per-user artifact is byte-identical --------------
+    local_artifact_sha = runlog.sha256_file(artifact_paths[arm])
+    ref_artifact_sha = (ref.get("source_artifact_sha256s") or {}).get(arm)
+    if local_artifact_sha != ref_artifact_sha:
+        raise RuntimeError(
+            f"comparator artifact {artifact_paths[arm]} hashes to {local_artifact_sha} but "
+            f"reference regime_map {ref_run_id} recorded {ref_artifact_sha}: the local "
+            "artifact is not the one the excepted record was built from"
+        )
+
+    return {
+        "exception_used": True,
+        "declaration": exc,
+        "applied_to": {
+            "arm": arm,
+            "run_id": declared_run_id,
+            "record_snapshot_id": record_sid,
+            "cache_snapshot_id": cache_sid,
+        },
+        "validation": {
+            "status": "passed",
+            "reference_regime_map_run_id": ref_run_id,
+            "reference_stats_parquet_sha256": ref_stats_sha,
+            "local_manifest_stats_parquet_sha256": local_sha,
+            "computed_stats_parquet_sha256": computed_sha,
+            "manifests_equal_except": list(INPUT_EQUIVALENCE_MANIFEST_EXEMPT),
+            "reference_comparator_artifact_sha256": ref_artifact_sha,
+            "local_computed_comparator_artifact_sha256": local_artifact_sha,
+        },
+    }
+
+
 # --- the analysis --------------------------------------------------------------
 
 
@@ -471,6 +787,9 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
     identity_tolerance = float(
         (config.get("identity_check") or {}).get("tolerance", IDENTITY_TOLERANCE)
     )
+    # Shape-checked up front so a malformed authorization block fails before any
+    # I/O, never mid-way through the analysis.
+    input_equivalence = _parse_input_equivalence(config)
     boot = config.get("bootstrap", {})
     n_resamples = int(boot.get("n_resamples", 1000))
     base_seed = int(boot.get("seed", 20260805))
@@ -524,6 +843,7 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
     records: dict[str, dict] = {}
     artifact_paths: dict[str, str] = {}
     arms: dict[str, dict] = {}
+    snapshot_mismatches: list[dict] = []
     for key, run_id in run_ids.items():
         artifact_path, _model = _resolve_artifact_path(run_id, results_path)
         rec = _find_eval_record(run_id, results_path)
@@ -533,14 +853,42 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
                 f"expected {split!r}"
             )
         rec_sids = rec.get("iceberg_snapshots") or {}
-        if int(rec_sids.get(five_core_table, -1)) != cache_sid:
-            raise RuntimeError(
-                f"{key} ({run_id}) was scored on {five_core_table} snapshot "
-                f"{rec_sids.get(five_core_table)} != cache snapshot {cache_sid}"
+        rec_sid = int(rec_sids.get(five_core_table, -1))
+        if rec_sid != cache_sid:
+            # Unattested, this is fatal here and now (unchanged). With an
+            # input-equivalence exception declared the verdict is deferred: the
+            # adjudication below must see EVERY arm's outcome before it can rule
+            # that the exception covers exactly the one arm it names.
+            if input_equivalence is None:
+                raise RuntimeError(
+                    f"{key} ({run_id}) was scored on {five_core_table} snapshot "
+                    f"{rec_sids.get(five_core_table)} != cache snapshot {cache_sid}"
+                )
+            snapshot_mismatches.append(
+                {"arm": key, "run_id": run_id, "recorded_snapshot_id": rec_sid}
             )
         records[key] = rec
         artifact_paths[key] = artifact_path
         arms[key] = _load_arm(artifact_path, load_metrics)
+
+    # Adjudicated before any downstream computation: an exception that does not
+    # hold up aborts with nothing assembled and nothing appended. Every guard
+    # after this point (user set/order, segment vector, GT alignment, identity
+    # anchor) stays unconditional — the exception buys ONE snapshot label, not
+    # any relaxation of the checks that the data actually lines up.
+    equivalence_block = None
+    if input_equivalence is not None:
+        equivalence_block = _apply_input_equivalence(
+            input_equivalence,
+            mismatches=snapshot_mismatches,
+            five_core_table=five_core_table,
+            cache_sid=cache_sid,
+            run_ids=run_ids,
+            stats_dir=stats_dir,
+            stats_manifest=stats_manifest,
+            artifact_paths=artifact_paths,
+            results_path=results_path,
+        )
 
     base = arm_order[0]
     for key in arm_order[1:]:
@@ -764,6 +1112,7 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
         "item_stats_manifest": stats_manifest,
         "item_stats_coverage": stats["coverage"],
         "artifact_paths": artifact_paths,
+        "input_equivalence": equivalence_block,
         "records": records,
         "identity_check": identity_block,
         "headline": headline,
@@ -844,6 +1193,14 @@ def build_record(config: dict, config_path: Path, out: dict) -> dict:
         },
         "wall_clock_s": out["wall_clock_s"],
         "hardware": runlog.hardware_string(),
+        # Present ONLY when a lineage exception was declared AND used, so a record
+        # without one is byte-identical in shape to every record written before
+        # this facility existed.
+        **(
+            {INPUT_EQUIVALENCE_KEY: out["input_equivalence"]}
+            if out.get("input_equivalence")
+            else {}
+        ),
     }
 
 
@@ -857,6 +1214,16 @@ def _print_report(out: dict) -> None:
         f"GT interactions={out['gt_interactions_total']} catalog={out['catalog_size']}"
     )
     print(f"item stats: {out['item_stats_dir']}  coverage={out['item_stats_coverage']}")
+    ie = out.get("input_equivalence")
+    if ie:
+        # A lineage exception must never be silent at the console either.
+        print(
+            f"INPUT-EQUIVALENCE EXCEPTION USED: {ie['declaration']['exception_id']} — arm "
+            f"{ie['applied_to']['arm']} ({ie['applied_to']['run_id']}) accepted on record "
+            f"snapshot {ie['applied_to']['record_snapshot_id']} vs cache "
+            f"{ie['applied_to']['cache_snapshot_id']}; proof vs regime_map "
+            f"{ie['validation']['reference_regime_map_run_id']} PASS"
+        )
     ic = out["identity_check"]
     print(
         f"identity anchor: {ic['n_comparisons']} per-user vectors vs the recorded "
