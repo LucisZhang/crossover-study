@@ -35,6 +35,7 @@ packages = ["src/batch_recsys_lab"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 markers = [
     "spark: tests that start a local Spark session",
 ]
