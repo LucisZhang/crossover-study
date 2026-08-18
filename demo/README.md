@@ -121,12 +121,10 @@ spread and the four paired deltas), the T8-3 exploratory deep depth buckets,
 and the three regime maps (T8-1 static-ALS baseline plus the two T8-2
 recompositions) with the churn gate. It obeys rules 1–5 above unchanged: every
 leaf was written through `TracedWriter` (`kind="runs_record"` sources only) and
-`make demo-verify` re-resolves all of them. Caveat: its exporter was run as a
-one-off script against the pinned records rather than from
-`src/batch_recsys_lab/demo/` — `make demo-export` therefore does not yet
-regenerate this file (it leaves it, and its manifest entries, intact).
-Promoting that script to `export_phase8.py` beside the other exporters is the
-open follow-up.
+`make demo-verify` re-resolves all of them. Its exporter lives at
+`src/batch_recsys_lab/demo/export_phase8.py`, alongside the other exporters,
+and is invoked by `make demo-export` (or standalone via `make
+demo-export-phase8`) against the pinned records in `results/runs.jsonl`.
 
 ## Search assets
 

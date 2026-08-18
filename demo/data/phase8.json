@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_by": "export_phase8 (TracedWriter, plan §8b line 277)",
+  "generated_by": "batch_recsys_lab.demo.export_phase8",
   "split": "test",
   "segments": [
     "0",
