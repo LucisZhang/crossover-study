@@ -14,6 +14,7 @@ verify its snapshot-keyed cache against the live tables before appending.
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 import os
@@ -269,9 +270,16 @@ def append_record(record: dict, results_path: str | Path) -> None:
     results_path.parent.mkdir(parents=True, exist_ok=True)
     line = json.dumps(record, separators=(",", ":"), sort_keys=False)
     with open(results_path, "a", encoding="utf-8") as fh:
-        fh.write(line + "\n")
-        fh.flush()
-        os.fsync(fh.fileno())
+        # Records exceed the 8KB stream buffer, so one append spans several
+        # write(2) calls; the exclusive lock keeps concurrent eval runs from
+        # interleaving their lines.
+        fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        try:
+            fh.write(line + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
+        finally:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 
 
 def dataset_manifest_hash(manifest_path: str | Path) -> str:
