@@ -2,6 +2,27 @@
 # run against the Iceberg snapshot IDs the run itself recorded — never against
 # whatever is live. Changing headline_run_id re-points the claim the site makes;
 # it is a deliberate, reviewed edit, not a routine one.
-headline_run_id: "20260807T055333Z-c320c79"
+#
+# Repointed 2026-08-19 (machine-of-record migration, EXPERIMENT_LOG d4605c4):
+# the remote Linux box (crossover-gpu) is now the machine of record after a
+# verified exact-match bronze->silver->gold rebuild (row counts identical,
+# waterfall + all 17 k-core funnel iterations reproduce count-for-count,
+# suite 456 passed / 3 skipped). The prior pin's Iceberg snapshot IDs
+# (from the old Mac warehouse) do not exist in the rebuilt warehouse, so
+# `make reproduce-headline` could not resolve them by time travel. Per the
+# append-only invariant (CLAUDE.md #3, "a wrong run gets a superseding
+# entry, not a rewrite"), the ORIGINAL record 20260807T055333Z-c320c79 is
+# untouched and remains authoritative history; this pin now points at a
+# freshly minted superseding run of the IDENTICAL config
+# (configs/eval_blend_test.yaml, config_hash unchanged) executed on the
+# rebuilt warehouse's own snapshots. Gate: recall@10/20/50 and hitrate@10
+# matched the old record bit-for-bit; ndcg@10/20 and mrr differed by
+# ~2.7e-8/8.2e-8 respectively (float summation order under CPU vs the
+# original Apple MPS backend — expected, and far inside the recorded
+# bootstrap CIs, e.g. ndcg@10 CI width ~4.2e-4). See EXPERIMENT_LOG.md for
+# the full side-by-side table.
+#
+# superseded_headline_run_id: "20260807T055333Z-c320c79"  # Mac warehouse, pre-migration; kept as history, never edited
+headline_run_id: "20260818T181443Z-6744efc"
 results_path: "results/runs.jsonl"
 cache_repro_root: "data/eval/cache_repro"
