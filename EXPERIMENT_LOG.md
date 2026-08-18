@@ -1921,3 +1921,56 @@ catalog", which is out of T8-2 scope.
 Owner's call; not started here. Headline framing updates to
 "personalization needs history AND freshness — and where freshness is
 popularity's weakness, even a weak personalized arm finds signal."
+
+## Phase 8 T8-4 gate — owner confirmation: Phase 8 complete as preregistered; T8-4 (ML-32M contrast) formally SKIPPED (2026-08-18)
+
+**Owner's confirmation.** The owner has confirmed completing Phase 8 per the
+preregistered plan. T8-4 — the MovieLens-32M regime contrast — is therefore
+**not started**. This entry closes the gate on the record rather than
+leaving it silently open; it changes no prior entry and no result.
+
+**The gate language it applies (plan §8b, approved at c3f38a2).** T8-4 is
+declared "**CONDITIONAL: execute only if T8-2 confirms the null.** Gate is
+explicit on T8-2's outcome," and its acceptance line ends: "If the gate
+stays closed, **this task is not started**." The matching branch was written
+into the T8-2 preregistration (registered 2026-08-17T11:44Z, committed
+832d407 at 2026-08-17T11:45:21Z): "**Crossover** = at any history-depth
+segment OR any regime-map cell, a new arm beats pop-t12m on TEST NDCG@10
+with the paired-delta 95% CI excluding zero … Then the headline answer
+becomes 'personalization needs history AND freshness' … and **T8-4 (ML-32M
+contrast) is likely skipped per the §8b gate**"; the "**Null**" branch says
+"T8-4 becomes the capstone."
+
+**Why the gate is closed.** T8-2 did not confirm the null. The preregistered
+crossover criterion was **met** — item-kNN-t12m beats pop-t12m on TEST
+NDCG@10 with the paired 95% CI excluding zero, and with the Recall@20
+robustness guard agreeing, in five regime-map cells (verdict entry above,
+record `20260818T072256Z-3f3530a`). Crossover ⇒ gate closed ⇒ T8-4 skipped.
+The skip is the preregistered branch executing, not a scope cut made after
+seeing the result: the rule predates every T8-2 record (commit 832d407 at
+2026-08-17T11:45Z; earliest T8-2 record `20260818T003552Z-6300640`, ~13h
+later), and it predates the T8-2 model code, which did not exist when the
+rule was written.
+
+**What the skip costs, recorded as a cost, not waved off.** T8-4 was the only
+planned *external* replication in the lab. Skipping it means:
+- The "crossover exists only when the catalog holds still" framing stays
+  **untested** — this lab still has one category and one snapshot, and the
+  measured crossover pocket has no independent-dataset confirmation.
+- The T8-2 cell-level result is a single-dataset finding with uncorrected
+  multiplicity (~40 cells × 2 arms, per the preregistered any-cell rule).
+  Nothing about the gate closing makes that stronger.
+- The MovieLens timestamp caveat (Sun et al., arXiv:2307.09985) and the
+  ML-32M manifest/contracts work are moot; no partial ML-32M artifact
+  exists in the tree.
+
+These costs are written into `docs/case_study.md` §10 in the same commit as
+this entry, so the case study does not inherit a claim the gate withdrew.
+
+**Scope consequence.** Phase 8 delivers T8-1, T8-2, T8-3 and the §8b
+follow-on doc work (line 277: `docs/case_study.md` §6–7 replaced derived
+churn language with the measured regime map, recorded the T8-2 fairness
+outcome, and discharged the old line-178 caveats one by one — same commit).
+The §12 cut order already ranked T8-4 first to cut, so this outcome needs no
+cut-order edit. Demo work (§8b line 277, crossover explorer) is tracked
+separately and is not part of this entry.
