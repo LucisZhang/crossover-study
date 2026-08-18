@@ -1862,3 +1862,62 @@ bit-for-bit (recall) / at 1e-12 (ndcg) — a live end-to-end receipt that
 artifact, cache and axes agree across the migration. 13 new unit tests
 cover tampered digests, unused exceptions, second-arm mismatches, and
 schema strictness.
+
+## Phase 8 T8-2 VERDICT — recency-matched arms: technical crossover, in the stale-item pocket, by the arm nobody favored (2026-08-18)
+
+All records on the machine of record; configs, seeds, comparators and the
+decision rule exactly as preregistered 2026-08-17T11:44Z. One TEST
+evaluation per arm, no iteration.
+
+**ALS-decay hl365 (selected on VAL).** TEST global NDCG@10
+0.003734 ± 0.000018 (3 seeds: 20260818T060704Z/051547Z/051858Z-109c271;
+primary seed carries the per-user artifact). Paired vs pop-t12m
+(20260805T172047Z-035042b): global delta −0.0017 [−0.0020, −0.0014];
+significantly below pop at depths 0/1-4/5-9/10-19; at 20+ the NDCG@10
+delta is +0.00036 [−0.00045, +0.00115] (ns) and the Recall@20 guard is
+significantly NEGATIVE (−0.0032 [−0.0050, −0.0016]) → **no
+history-depth crossover**. No regime-map cell is positive-with-CI
+(record 20260818T072211Z-3f3530a; stale cells sit at exact zeros or
+tiny ns positives). Same story vs the blend. H-fair's prediction (ii)
+— that decayed ALS turns positive-with-CI on stale cells — **failed**;
+prediction (i) held only in the weak form that decay helps ALS itself
+(VAL +25% relative over static ALS, CIs disjoint).
+
+**item-kNN-t12m.** TEST global NDCG@10 0.000301 (20260818T054430Z-109c271)
+— ~18× below pop-t12m 0.005404: globally the windowed kNN is the worst
+arm in the lab. BUT the regime map (20260818T072256Z-3f3530a) shows
+**five cells positive with the 95% CI excluding zero on BOTH NDCG@10
+and the Recall@20 guard**:
+
+| cell (axis, depth, bucket) | Δndcg@10 | Δrecall@20 | GT share |
+|---|---|---|---|
+| support, 5-9, low | +0.00045 | +0.00093 | 1.73% |
+| support, 20+, low | +0.00058 | +0.00103 | 0.69% |
+| recency, 1-4, 91-365d | +0.00039 | +0.00102 | 2.16% |
+| recency, 5-9, 91-365d | +0.00069 | +0.00151 | 1.75% |
+| recency, 10-19, 91-365d | +0.00033 | +0.00242 | 1.01% |
+
+**Verdict: the preregistered crossover criterion is MET** — by
+item-kNN-t12m, on the exact axis H-fair named (items popularity's own
+window under-ranks), though by the arm the hypothesis didn't favor.
+T8-1 saw static ALS "faintly positive (ns)" here; recency-matching
+turned the effect significant, with the guard metric agreeing in every
+cell and coherent adjacency (same two related regions, three
+consecutive depth bands). Multiplicity disclosure: ~40 cells × 2 arms
+tested with no correction, per the preregistered any-cell rule; the
+clustering and two-metric agreement argue against pure chance, but the
+per-cell magnitudes are small and the affected mass is a minority
+pocket (each cell 0.7–2.2% of TEST GT; the cells overlap across axes).
+
+**Honest scope note for the routing narrative.** The winning cells are
+defined by properties of the *ground-truth item* (its TRAIN recency /
+support), which a serving-time router cannot observe. The measured
+crossover is therefore diagnostic — popularity's blind spot is real and
+a recency-matched CF arm can exploit it — but converting it into a
+routable policy needs a serve-time proxy for "this user shops the stale
+catalog", which is out of T8-2 scope.
+
+**T8-4 gate (§8b): crossover ⇒ T8-4 (ML-32M contrast) likely skipped.**
+Owner's call; not started here. Headline framing updates to
+"personalization needs history AND freshness — and where freshness is
+popularity's weakness, even a weak personalized arm finds signal."
