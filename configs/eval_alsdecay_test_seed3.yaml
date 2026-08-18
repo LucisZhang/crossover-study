@@ -1,6 +1,6 @@
 # HALF-LIFE SET AFTER VAL SELECTION — do not run before EXPERIMENT_LOG selection note
 # ALS-decay on the frozen TEST split (Phase 8, T8-2): seed 20260807.
-# half_life_days below is the PLACEHOLDER middle value of the preregistered grid
+# half_life_days below is the VAL-SELECTED value (EXPERIMENT_LOG.md 2026-08-18 T8-2 VAL selection)
 # {90, 365, 1460}. The owner replaces it with the VAL-selected half-life (argmax
 # global VAL NDCG@10, ties -> smaller half-life) AFTER the selection note is
 # written to EXPERIMENT_LOG.md. TEST is touched exactly once per seed
@@ -15,7 +15,7 @@ model:
     alpha: 10.0
     max_iter: 25
     weighting: time_decay
-    half_life_days: 365   # PLACEHOLDER — set from the VAL selection
+    half_life_days: 365   # selected on VAL: argmax global NDCG@10, no CI overlap
     factors_root: data/eval/als
 protocol:
   eval_split: test

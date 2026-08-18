@@ -1789,3 +1789,43 @@ Mac: zero T8-2 records in `results/runs.jsonl` (67 records total; none
 matching the T8-2 configs — hl90/hl365/hl1460, alsdecay, itemknn_t12m),
 verified 2026-08-17 before migration. Every T8-2 run will execute and be
 recorded on this box.
+
+## Phase 8 T8-2 VAL grid — half-life selected: 365 days (2026-08-18)
+
+All four VAL runs executed on the machine of record (rented box, commit
+6300640, snapshot 7217506217965106727 — the box's own gold lineage; the
+eval extract cache and the age-cache artifact were built fresh there,
+age manifest sha 1046d7df…, n_train_pairs 14,206,658, mean TRAIN pair
+age 1772.6d). Primary model seed 20260805 only, per the preregistration.
+
+**Global VAL NDCG@10 (bootstrap 95% CI):**
+
+| arm | run_id | ndcg@10 | CI |
+|---|---|---|---|
+| ALS-decay hl90 | 20260818T021040Z-6300640 | 0.0047910 | [0.0046294, 0.0049520] |
+| **ALS-decay hl365** | 20260818T021256Z-6300640 | **0.0053348** | [0.0051650, 0.0055127] |
+| ALS-decay hl1460 | 20260818T033640Z-6300640 | 0.0046472 | [0.0044870, 0.0048074] |
+| static ALS (recorded baseline) | 20260806T033333Z-acd1f81 | 0.0042542 | [0.0041009, 0.0044030] |
+| item-kNN-t12m (sanity record) | 20260818T003552Z-6300640 | 0.0005557 | [0.0005054, 0.0006099] |
+| pop-t12m (recorded, for scale) | 20260806T113427Z-e056a2a | 0.0103379 | [0.0101124, 0.0105646] |
+
+**Selection (rule applied mechanically):** argmax global VAL NDCG@10 =
+**hl365**; its CI overlaps neither hl90's nor hl1460's, so the tie-break
+clause is not triggered. No regression disclosure needed: all three
+half-lives beat the static-ALS VAL baseline (hl365 by +25% relative,
+CIs disjoint) — the decay mechanism helps ALS on VAL. The hump shape
+(365 > 90, 365 > 1460) says both too-aggressive and too-mild decay lose
+signal; the pop-t12m gap (~2×) remains.
+
+**item-kNN-t12m VAL note (sanity, no selection):** windowing the
+co-occurrence matrix to t12m collapses kNN (0.00056 vs pop-t12m
+0.01034) — with a ~6.5y-old TRAIN catalog, a 12-month item-side window
+leaves too few co-occurrences to rank with. Recorded as-is; the TEST
+record will quantify it under the frozen protocol.
+
+**TEST configs:** the preregistered placeholder in
+`eval_alsdecay_test_seed{1,2,3}.yaml` (365, the grid middle) happens to
+equal the VAL selection; comments updated to record that 365 is now the
+selected value. TEST protocol next: exactly one TEST evaluation per arm
+(kNN-t12m deterministic; ALS-decay hl365 3 seeds), then regime-map
+recomposition. No TEST iteration.
