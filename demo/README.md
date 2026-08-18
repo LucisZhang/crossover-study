@@ -15,6 +15,7 @@ demo/
     charts.js         SVG chart primitives; port of eval/crossover_chart.py geometry
     receipts.js       the drawer + the traced-number affordance
     crossover.js      exhibit 1
+    regime.js         exhibit 1b (Phase 8 regime map)
     shoppers.js  search.js  dq.js  lineage.js    exhibits 2–5 (stubs in T31)
   data/               JSON projections of the results log (written by src/batch_recsys_lab/demo/)
   vendor/             MiniLM + transformers.js, not committed (see "Search assets")
@@ -111,6 +112,21 @@ Documents that have not been exported yet (`policy_grid.json`, `shoppers.json`,
 `dq.json`, `lineage.json`, `timetravel.json`, `search/`) simply 404, and the
 owning exhibit renders an "exhibit data not yet exported" panel. That is a
 supported state, not a failure mode.
+
+### Phase 8 data (`phase8.json`)
+
+`data/phase8.json` carries the §8b follow-on exhibits: the two T8-2
+recency-matched TEST arms (item-kNN-t12m and ALS-decay hl365, incl. the 3-seed
+spread and the four paired deltas), the T8-3 exploratory deep depth buckets,
+and the three regime maps (T8-1 static-ALS baseline plus the two T8-2
+recompositions) with the churn gate. It obeys rules 1–5 above unchanged: every
+leaf was written through `TracedWriter` (`kind="runs_record"` sources only) and
+`make demo-verify` re-resolves all of them. Caveat: its exporter was run as a
+one-off script against the pinned records rather than from
+`src/batch_recsys_lab/demo/` — `make demo-export` therefore does not yet
+regenerate this file (it leaves it, and its manifest entries, intact).
+Promoting that script to `export_phase8.py` beside the other exporters is the
+open follow-up.
 
 ## Search assets
 

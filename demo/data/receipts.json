@@ -36,7 +36,19 @@
     "20260808T025446Z-1f1ab07",
     "20260808T030659Z-43c90c8",
     "20260808T122329Z-6e9c66b",
-    "20260809T155732Z-84fb51e"
+    "20260809T155732Z-84fb51e",
+    "20260817T095926Z-633d454",
+    "20260817T100253Z-633d454",
+    "20260818T051547Z-109c271",
+    "20260818T051858Z-109c271",
+    "20260818T054430Z-109c271",
+    "20260818T060704Z-109c271",
+    "20260818T064002Z-56d871c",
+    "20260818T064104Z-56d871c",
+    "20260818T064207Z-56d871c",
+    "20260818T064306Z-56d871c",
+    "20260818T072211Z-3f3530a",
+    "20260818T072256Z-3f3530a"
   ],
   "note": "Every field below is copied verbatim from the matching results/runs.jsonl record (append-only). demo/data/trace_manifest.json re-resolves each one.",
   "runs": {
@@ -889,6 +901,356 @@
         "seeds",
         "model",
         "wall_clock_s"
+      ]
+    },
+    "20260817T095926Z-633d454": {
+      "run_id": "20260817T095926Z-633d454",
+      "kind": "regime_map",
+      "run_ts": "2026-08-17T09:59:26.571790+00:00",
+      "git_sha": "633d4543605b68e03a6e770ade46764f598dd5e9",
+      "git_dirty": false,
+      "config_path": "configs/regime_map_test.yaml",
+      "config_hash": "sha256:32c1c06a860eeb62ae42fe0c1c8e5c7d2b528aeb65d1a0fcf59adffbf0366806",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805
+      },
+      "wall_clock_s": 41.002,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "model"
+      ]
+    },
+    "20260817T100253Z-633d454": {
+      "run_id": "20260817T100253Z-633d454",
+      "kind": "deep_buckets",
+      "run_ts": "2026-08-17T10:02:53.177005+00:00",
+      "git_sha": "633d4543605b68e03a6e770ade46764f598dd5e9",
+      "git_dirty": false,
+      "config_path": "configs/deep_buckets_test.yaml",
+      "config_hash": "sha256:c2230775f8d236277bf9b0f90196df98718ef9c04c1d43ff85f256b4ab33444c",
+      "dataset_manifest_hash": "sha256:4a553c348bfccb05918362192692ed5fe6965e3e2662fe751cf08d3b9f9da849",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 8184397443787800955,
+        "local.gold.user_stats": 7656304543449163695,
+        "local.gold.item_features": 5841387267286613743,
+        "local.gold.popularity": 1565243784354530213
+      },
+      "seeds": {
+        "bootstrap": 20260805
+      },
+      "wall_clock_s": 22.97,
+      "hardware": "arm64 · Darwin",
+      "fields_absent_in_record": [
+        "model"
+      ]
+    },
+    "20260818T051547Z-109c271": {
+      "run_id": "20260818T051547Z-109c271",
+      "kind": "eval",
+      "run_ts": "2026-08-18T05:43:32.418049+00:00",
+      "git_sha": "109c2711c4a8da7cc6d5f6b1a750b0ddac5e324c",
+      "git_dirty": false,
+      "config_path": "configs/eval_alsdecay_test_seed2.yaml",
+      "config_hash": "sha256:8416872b06b9ca7f615345863d7ff3358dc0e074eab6a5312c8444ef0f741a84",
+      "dataset_manifest_hash": "sha256:6944738101d04a0af6c0550cbb90681737bb89ab32538b440d58c8c6a501d848",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 7217506217965106727,
+        "local.gold.user_stats": 8581311180183163262,
+        "local.gold.item_features": 1283164092378012640,
+        "local.gold.popularity": 6624370763497656607
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 20260806
+      },
+      "model": {
+        "name": "als",
+        "params": {
+          "rank": 128,
+          "reg_param": 0.01,
+          "alpha": 10.0,
+          "max_iter": 25,
+          "weighting": "time_decay",
+          "seed": 20260806,
+          "half_life_days": 365.0,
+          "param_hash": "835f1eb7e2bb",
+          "user_factors_sha256": "dc84da0f77e43bb47c85748c769ba7fc607106848d1c7e7c888a4dee0965afd8",
+          "item_factors_sha256": "4061a76f3cf088357b736a8dc17c1d7512bb6eb5bf480f27730591f3db416b34"
+        }
+      },
+      "wall_clock_s": 1667.474,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260818T051858Z-109c271": {
+      "run_id": "20260818T051858Z-109c271",
+      "kind": "eval",
+      "run_ts": "2026-08-18T05:47:14.477918+00:00",
+      "git_sha": "109c2711c4a8da7cc6d5f6b1a750b0ddac5e324c",
+      "git_dirty": false,
+      "config_path": "configs/eval_alsdecay_test_seed3.yaml",
+      "config_hash": "sha256:327d9196495a1d40045b5dd95d0f3fea98ed3e13c614a2c4d0f0eb2ee42e2ba9",
+      "dataset_manifest_hash": "sha256:6944738101d04a0af6c0550cbb90681737bb89ab32538b440d58c8c6a501d848",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 7217506217965106727,
+        "local.gold.user_stats": 8581311180183163262,
+        "local.gold.item_features": 1283164092378012640,
+        "local.gold.popularity": 6624370763497656607
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 20260807
+      },
+      "model": {
+        "name": "als",
+        "params": {
+          "rank": 128,
+          "reg_param": 0.01,
+          "alpha": 10.0,
+          "max_iter": 25,
+          "weighting": "time_decay",
+          "seed": 20260807,
+          "half_life_days": 365.0,
+          "param_hash": "3534b366546b",
+          "user_factors_sha256": "5cdc0699819260e980af3d66dc95f0a3ad6999e03c2a258280d447513096a219",
+          "item_factors_sha256": "dfac674489cfacf0f3d4dd558944b9c66381d7edf12f0e98c969405d4e8fc8c3"
+        }
+      },
+      "wall_clock_s": 1697.164,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260818T054430Z-109c271": {
+      "run_id": "20260818T054430Z-109c271",
+      "kind": "eval",
+      "run_ts": "2026-08-18T06:07:02.650248+00:00",
+      "git_sha": "109c2711c4a8da7cc6d5f6b1a750b0ddac5e324c",
+      "git_dirty": false,
+      "config_path": "configs/eval_itemknn_t12m_test.yaml",
+      "config_hash": "sha256:dce0bc410104347d1d03049e1f59141d9f1c7f5457fb42e6740bac50d75a579c",
+      "dataset_manifest_hash": "sha256:6944738101d04a0af6c0550cbb90681737bb89ab32538b440d58c8c6a501d848",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 7217506217965106727,
+        "local.gold.user_stats": 8581311180183163262,
+        "local.gold.item_features": 1283164092378012640,
+        "local.gold.popularity": 6624370763497656607
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "item_knn",
+        "params": {
+          "top_n": 50,
+          "shrinkage": 0.0,
+          "block_size": 8192,
+          "train_window_days": 365
+        }
+      },
+      "wall_clock_s": 1353.17,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260818T060704Z-109c271": {
+      "run_id": "20260818T060704Z-109c271",
+      "kind": "eval",
+      "run_ts": "2026-08-18T06:30:58.541263+00:00",
+      "git_sha": "109c2711c4a8da7cc6d5f6b1a750b0ddac5e324c",
+      "git_dirty": false,
+      "config_path": "configs/eval_alsdecay_test_seed1.yaml",
+      "config_hash": "sha256:e8d5d933199da874848a808e8f5168e07f6dcfa2ebb17e07459841f7427cc2d2",
+      "dataset_manifest_hash": "sha256:6944738101d04a0af6c0550cbb90681737bb89ab32538b440d58c8c6a501d848",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 7217506217965106727,
+        "local.gold.user_stats": 8581311180183163262,
+        "local.gold.item_features": 1283164092378012640,
+        "local.gold.popularity": 6624370763497656607
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 20260805
+      },
+      "model": {
+        "name": "als",
+        "params": {
+          "rank": 128,
+          "reg_param": 0.01,
+          "alpha": 10.0,
+          "max_iter": 25,
+          "weighting": "time_decay",
+          "seed": 20260805,
+          "half_life_days": 365.0,
+          "param_hash": "30e6ddf63143",
+          "user_factors_sha256": "c3ea92a68aaf2bf98e1dc8a816f13a02340f305325b646d7a94a4da81a1c9a2d",
+          "item_factors_sha256": "c83d5023c0f41e5a4ba0c21c68cbec63d428577efa70d7e64e92dd9549e9a171"
+        }
+      },
+      "wall_clock_s": 1435.203,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260818T064002Z-56d871c": {
+      "run_id": "20260818T064002Z-56d871c",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-18T06:40:02.146870+00:00",
+      "git_sha": "56d871cfbaceadffeecb47fa32304fe6cdc980a8",
+      "git_dirty": false,
+      "config_path": "configs/compare_alsdecay_vs_pop_t12m_test.yaml",
+      "config_hash": "sha256:27cfc46cd7714acb90981daa67e181e4127a35347dfb3595c84ce9eee6f1eb59",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260818T064104Z-56d871c": {
+      "run_id": "20260818T064104Z-56d871c",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-18T06:41:04.033967+00:00",
+      "git_sha": "56d871cfbaceadffeecb47fa32304fe6cdc980a8",
+      "git_dirty": false,
+      "config_path": "configs/compare_alsdecay_vs_blend_test.yaml",
+      "config_hash": "sha256:992a92c27c300b17ceb17902961f948f9ec8262aa982cd5abf6427457d68fc18",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260818T064207Z-56d871c": {
+      "run_id": "20260818T064207Z-56d871c",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-18T06:42:07.128931+00:00",
+      "git_sha": "56d871cfbaceadffeecb47fa32304fe6cdc980a8",
+      "git_dirty": false,
+      "config_path": "configs/compare_itemknn_t12m_vs_pop_t12m_test.yaml",
+      "config_hash": "sha256:f37000f55935a343ab8b8b114aaa441ef4137eeadc65594eada435184a2bdc9a",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260818T064306Z-56d871c": {
+      "run_id": "20260818T064306Z-56d871c",
+      "kind": "paired_delta",
+      "run_ts": "2026-08-18T06:43:06.871801+00:00",
+      "git_sha": "56d871cfbaceadffeecb47fa32304fe6cdc980a8",
+      "git_dirty": false,
+      "config_path": "configs/compare_itemknn_t12m_vs_blend_test.yaml",
+      "config_hash": "sha256:d5ef104189334ba332a8763b259f0d119c9029b651d0be6a6cab43121fe27ba0",
+      "fields_absent_in_record": [
+        "dataset_manifest_hash",
+        "splits",
+        "iceberg_snapshots",
+        "seeds",
+        "model",
+        "wall_clock_s",
+        "hardware"
+      ]
+    },
+    "20260818T072211Z-3f3530a": {
+      "run_id": "20260818T072211Z-3f3530a",
+      "kind": "regime_map",
+      "run_ts": "2026-08-18T07:22:11.701734+00:00",
+      "git_sha": "3f3530ace3a6fa48ac3092d0865697ab3b1df118",
+      "git_dirty": false,
+      "config_path": "configs/regime_map_test_alsdecay.yaml",
+      "config_hash": "sha256:a860ed307489f848297131ef3f2c06c6305bacda6430830eaaca4fae600da8df",
+      "dataset_manifest_hash": "sha256:6944738101d04a0af6c0550cbb90681737bb89ab32538b440d58c8c6a501d848",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 7217506217965106727,
+        "local.gold.user_stats": 8581311180183163262,
+        "local.gold.item_features": 1283164092378012640,
+        "local.gold.popularity": 6624370763497656607
+      },
+      "seeds": {
+        "bootstrap": 20260805
+      },
+      "wall_clock_s": 43.349,
+      "hardware": "x86_64 · Linux",
+      "fields_absent_in_record": [
+        "model"
+      ]
+    },
+    "20260818T072256Z-3f3530a": {
+      "run_id": "20260818T072256Z-3f3530a",
+      "kind": "regime_map",
+      "run_ts": "2026-08-18T07:22:56.483856+00:00",
+      "git_sha": "3f3530ace3a6fa48ac3092d0865697ab3b1df118",
+      "git_dirty": false,
+      "config_path": "configs/regime_map_test_knn_t12m.yaml",
+      "config_hash": "sha256:900e832b58f8c8f197328926dd07274aabe2c588a5aeae1e2799805ecd53d7f1",
+      "dataset_manifest_hash": "sha256:6944738101d04a0af6c0550cbb90681737bb89ab32538b440d58c8c6a501d848",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-05",
+        "file_hash": "sha256:784678440d06dc03d8202bbe575e95f803a375b980518674e949618e9a83ff97"
+      },
+      "iceberg_snapshots": {
+        "local.gold.interactions_5core": 7217506217965106727,
+        "local.gold.user_stats": 8581311180183163262,
+        "local.gold.item_features": 1283164092378012640,
+        "local.gold.popularity": 6624370763497656607
+      },
+      "seeds": {
+        "bootstrap": 20260805
+      },
+      "wall_clock_s": 44.173,
+      "hardware": "x86_64 · Linux",
+      "fields_absent_in_record": [
+        "model"
       ]
     }
   }

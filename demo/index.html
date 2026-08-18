@@ -29,6 +29,7 @@
     </div>
     <nav class="site-nav" aria-label="Exhibits">
       <a href="#sec-crossover">1 · Crossover</a>
+      <a href="#sec-regime">1b · Regime map</a>
       <a href="#sec-shoppers">2 · Pick a shopper</a>
       <a href="#sec-search">3 · Semantic search</a>
       <a href="#sec-dq">4 · Data quality</a>
@@ -52,10 +53,31 @@
         segment this 5-core TEST set contains. The only model that clears popularity is the blend
         that contains it. That absence is the finding — the exhibit below is what it looks like:
         one line per model, 95% bootstrap CI bands, and the n* slider that shows what a routing
-        threshold would have bought at every recorded grid position. Every number is clickable —
-        it opens the results-log record it came from.</p>
+        threshold would have bought at every recorded grid position. Phase 8 added the two
+        recency-matched arms (item-kNN-t12m and ALS-decay hl365, one preregistered TEST run each)
+        and an exploratory extension of the depth axis to 20-49 / 50-99 / 100+; the measured
+        crossover they surfaced lives in the regime map below (Exhibit 1b). Every number is
+        clickable — it opens the results-log record it came from.</p>
     </div>
     <div class="exhibit-body" id="exhibit-crossover">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-regime" aria-labelledby="h-regime">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 1b</span>
+      <h2 id="h-regime">Regime map — where each model stops working</h2>
+      <p class="lede">Phase 8 (T8-1) measured the churn the Phase 4 verdict had only inferred:
+        41.1% of TEST ground-truth purchases land on items with at most 4 TRAIN interactions —
+        items a TRAIN-frozen model structurally cannot rank. The grid below stratifies the paired
+        delta against pop-t12m by user history depth × the target item's TRAIN support or recency.
+        Recency-matched item-kNN-t12m (T8-2) beats pop-t12m in five cells with 95% CIs excluding
+        zero on both metrics — the measured crossover — while ALS-decay is null everywhere and
+        static ALS (T8-1 baseline) never wins a cell. Every number is clickable — it opens the
+        results-log record it came from.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-regime">
       <p class="muted">Loading…</p>
     </div>
   </section>
