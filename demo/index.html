@@ -53,11 +53,13 @@
         segment this 5-core TEST set contains. The only model that clears popularity is the blend
         that contains it. That absence is the finding — the exhibit below is what it looks like:
         one line per model, 95% bootstrap CI bands, and the n* slider that shows what a routing
-        threshold would have bought at every recorded grid position. Phase 8 added the two
-        recency-matched arms (item-kNN-t12m and ALS-decay hl365, one preregistered TEST run each)
-        and an exploratory extension of the depth axis to 20-49 / 50-99 / 100+; the measured
-        crossover they surfaced lives in the regime map below (Exhibit 1b). Every number is
-        clickable — it opens the results-log record it came from.</p>
+        threshold would have bought at every recorded grid position (the fitted answer is n*=∞ —
+        the optimal routing is no routing). Phase 8 added the two recency-matched arms
+        (item-kNN-t12m and ALS-decay hl365, one preregistered TEST run each) and an exploratory
+        extension of the depth axis to 20-49 / 50-99 / 100+; the depth-level null survived both.
+        The five-cell pocket they surfaced lives in the regime map below (Exhibit 1b) as a
+        mechanism footnote — under ~80 uncorrected tests it is not a crossover finding. Every
+        number is clickable — it opens the results-log record it came from.</p>
     </div>
     <div class="exhibit-body" id="exhibit-crossover">
       <p class="muted">Loading…</p>
@@ -69,13 +71,16 @@
       <span class="exhibit-num">Exhibit 1b</span>
       <h2 id="h-regime">Regime map — where each model stops working</h2>
       <p class="lede">Phase 8 (T8-1) measured the churn the Phase 4 verdict had only inferred:
-        41.1% of TEST ground-truth purchases land on items with at most 4 TRAIN interactions —
-        items a TRAIN-frozen model structurally cannot rank. The grid below stratifies the paired
-        delta against pop-t12m by user history depth × the target item's TRAIN support or recency.
-        Recency-matched item-kNN-t12m (T8-2) beats pop-t12m in five cells with 95% CIs excluding
-        zero on both metrics — the measured crossover — while ALS-decay is null everywhere and
-        static ALS (T8-1 baseline) never wins a cell. Every number is clickable — it opens the
-        results-log record it came from.</p>
+        41.11% of TEST ground-truth purchases land on items with at most 4 TRAIN interactions —
+        items a TRAIN-frozen model structurally cannot rank. That churn is the measured mechanism
+        behind the headline null. The grid below stratifies the paired delta against pop-t12m by
+        user history depth × the target item's TRAIN support or recency. Recency-matched
+        item-kNN-t12m (T8-2) beats pop-t12m in five cells with per-cell 95% CIs excluding zero on
+        both metrics — a mechanism footnote, not a crossover: the cells come from ~40 cells ×
+        2 arms ≈ 80 uncorrected tests, of which ~4 would be expected significant at α=0.05 by
+        chance, and dual-metric agreement plus clustering is partial evidence, not a correction.
+        ALS-decay is null everywhere and static ALS (T8-1 baseline) never wins a cell. Every
+        number is clickable — it opens the results-log record it came from.</p>
     </div>
     <div class="exhibit-body" id="exhibit-regime">
       <p class="muted">Loading…</p>

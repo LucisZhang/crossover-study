@@ -2045,3 +2045,52 @@ unchanged by the repoint (only their provenance pin moved).
 
 Commits: `58f064f` (repoint + disclosure), `cd779b3` (reproduce record,
 remote), merged to `main` via `07afd2e`.
+
+## Phase 9 T9-1 — SUPERSESSION: T8-2 verdict downgraded; headline narrative repinned null-first (2026-08-19)
+
+**What this entry supersedes.** The 2026-08-18 entry "Phase 8 T8-2 VERDICT"
+above declared "**the preregistered crossover criterion is MET**." That entry
+stands byte-identical, as the append-only invariant requires. This entry
+downgrades its verdict language: from "crossover MET" to **"local
+regime-cell wins under uncorrected multiplicity; the global history-depth
+crossover null is robust."** No run record, metric value, or prior log entry
+is edited; the downgrade is a reinterpretation of the same recorded numbers,
+directed by the owner via UPGRADE_PLAN §8c (approved 2026-08-19).
+
+**Why the downgrade.** The criterion was met as preregistered, but what the
+meeting is worth was overstated by the headline framing it licensed:
+
+- ~40 regime-map cells × 2 arms ≈ **80 uncorrected tests per metric**; at
+  α=0.05 that predicts **~4 false positives by chance alone**, against 5
+  observed winning cells.
+- The dual-metric guard (NDCG@10 + Recall@20 both significant) and the
+  clustering (two related regions, three consecutive depth bands) are
+  **partial evidence, not a correction** — the two metrics are highly
+  correlated on the same cells.
+- The winning arm is the globally weakest model in the lab (item-kNN-t12m
+  TEST NDCG@10 0.000301 vs pop-t12m 0.005404, records
+  `20260818T054430Z-109c271` / `20260805T172047Z-035042b`), the per-cell
+  deltas sit at +0.0003–0.0007, and each cell is 0.7–2.2% of TEST GT mass
+  (record `20260818T072256Z-3f3530a`).
+
+Meanwhile the null it was allowed to overshadow is robust: every arm loses
+to pop-t12m at every history-depth segment with CIs excluding zero, before
+and after recency matching (records `20260818T064002Z-56d871c`,
+`20260818T064207Z-56d871c`); the mechanism is measured (41.11% churn, run
+`20260817T095926Z-633d454`); and the fitted policy is n\*=∞ (record
+`20260808T030659Z-43c90c8`). What survives of T8-2's cell result is the
+mechanism reading — pop-t12m's trailing window under-serves stale,
+thinly-supported items, and there even a weak personalized arm finds
+signal — now a footnote, not a headline.
+
+**Narrative repin shipped with this entry (same commit).** The headline
+across `docs/case_study.md` (blockquote, §1, §6, §7, §9, §10), the new
+root `README.md`, and the demo copy (`demo/index.html` exhibit-1 and
+exhibit-1b ledes) now leads with the four robust findings: (1) no
+history-depth crossover, every segment CI excluding zero; (2) 41.11%
+catalog churn as the measured mechanism; (3) blend α=0.3 as the one
+effective arm (+0.000322 NDCG@10, ≈+6% relative); (4) n\*=∞ — the optimal
+routing is no routing. The five-cell result is demoted to a mechanism
+footnote carrying the multiplicity disclosure above. **Zero metric values
+changed** in the rewrite; every claim still traces to the run_ids cited
+here and in the docs.
