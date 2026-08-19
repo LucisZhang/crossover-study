@@ -2094,3 +2094,34 @@ routing is no routing. The five-cell result is demoted to a mechanism
 footnote carrying the multiplicity disclosure above. **Zero metric values
 changed** in the rewrite; every claim still traces to the run_ids cited
 here and in the docs.
+
+## Phase 9 T9-2 — DECISION: the T8-4 gate is REOPENED (2026-08-19)
+
+**What this entry records.** The 2026-08-18 entry "Phase 8 T8-4 gate —
+owner confirmation" formally skipped T8-4 (the MovieLens-32M regime
+contrast) because T8-2 met the preregistered crossover criterion:
+"Crossover ⇒ gate closed ⇒ T8-4 skipped." That skip was gated entirely on
+the verdict the T9-1 entry above has now downgraded. With the verdict
+downgraded to "local regime-cell wins under uncorrected multiplicity; the
+global history-depth crossover null is robust," the gate's premise is
+withdrawn, and **the owner reopens T8-4 as approved scope**
+(UPGRADE_PLAN §8c, approved 2026-08-19). The skip entry itself stands
+unedited; this is a superseding decision record, not a rewrite.
+
+**The governing spec.** The §8b T8-4 spec stands as written, with the §8c
+amendment quoted verbatim:
+
+> The §8b T8-4 spec stands as written with **one amendment**: the
+> preregistration must now include an explicit multiplicity policy — the
+> **primary confirmatory test is the per-depth-segment crossover on the
+> history axis** (5–8 tests, mirroring the Phase 4 exhibits); regime-map
+> cells are **secondary**, corrected with Benjamini–Hochberg at FDR 0.05
+> across all cells per arm.
+
+**Sequencing.** Per §8c, execution is T9-3 (staged: data → preregistered
+eval → verdict), and this decision entry is required to be appended before
+any ML-32M work begins — it is. No ML-32M artifact exists in the tree as
+of this entry. Both T9-3 outcomes remain publishable by design: "crossover
+appears when the catalog holds still" and "popularity dominates even
+there" are each defensible headlines, framed as regime contrast, not
+causal proof, with the MovieLens timestamp caveat per §8b.
