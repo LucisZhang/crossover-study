@@ -1,0 +1,10 @@
+# Frozen temporal splits for the ML-32M regime contrast (Phase 9, T9-3a;
+# UPGRADE_PLAN.md §8c / §8b T8-4 "its own frozen preregistered temporal split
+# (mirror design, TEST = 2023)"). Frozen BEFORE any model sees the data, exactly
+# as configs/splits.yaml was; same invariant #1 discipline applies — tuning and
+# selection on VAL only, TEST touched once per selected arm.
+version: 1
+frozen_at: "2026-08-19"
+train_end: "2022-06-30T23:59:59.999Z"   # inclusive — mirrors the Amazon boundary
+val_end:   "2022-12-31T23:59:59.999Z"   # inclusive — mirrors the Amazon boundary
+test_end:  "2023-11-01T00:00:00Z"        # snapshot end, exclusive: ML-32M ratings run through Oct 2023 (ML-32M README; Harper & Konstan 2015)

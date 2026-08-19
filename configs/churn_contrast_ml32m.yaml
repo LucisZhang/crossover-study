@@ -1,0 +1,43 @@
+# ML-32M catalog-churn statistic — the regime-contrast hinge (Phase 9, T9-3a;
+# UPGRADE_PLAN.md §8c). Re-runs the T8-1 churn methodology on the second dataset
+# BEFORE any model evaluation: share of TEST ground-truth interactions landing on
+# items with TRAIN support zero / low (1-4), against the preregistered bands
+# (<0.10 / 0.10-0.25 / >=0.25, EXPERIMENT_LOG.md 2026-08-17).
+#
+# Requires only the gold tables — no model artifacts, no eval cache.
+kind: churn_contrast
+dataset: ml32m
+split: test
+
+# Frozen ML-32M boundaries (mirror design, TEST = 2023; frozen 2026-08-19 before
+# any model saw the data).
+splits_path: configs/splits_ml32m.yaml
+
+# Gold inputs. item_features is the item catalog the TEST ground truth is joined
+# against — the same universe eval/extract.py builds the eval cache's item index
+# from, so the counted GT set equals T8-1's.
+five_core_table: local.gold_ml32m.interactions_5core
+item_features_table: local.gold_ml32m.item_features
+warehouse: data/warehouse
+
+# Published item-axis artifact (make item-train-stats-ml32m). Named => required:
+# its snapshot must match the live 5-core snapshot and its support bucket counts
+# must equal this run's recomputation, else the job aborts without appending.
+item_stats_dir: data/eval/item_train_stats_ml32m
+
+# Provenance guard: the record's dataset_manifest_hash attests to this file, so
+# the job refuses to run until the ML-32M SHA-256 block (printed by
+# `make manifest-ml32m`) has actually been recorded in it (§8c T9-3a).
+dataset_manifest_path: data/MANIFEST.md
+dataset_manifest_must_contain: "ml-32m.zip"
+
+# The Amazon anchor. Not trusted as a literal: the job locates this
+# kind="regime_map" record in results/runs.jsonl and requires
+# results.gate.measured_share to equal `value` exactly.
+reference:
+  dataset: amazon_electronics
+  run_id: "20260817T095926Z-633d454"
+  value: 0.4111295514585914
+  results_path: results/runs.jsonl
+
+results_path: results/runs.jsonl

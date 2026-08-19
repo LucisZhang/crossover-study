@@ -166,17 +166,27 @@ def transform_interactions(bronze: DataFrame) -> DataFrame:
     )
 
 
-def drop_exact_duplicates(df: DataFrame) -> DataFrame:
-    """Collapse fully-identical rows (groupBy all silver columns, survivors identical)."""
-    return df.dropDuplicates(SILVER_INTERACTION_COLS)
+def drop_exact_duplicates(df: DataFrame, cols: list[str] | None = None) -> DataFrame:
+    """Collapse fully-identical rows (groupBy all silver columns, survivors identical).
+
+    ``cols`` defaults to the Amazon :data:`SILVER_INTERACTION_COLS`; a sibling
+    dataset with a different column set (``features/silver_ml32m.py``) passes its
+    own so the D2 dedup rule is shared code, not a copy.
+    """
+    cols = SILVER_INTERACTION_COLS if cols is None else cols
+    return df.dropDuplicates(cols)
 
 
-def keep_latest(df: DataFrame) -> DataFrame:
+def keep_latest(df: DataFrame, cols: list[str] | None = None) -> DataFrame:
     """Keep one row per (user_id, parent_asin): latest ``ts``, ties broken by a
-    total order on ``xxhash64`` of all columns → partition-order independent (D2)."""
+    total order on ``xxhash64`` of all columns → partition-order independent (D2).
+
+    ``cols`` (the hashed column set) defaults to :data:`SILVER_INTERACTION_COLS`.
+    """
+    cols = SILVER_INTERACTION_COLS if cols is None else cols
     order = [
         F.col("ts").desc(),
-        F.xxhash64(*[F.col(c) for c in SILVER_INTERACTION_COLS]).asc(),
+        F.xxhash64(*[F.col(c) for c in cols]).asc(),
     ]
     w = Window.partitionBy("user_id", "parent_asin").orderBy(*order)
     return (

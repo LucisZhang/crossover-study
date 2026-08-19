@@ -1,0 +1,22 @@
+# Contract for local.gold_ml32m.item_features (Phase 9, T9-3a; §8c).
+# Mirrors contracts/gold_item_features.yaml: silver items inner-joined to the
+# distinct 5-core parent_asin catalog. ML-32M items carry only title + genres, so
+# the Amazon price/brand checks have no counterpart here.
+name: gold_ml32m_item_features
+version: 1
+table: local.gold_ml32m.item_features
+
+columns:
+  - {name: parent_asin, dtype: string, nullable: false}   # str(movieId) — lab-wide item identity
+  - {name: title, dtype: string, nullable: true}
+  - {name: genres, dtype: "array<string>", nullable: true}
+
+checks:
+  - id: parent_asin_non_null
+    kind: not_null
+    action: fail
+    column: parent_asin
+
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail

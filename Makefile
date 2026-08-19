@@ -24,7 +24,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -232,6 +232,94 @@ regime-map:
 deep-buckets:
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/deep_buckets_*.yaml"; exit 1; }
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.deep_buckets --config $(CONFIG) $(DEEP_FLAGS)
+
+# --- Phase 9: ML-32M regime contrast, data stage (§8c, T9-3a) -----------------
+# Wholly ADDITIVE to the Amazon lane: separate raw dir (data/raw/ml32m), separate
+# Iceberg namespaces (bronze_ml32m / silver_ml32m / gold_ml32m / quarantine_ml32m
+# / dq_ml32m), separate contracts dir (contracts/ml32m), separate frozen split
+# (configs/splits_ml32m.yaml). No Amazon target, table or record is touched, so
+# `make reproduce-headline` is unaffected.
+
+# Download + hash ML-32M (~239MB zip). The §5 disk gate runs first, as for any
+# download. The archive's CRCs are verified (there is no published checksum), the
+# two ingested CSVs are extracted with their headers checked, and the manifest
+# step PRINTS a data/MANIFEST.md fragment with our locally computed SHA-256s —
+# it never edits the manifest (that would drop the Amazon sections).
+download-ml32m: disk-gate
+	uv run python -m batch_recsys_lab.ingest.download_ml32m fetch
+	uv run python -m batch_recsys_lab.ingest.download_ml32m manifest
+
+manifest-ml32m:
+	uv run python -m batch_recsys_lab.ingest.download_ml32m manifest
+
+# Bronze (csv -> local.bronze_ml32m.*). Same PERMISSIVE corrupt-record accounting
+# as the Amazon lane; the CSV header is verified before the read because the
+# declared schema is applied positionally.
+ingest-ml32m-ratings:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table ratings
+
+ingest-ml32m-movies:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table movies
+
+ingest-ml32m: ingest-ml32m-movies ingest-ml32m-ratings
+
+# Silver. Items first: the interactions contract's item_fk orphan measure reads
+# local.silver_ml32m.items.
+silver-ml32m-items:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver_ml32m --table items
+
+silver-ml32m-interactions:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver_ml32m --table interactions
+
+silver-ml32m: silver-ml32m-items silver-ml32m-interactions
+
+# Gold. core = the shared iterative 5-core prune (k=5, mirror design) with the
+# ML-32M projection; features = user_stats + item_features + popularity off the
+# 5-core table, using configs/splits_ml32m.yaml.
+gold-ml32m-core:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.gold_ml32m --stage core
+
+gold-ml32m-features:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.gold_ml32m --stage features
+
+gold-ml32m: gold-ml32m-core gold-ml32m-features
+
+# Contract audit for the ML-32M tables ONLY: --contracts-dir keeps the glob off
+# contracts/*.yaml (the Amazon set), and the results land in a separate ledger so
+# the published DQ dashboard's totals are untouched. GOTCHA (same shape as the
+# fresh-warehouse wrinkle in EXPERIMENT_LOG 2026-08-17): every contract in the
+# directory is graded, so all six ML-32M tables must exist before this runs — a
+# missing table is a hard AuditError, not a skip.
+contracts-audit-ml32m:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.contracts.run_audit \
+	  --contracts-dir contracts/ml32m --dq-table local.dq_ml32m.dq_results
+
+# Per-item TRAIN support / last-TRAIN recency / first-seen for ML-32M (the T8-1
+# item axis, same module). Snapshot-keyed under its own root; idempotent
+# (ITEM_STATS_FLAGS=--force rebuilds).
+item-train-stats-ml32m: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.item_train_stats \
+	  --five-core-table local.gold_ml32m.interactions_5core \
+	  --splits-path configs/splits_ml32m.yaml \
+	  --out data/eval/item_train_stats_ml32m $(ITEM_STATS_FLAGS)
+
+# Full ML-32M data stage: bronze -> silver -> gold -> contracts -> item axis.
+# ONE run id ties every step's dq_results / funnel / build-summary rows together,
+# same convention as `make data`. Unlike `make data` this DOES include bronze:
+# the ML-32M ingest is minutes, not hours.
+data-ml32m: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+data-ml32m: java-check ingest-ml32m silver-ml32m gold-ml32m contracts-audit-ml32m item-train-stats-ml32m
+	@echo "make data-ml32m complete · RECSYS_RUN_ID=$(RECSYS_RUN_ID)"
+
+# T9-3a hinge: the pre-model churn statistic and its contrast against the recorded
+# Amazon 0.4111 (which is re-derived from results/runs.jsonl, not trusted as a
+# literal). Appends one kind="churn_contrast" record; --dry-run appends nothing.
+# It is a TEST-window number, so the dirty-tree guard applies — commit first.
+#   make churn-ml32m
+#   make churn-ml32m CHURN_FLAGS=--dry-run
+churn-ml32m: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.churn_contrast \
+	  --config $(if $(CONFIG),$(CONFIG),configs/churn_contrast_ml32m.yaml) $(CHURN_FLAGS)
 
 # Paired-bootstrap delta between two eval runs (Phase 2, T5). Pure numpy.
 #   make compare CONFIG=configs/compare_als_vs_itemknn_val.yaml

@@ -1,0 +1,48 @@
+# Contract for local.gold_ml32m.interactions_5core (Phase 9, T9-3a; §8c).
+# Mirrors contracts/gold_interactions_5core.yaml: the 5-core table is a pure
+# filter of silver, so these checks re-assert silver's guarantees post-prune.
+# Not gated — audited only (fail action => audit status fail if any violator survives).
+name: gold_ml32m_interactions_5core
+version: 1
+table: local.gold_ml32m.interactions_5core
+
+columns:
+  - {name: user_id, dtype: string, nullable: false}
+  - {name: parent_asin, dtype: string, nullable: false}
+  - {name: ts, dtype: timestamp, nullable: false}
+  - {name: rating, dtype: double, nullable: false}
+
+checks:
+  - id: keys_non_null
+    kind: not_null
+    action: fail
+    columns: [user_id, parent_asin, ts]
+
+  - id: rating_domain
+    kind: allowed_values
+    action: fail
+    column: rating
+    values: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+
+  - id: ts_range
+    kind: range
+    action: fail
+    column: ts
+    min: "1995-01-01T00:00:00Z"
+    max_exclusive: "2023-11-01T00:00:00Z"
+
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail
+
+  # The churn statistic is computed over TEST-window 5-core interactions joined to
+  # the item catalog (gold_ml32m.item_features == silver items ∩ 5-core catalog).
+  # This measure IS the size of that join edge: a non-zero orphan rate is exactly
+  # the interactions the catalog join would drop, so it is measured and published
+  # rather than discovered later.
+  - id: item_fk
+    kind: orphan_rate
+    action: measure
+    column: parent_asin
+    ref_table: local.silver_ml32m.items
+    ref_column: parent_asin

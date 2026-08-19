@@ -135,7 +135,7 @@ def _stats(df: DataFrame) -> tuple[int, int, int]:
     return int(r["rows"]), int(r["users"]), int(r["items"])
 
 
-def _prune_once(df: DataFrame, k: int) -> DataFrame:
+def _prune_once(df: DataFrame, k: int, projection: tuple[str, ...] = PROJECTION) -> DataFrame:
     """One k-core pass: keep edges whose user AND item degree (in the current
     graph) are both >= k. Degrees are counts of rows, i.e. distinct interactions
     after dedup — silver guarantees one row per (user_id, parent_asin) (D2)."""
@@ -145,7 +145,7 @@ def _prune_once(df: DataFrame, k: int) -> DataFrame:
         df.join(user_deg, "user_id")
         .join(item_deg, "parent_asin")
         .where((F.col("_user_n") >= k) & (F.col("_item_n") >= k))
-        .select(*PROJECTION)
+        .select(*projection)
     )
 
 
@@ -157,6 +157,7 @@ def run_kcore(
     k: int = DEFAULT_K,
     max_iters: int = MAX_ITERS,
     run_id: str | None = None,
+    projection: tuple[str, ...] = PROJECTION,
 ) -> list[dict]:
     """Compute the k-core of ``source_table`` and write it to ``target_table``.
 
@@ -166,10 +167,16 @@ def run_kcore(
     exhausted without convergence, the funnel gathered so far is still persisted
     (so the failure is inspectable) and a ``RuntimeError`` is raised — a non-
     converged table is never shipped.
+
+    ``projection`` is the carried column set; it defaults to the Amazon
+    :data:`PROJECTION`. The algorithm itself only needs ``user_id``/``parent_asin``
+    (the graph edge), so a dataset with a different payload (ML-32M carries no
+    ``asin``/``helpful_vote``/``verified_purchase``) passes its own tuple rather
+    than forking this module. Amazon callers are byte-for-byte unaffected.
     """
     rid = _resolve_run_id(run_id)
 
-    df = spark.table(source_table).select(*PROJECTION)
+    df = spark.table(source_table).select(*projection)
 
     funnel: list[dict] = []
 
@@ -194,7 +201,7 @@ def run_kcore(
     converged = False
     for i in range(1, max_iters + 1):
         t = time.perf_counter()
-        df = _prune_once(df, k).localCheckpoint(eager=True)
+        df = _prune_once(df, k, projection).localCheckpoint(eager=True)
         rows, users, items = _stats(df)
         converged = rows == prev_rows  # monotone filter => unchanged means fixed point
         funnel.append(

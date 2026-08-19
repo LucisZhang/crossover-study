@@ -1,0 +1,30 @@
+# Contract for local.silver_ml32m.items (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+# Mirrors contracts/silver_items.yaml, minus the Amazon-only price/brand rules
+# (movies.csv has no price and no brand): the ML-32M item record is
+# movieId + title + genres and nothing else.
+# Check order is the fixed priority for primary_reason — DO NOT reorder.
+name: silver_ml32m_items
+version: 1
+table: local.silver_ml32m.items
+
+columns:
+  - {name: parent_asin, dtype: string, nullable: false}   # str(movieId) — lab-wide item identity
+  - {name: title, dtype: string, nullable: true}          # includes the trailing "(year)" as published
+  - {name: genres, dtype: "array<string>", nullable: true} # split on "|"; "(no genres listed)" -> []
+
+checks:
+  - id: key_non_null
+    kind: not_null
+    action: quarantine
+    columns: [parent_asin]
+
+  # Text fields must be free of control characters.
+  - id: text_hygiene
+    kind: no_control_chars
+    action: fail
+    columns: [title]
+
+  # No published column may be entirely NULL.
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail

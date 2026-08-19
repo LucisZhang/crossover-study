@@ -167,6 +167,17 @@ class TableSpec:
     default_repartition: int
     # Columns dropped before write (reviews only, per §5).
     project_out: tuple[str, ...] = field(default_factory=tuple)
+    # --- source-format / destination knobs (Phase 9, T9-3a) -------------------
+    # Defaults reproduce the Amazon gz-jsonl path byte-for-byte: fmt "json" takes
+    # the same `spark.read...json(path)` branch it always did, no extra reader
+    # options, and the same `local.bronze` namespace. A second dataset (ML-32M,
+    # csv) sets these; nothing about the Amazon lane changes.
+    fmt: str = "json"
+    read_options: dict[str, str] = field(default_factory=dict)
+    namespace: str = BRONZE_NAMESPACE
+    # Positional-schema guard for headered CSV: the exact header line the file
+    # must start with. None (Amazon) skips the check entirely.
+    expected_header: tuple[str, ...] | None = None
 
 
 TABLE_SPECS: dict[str, TableSpec] = {
@@ -190,32 +201,65 @@ def _schema_with_corrupt(schema: StructType) -> StructType:
     return StructType(schema.fields + [StructField(CORRUPT_COL, StringType())])
 
 
+def _check_header(input_path: str, expected: tuple[str, ...]) -> list[str]:
+    """Assert a headered CSV starts with exactly ``expected`` (Phase 9, T9-3a).
+
+    A CSV is read POSITIONALLY against the declared schema (``enforceSchema``),
+    so an upstream column reorder or rename would be ingested silently under the
+    old names. The header is therefore verified as data, before Spark is asked to
+    read anything, and a mismatch is a hard error. Returns the observed header.
+    """
+    with open(input_path, encoding="utf-8-sig") as fh:
+        first_line = fh.readline()
+    observed = [name.strip().strip('"') for name in first_line.rstrip("\r\n").split(",")]
+    if tuple(observed) != tuple(expected):
+        raise ValueError(
+            f"{input_path}: CSV header {observed} != expected {list(expected)}. The "
+            "declared schema is applied positionally, so an unverified header would "
+            "mislabel every column; refusing to ingest."
+        )
+    return observed
+
+
 def ingest_table(
     spark: SparkSession,
     table: str,
     input_path: str,
     repartition: int,
+    specs: dict[str, TableSpec] | None = None,
 ) -> dict:
-    """Ingest one gz-jsonl file into ``local.bronze.<table>`` (createOrReplace).
+    """Ingest one raw file into ``<namespace>.<table>`` (createOrReplace).
 
     Returns a summary dict: ``{table, total_parsed, corrupt, written,
     wall_clock_s}``. Corrupt rows are excluded from the written table but their
     count is reported — never silently dropped.
+
+    ``specs`` defaults to this module's Amazon :data:`TABLE_SPECS`; a sibling
+    dataset module (``ingest/bronze_ml32m.py``) passes its own spec table so the
+    corrupt-record accounting below is shared, not copied.
     """
-    if table not in TABLE_SPECS:
-        raise ValueError(f"unknown table {table!r}; expected one of {sorted(TABLE_SPECS)}")
-    spec = TABLE_SPECS[table]
-    full_table = f"{BRONZE_NAMESPACE}.{table}"
+    specs = TABLE_SPECS if specs is None else specs
+    if table not in specs:
+        raise ValueError(f"unknown table {table!r}; expected one of {sorted(specs)}")
+    spec = specs[table]
+    full_table = f"{spec.namespace}.{table}"
 
     start = time.perf_counter()
 
+    if spec.expected_header is not None:
+        _check_header(input_path, spec.expected_header)
+
     read_schema = _schema_with_corrupt(spec.schema)
-    parsed = (
+    reader = (
         spark.read.schema(read_schema)
         .option("mode", "PERMISSIVE")
         .option("columnNameOfCorruptRecord", CORRUPT_COL)
-        .json(input_path)
     )
+    for key, value in spec.read_options.items():
+        reader = reader.option(key, value)
+    # Explicit branch (not `.format(fmt).load(...)`) so the Amazon gz-jsonl call
+    # is the exact expression it has always been.
+    parsed = reader.csv(input_path) if spec.fmt == "csv" else reader.json(input_path)
 
     # Persist to DISK so we parse the gz once and reuse it for both counts and
     # the write, without pinning the full frame in the driver heap. The count()

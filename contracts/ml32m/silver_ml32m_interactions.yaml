@@ -1,0 +1,58 @@
+# Contract for local.silver_ml32m.interactions (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+# Mirrors contracts/silver_interactions.yaml; the differences are the dataset's,
+# not the design's: half-star ratings, epoch-SECONDS source timestamps, and a
+# 1995 → Oct-2023 span. Check order is the fixed priority for primary_reason —
+# DO NOT reorder.
+#
+# NOTE on `parent_asin`: that is the lab-wide ITEM-IDENTITY column name, inherited
+# from the Amazon lane and keyed on by every shared downstream module (k-core,
+# user_stats, popularity, item_train_stats, the eval extract). Its ML-32M value is
+# the string form of MovieLens `movieId`. Renaming the column here would mean
+# parameterizing the item key through eight modules for cosmetics; the name is
+# documented instead.
+name: silver_ml32m_interactions
+version: 1
+table: local.silver_ml32m.interactions
+
+columns:
+  - {name: user_id, dtype: string, nullable: false}
+  - {name: parent_asin, dtype: string, nullable: false}   # str(movieId) — see note above
+  - {name: rating, dtype: double, nullable: false}        # provenance; treated as an implicit positive
+  - {name: ts, dtype: timestamp, nullable: false}
+
+checks:
+  # Identity keys must be present, else the row is meaningless downstream.
+  - id: keys_non_null
+    kind: not_null
+    action: quarantine
+    columns: [user_id, parent_asin, ts]
+
+  # MovieLens ratings are the half-star 0.5..5.0 domain (ML-32M README).
+  - id: rating_domain
+    kind: allowed_values
+    action: quarantine
+    column: rating
+    values: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+
+  # Timestamp sanity bound: MovieLens launched 1995; the published snapshot ends
+  # Oct 2023. Upper bound exclusive and EQUAL to splits_ml32m.test_end, so a row
+  # that survives the contract always carries a non-NULL split label.
+  - id: ts_range
+    kind: range
+    action: quarantine
+    column: ts
+    min: "1995-01-01T00:00:00Z"
+    max_exclusive: "2023-11-01T00:00:00Z"
+
+  # No published column may be entirely NULL.
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail
+
+  # Referential health vs the movies catalog: measured, not dropped (mirrors D6).
+  - id: item_fk
+    kind: orphan_rate
+    action: measure
+    column: parent_asin
+    ref_table: local.silver_ml32m.items
+    ref_column: parent_asin
