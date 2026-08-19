@@ -1,6 +1,6 @@
 # CLAUDE.md — Batch Recsys Lab
 
-> **"How much history does a user need before personalization beats popularity?"** Batch Recsys Lab ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking metrics and bootstrap CIs — and turns the measured crossover into a routing policy that knows exactly where each model stops working.
+> **"How much history does a user need before personalization beats popularity?"** Batch Recsys Lab ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking metrics and bootstrap CIs — and finds that on a high-churn catalog the crossover never comes: every personalized arm loses to popularity at every history depth, the one effective arm is a content–popularity blend (≈+6%), and the fitted routing policy is n\*=∞ — no routing at all. The measured mechanism (41.11% catalog churn) and the honest null are the headline; Phase 9 (§8c) tests the contrast regime on ML-32M.
 
 `UPGRADE_PLAN.md` is the single source of truth. This file is the working contract for any agent in this repo; when in doubt, re-read the plan section it cites.
 
