@@ -19,8 +19,12 @@ split: test
 # sole per-user artifact for every paired delta, p-value and BH family, and
 # seeds 20260806/20260807 stability evidence that never enters an inference.
 arms:
-  m_star: "PLACEHOLDER_A4_KNN_T12M_TEST"   # M* — the primary confirmatory arm
-  p_star: "PLACEHOLDER_A2_POP_T12M_TEST"   # P* — the confirmatory comparator
+  m_star: "20260820T221701Z-20d8ff9"   # M* — the primary confirmatory arm.
+  # NOTE: this run_id string is shared with a duplicate campaign-1 alsdecay
+  # record (run-id timestamp collision across overlapping campaigns); the
+  # resolver takes the LAST matching record, which is this item_knn one, and
+  # the identity/self checks assert the artifact is the kNN-t12m parquet.
+  p_star: "20260820T221055Z-20d8ff9"   # P* — the confirmatory comparator
 
 # Family S1 (§5c): "Every other arm (including A8 the blend, and the
 # non-selected popularity variant) vs P*". Family S2 (§5d) covers M* plus every
@@ -28,14 +32,14 @@ arms:
 # (e.g. A9 exists only because the VAL-fitted n* = 100 is finite, Rule S5); a
 # deletion is a disclosure, not a silent omission.
 secondary_arms:
-  random: "PLACEHOLDER_A0_RANDOM_TEST"
-  pop_alltime: "PLACEHOLDER_A1_POP_ALLTIME_TEST"
-  itemknn: "PLACEHOLDER_A3_ITEMKNN_N50_TEST"
-  als: "PLACEHOLDER_A5_ALS_TEST_SEED20260805"
-  als_decay: "PLACEHOLDER_A6_ALSDECAY_HL90_TEST_SEED20260805"
-  content: "PLACEHOLDER_A7_CONTENT_TEST"
-  blend: "PLACEHOLDER_A8_BLEND_A01_TEST"
-  hybrid: "PLACEHOLDER_A9_HYBRID_NSTAR100_TEST"
+  random: "20260820T220854Z-20d8ff9"
+  pop_alltime: "20260820T220955Z-20d8ff9"
+  itemknn: "20260820T221155Z-20d8ff9"
+  als: "20260820T222202Z-20d8ff9"
+  als_decay: "20260820T222514Z-20d8ff9"
+  content: "20260820T221831Z-20d8ff9"
+  blend: "20260820T221933Z-20d8ff9"
+  hybrid: "20260820T222041Z-20d8ff9"
 
 # §6 seed discipline is enforced against the records, not trusted from this
 # file: every run_id above is resolved in results/runs.jsonl and its
@@ -85,7 +89,7 @@ splits_path: configs/splits_ml32m.yaml
 dataset_manifest_path: data/MANIFEST_ML32M.md
 
 # Set once TEST user count is known; a mismatch aborts before any output.
-expected_n_users: null
+expected_n_users: 8843
 
 self_check:
   tolerance: 1.0e-9
