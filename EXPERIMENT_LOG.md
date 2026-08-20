@@ -3005,3 +3005,138 @@ A6 = A5 + hl90 · A7 = content recipe 9fa4d7d913f1 · A8 = blend α0.1 ·
 A9 = hybrid n*=100 (one run) · TEST seeds: ALS-family 20260805/20260806/
 20260807; seed 20260805 is the sole paired-inference artifact. One TEST
 evaluation per arm; no VAL revisiting.
+
+## Phase 9 T9-3c VERDICT — crossover at depth n* = 20 on ML-32M (D1, preregistered definition); the regime contrast lands (2026-08-21)
+
+**Verdict (Family P, the preregistered primary confirmatory family): D1 —
+CROSSOVER at n\* = 20.** On ML-32M TEST (8,843 users, full-catalog ranking
+over 43,884 items), the primary confirmatory arm M\* (item-kNN-t12m, Rule S4)
+beats the confirmatory popularity comparator P\* (pop-t12m, Rule S6) with
+BH-corrected significance (FDR 0.05) in every history-depth bucket from 20
+TRAIN interactions upward, and the §7 D1 coherence condition holds with no
+classifier caveats. Evidence: `results/confirmatory_ml32m_test.json`
+(committed, machine of record), derived solely from the one-shot TEST records.
+
+### Family P (M* − P*, paired ΔNDCG@10, BH FDR 0.05 within family, m = 8)
+
+| bucket | n users | Δ | 95% CI | p (uncorr.) | q | BH |
+|---|---|---|---|---|---|---|
+| 0 | 3,882 | −0.3844 | [−0.3926, −0.3750] | 2/1001 (floor) | 0.0053 | **sig. LOSS** |
+| 1-4 | 25 | −0.0140 | [−0.1016, +0.0656] | 0.769 | 0.879 | ns |
+| 5-9 | 19 | −0.0038 | [−0.1390, +0.1254] | 0.949 | 0.949 | ns |
+| 10-19 | 53 | −0.0439 | [−0.1003, +0.0071] | 0.106 | 0.141 | ns |
+| 20-49 | 242 | **+0.0333** | [+0.0107, +0.0552] | 0.0060 | 0.0120 | **sig. WIN** |
+| 50-99 | 431 | **+0.0198** | [+0.0034, +0.0381] | 0.0160 | 0.0256 | **sig. WIN** |
+| 100+ | 4,191 | **+0.0112** | [+0.0071, +0.0149] | 2/1001 (floor) | 0.0053 | **sig. WIN** |
+| global | 8,843 | −0.1619 | [−0.1677, −0.1560] | 2/1001 (floor) | 0.0053 | **sig. LOSS** |
+
+D1 conditions: (i) BH-significant positive buckets {20-49, 50-99, 100+}; (ii)
+shallowest coherent bucket = 20-49, all buckets at/above it point-estimate
+positive and BH-significant, no significant negative at/above → n\* = 20.
+The **D4 flag is raised and reported in the same register**: bucket 0 and the
+global test are BH-significant *losses*. Both facts are the finding: on the
+low-churn catalog, personalization wins **from depth 20 onward** and loses
+**catastrophically for zero-history users** (43.9% of TEST users, Δ −0.38 —
+P\*'s NDCG@10 for cold users is enormous on this catalog), so popularity still
+wins *on average* (global Δ −0.16).
+
+### The regime contrast (the §8c headline)
+
+Amazon Electronics (41.11% zero/low-support churn): **no crossover at any
+depth** — every personalized arm lost to pop-t12m in every history segment
+(T9-1 repin; robust null). ML-32M (6.40% churn, 6.4× less): **crossover at
+n\* = 20**. The crossover appears when the catalog holds still. This is a
+**regime contrast, not causal proof**: the datasets differ on domain, density
+(159 vs 9.4 mean interactions/user), catalog size, feedback semantics, and
+timestamp semantics simultaneously; churn is the axis we *measured*
+(`20260820T134403Z-e2263d2` vs `20260817T095926Z-633d454`), not the only axis
+that moved.
+
+### Mandatory labels and qualifications (preregistered, §5g/§7/§8)
+
+1. **NOT metric-robust (§5g).** Recall@20, corrected in its own BH family,
+   confirms **none** of the three winning buckets: sign agrees at 20-49
+   (+0.0228) and 50-99 (+0.0097) but neither is BH-significant, and at 100+
+   the Recall@20 delta is −0.0008 (sign flips). The confirmatory criterion
+   is BH-corrected NDCG@10 (preregistered), so D1 stands, but the win is a
+   **top-of-list ranking-quality effect**, not a recall-mass effect, and every
+   exhibit citing the crossover must carry this label.
+2. **Secondary families corroborate the shape** (S1, BH per arm): ALS
+   (static) and ALS-decay each independently win the same three deep buckets
+   vs P\* and lose bucket 0/global; item-kNN (static) and content win nowhere.
+   The **blend α=0.1** is BH-significantly *above* P\* globally (+0.0034) and
+   in five buckets with zero losing buckets — as on Amazon, the blend is the
+   deployment arm; it is M\*-ineligible by preregistration and sets no n\*.
+3. **MovieLens timestamp caveat.** ML-32M timestamps are rating-entry times
+   on a backfilled catalog (Sun et al., arXiv:2307.09985); temporal splits cut
+   rating behavior, not consumption/release, which mechanically dampens
+   churn — part of why 0.0640 is small. The tag inputs to the content arm
+   were cutoff-filtered at train_end (prereg §3a), which guards tag-time
+   leakage but not the backfilled-metadata caveat.
+4. **The 5-segment axis** (Amazon-comparability exhibit, no BH, comparability
+   only) and both charts:
+   `results/figures/crossover_ml32m_test.{svg,png}` (5-segment, both-regime
+   comparable form) and `results/figures/crossover_ml32m_deep_test.{svg,png}`
+   (deep-bucket confirmatory deltas, BH markers, n\* = 20 annotated). The
+   Amazon-side chart remains `results/figures/crossover_test.{svg,png}`; each
+   regime is drawn against its own VAL-selected popularity reference (both
+   resolved to pop-t12m).
+5. **Two distinct n\* values exist and are not the same quantity**: the
+   crossover depth n\* = 20 (D1, this verdict) and the Rule S5 fitted routing
+   depth n\* = 100 (VAL policy fit, objective 0.0897 — far below P\* alone at
+   0.2129, over a grid that by preregistered construction contained no
+   pure-P\* cell). The hybrid TEST record (0.0803 global) reports the fitted
+   cell per the finite-n\* clause; the routing story remains "routing away
+   from popularity hurts on average," fully consistent with the depth-20
+   crossover living in buckets that hold only ~19% of ML-32M's TEST GT users
+   outside the 100+ bucket... precisely: buckets ≥20 hold 4,864 of 8,843
+   users (55.0%) but the 0-bucket's −0.38 dwarfs their +0.01..+0.03 wins.
+
+### Protocol disclosures
+
+- **One TEST evaluation per arm held**, with one operational exception fully
+  disclosed: the first TEST campaign launch was refused by the dirty-tree
+  guard for its first 11 runs (no records written) but its ALS tail — whose
+  training step precedes the guard — completed after the tree became clean,
+  so three arm-evaluations (ALS seed-20260807, ALS-decay seeds
+  20260805/20260806) each carry a duplicate record pair. The duplicates are
+  **byte-identical in all metrics** (deterministic rescoring from the same
+  persisted factor artifacts, same snapshot, same seeds; git SHAs differ as
+  d224772/20d8ff9). Per invariant #3 nothing was deleted; the canonical set
+  used by every analysis is the single coherent campaign at 20d8ff9, pinned
+  by run_id in `configs/confirmatory_ml32m_test.yaml`. No arm was evaluated
+  twice in any information sense — no second look at TEST occurred.
+- **Run-ID collision**: `20260820T221701Z-20d8ff9` names both a duplicate
+  ALS-decay record and the canonical M\* record (same-second launches across
+  the overlapping campaigns). All resolvers used are last-match-wins, which
+  lands on the canonical M\* item_knn record; `reproduce_ml32m` pins it
+  explicitly via `expected_config_path`.
+- **Seed discipline audit passed**: every inference artifact is seed
+  20260805 or deterministic (random floor seed 13, declared exemption);
+  stability seeds 20260806/20260807 enter only the 3-seed mean±sd
+  (ALS 0.09037 ± 0.00009; ALS-decay 0.09158 ± 0.00030 — TEST global
+  NDCG@10, tight across seeds).
+- **Reproducibility receipt**: `make reproduce-ml32m` re-derives, from
+  Iceberg snapshot 3433604384732745693 with the frozen
+  `configs/splits_ml32m.yaml` and `data/MANIFEST_ML32M.md`, both pinned
+  records byte-exact (record fields AND per-user artifact arrays identical)
+  and the confirmatory verdict block identical. Run on the machine of record
+  2026-08-21, exit 0, verdict `byte_exact`.
+
+### TEST ladder (global NDCG@10, canonical records)
+
+random 0.00218 · pop-alltime 0.21749 · **pop-t12m (P\*) 0.24751** ·
+kNN 0.07912 · **kNN-t12m (M\*) 0.08562** · ALS 0.09037±0.00009 (3 seeds) ·
+ALS-decay(hl90) 0.09158±0.00030 (3 seeds) · content 0.02988 ·
+**blend α0.1 0.25088** · hybrid(n\*=100) 0.08032.
+
+### What this changes upstream
+
+The Phase 8/9 Amazon null now has a measured contrast case: same ladder, same
+harness, same protocol, 6.4× less churn → a real (if top-of-list-only,
+deep-history-only) crossover. The case-study framing gains its second
+regime; the null-first Amazon headline stands unchanged. Site evidence
+sections must carry: the §5g non-robustness label, the D4 cold-user loss,
+"regime contrast, not causal proof," and the timestamp caveat. Both outcomes
+were preregistered as publishable; this one is D1 — reported with its
+qualifications, not despite them.
