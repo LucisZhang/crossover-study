@@ -2125,3 +2125,69 @@ of this entry. Both T9-3 outcomes remain publishable by design: "crossover
 appears when the catalog holds still" and "popularity dominates even
 there" are each defensible headlines, framed as regime contrast, not
 causal proof, with the MovieLens timestamp caveat per §8b.
+
+## Phase 9 T9-3a — ML-32M data stage COMPLETE; churn contrast MEASURED: 0.0640 vs Amazon 0.4111 (2026-08-20)
+
+**Result.** Record `20260820T134403Z-e2263d2` (kind="churn_contrast", clean
+tree at e2263d2, machine of record `x86_64 · Linux`, wall 23.9s), the first
+number produced from ML-32M and produced **before any model has seen the
+data**, per §8c. The T8-1 statistic — share of eval-split GT interactions on
+items with TRAIN support ≤ 4 — re-run on ML-32M TEST via the same imported
+bucket/gate code paths (`item_train_stats`, `regime_map`): **zero+low =
+0.06403** (zero 0.05793 = 45,408 interactions, low 0.00610 = 4,785) against
+Amazon's recorded **0.41113** (`20260817T095926Z-633d454`, re-derived from
+`results/runs.jsonl` at run time, not trusted from config). Difference
+−0.34710; a 6.4× regime gap. Inputs: 8,843 TEST users, 783,896 GT
+interactions, catalog 43,884, catalog-join loss 0/0; 5-core snapshot
+3433604384732745693, item_features 8148139012671154899; splits
+`configs/splits_ml32m.yaml` (frozen 2026-08-19, TRAIN ≤ 2022-06-30, VAL
+2022-H2, TEST 2023-01-01 → 2023-11-01 excl.); dataset manifest
+`data/MANIFEST_ML32M.md` (zip + 3 CSVs, SHA-256/size/row-verified in-job).
+
+**Build receipts.** Bronze = raw exactly: ratings 32,000,204, movies 87,585,
+tags 2,000,072 (`bronze-verify-ml32m` deltas all 0 vs manifest counts).
+5-core keeps 31,921,467 interactions (99.75%), all 200,948 users, 43,884
+items. Contract audit: **58 checks, overall PASS, zero quarantined rows**,
+all FK orphan measures 0. Density vs Amazon at every step: Amazon's funnel
+kept 35% of interactions and 2.4% of users; ML-32M loses almost nothing.
+
+**Two defects caught before the record existed (both fixed, commits
+0103877/d0c23a0).** (1) Spark's CSV default backslash-escape silently dropped
+movieId 284105 (RFC-4180 doubled-quote title) — bronze movies 87,584/87,585
+and exactly one FK orphan; fixed with `escape='"'`, catalog rebuilt, orphan
+now 0. The churn statistic was never exposed (all interactions were kept; a
+1-rating movie cannot reach the 5-core). (2) A first manifest commit appended
+ML-32M hashes to `data/MANIFEST.md`; adversarial review caught that this
+file's whole-file hash is a compared field of the pinned Amazon headline
+(`eval/reproduce.FIELDS_COMPARED`), which would have flipped
+`make reproduce-headline` from byte_exact to mismatch. **Deviation from §8c's
+letter, disclosed:** ML-32M SHA-256s live in their own committed
+`data/MANIFEST_ML32M.md`; `data/MANIFEST.md` verified byte-identical to
+5fabb21 before proceeding. Invariant beats letter.
+
+**Gate wording, interpreted.** The preregistered T8-1 bands are one-sided
+Amazon language: on Amazon, <0.10 would have meant "churn diagnosis wrong."
+On ML-32M the <0.10 verdict is the desired antecedent: this is the
+catalog-holds-still regime. The recency axis says it plainly — 91.0% of
+ML-32M TEST GT mass falls on items active in TRAIN within 90 days of the
+cutoff (Amazon: the 57.3% of catalog stale >365d drew 2.0% of TEST mass, and
+5.19% post-cutoff items absorbed 34.5%).
+
+**Implication for the preregistered hypotheses.** The §8b/T9-2 premise —
+"crossover exists only when the catalog holds still" — now has its antecedent
+measured on both sides instead of assumed: 0.4111 vs 0.0640. The structural
+cap that bound every TRAIN-frozen model on Amazon (34.5% of TEST mass
+unreachable) essentially does not exist here (5.8%). T9-3b's eval is
+therefore a clean two-outcome test per §8c: a crossover at some depth n* on
+ML-32M supports the churn mechanism as the explanation of the Amazon null; a
+second null means popularity dominates even where the catalog holds still,
+and the mechanism story narrows. Both remain publishable; the framing stays
+regime contrast, not causal proof (explicit ratings, rating-entry timestamps
+on a backfilled catalog — Sun et al., arXiv:2307.09985).
+
+**Boundary.** T9-3b not started: no model artifact exists for ML-32M, and the
+T9-3b preregistration entry (hypotheses, VAL selection rules, grids,
+multiplicity policy) must precede the first TEST run. Robustness follow-ups
+from the 2026-08-20 review (atomic extract/publish, audit receipts in the
+record, make -j ordering, snapshot re-pin on read) are queued as a separate
+task, none blocking this record.
