@@ -1,0 +1,34 @@
+# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# VAL ONLY — TEST is untouched.
+# Arm A5 (ALS, binary) — M* eligible. Stage 2 (reg axis) of the coordinate
+# sweep: rank-axis winner was the anchor rank=64 (argmax = anchor; Rule S1),
+# carried forward. This run moves ONLY reg_param (0.01 -> 0.1); the alpha/
+# iter/weighting axes follow after this axis's S1 selection.
+kind: eval
+model:
+  name: als
+  params:
+    rank: 64
+    reg_param: 0.1
+    alpha: 10.0
+    max_iter: 15
+    weighting: binary
+    factors_root: data/eval/als_ml32m
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: 20260805
+tables:
+  five_core: local.gold_ml32m.interactions_5core
+  user_stats: local.gold_ml32m.user_stats
+  item_features: local.gold_ml32m.item_features
+  popularity: local.gold_ml32m.popularity
+cache_dir: data/eval/cache_ml32m
+splits_path: configs/splits_ml32m.yaml
+manifest_path: data/MANIFEST_ML32M.md
