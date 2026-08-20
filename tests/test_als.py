@@ -404,3 +404,67 @@ def test_train_als_idempotent_skip(spark, tmp_path):
     assert adir2 == adir
     sha_after = json.loads((adir / "als_manifest.json").read_text())["user_factors_sha256"]
     assert sha_before == sha_after
+
+
+def test_als_train_cli_resolves_five_core_table_from_config(tmp_path, monkeypatch):
+    """als_train.main() must resolve tables.five_core from the config (mirroring
+    harness._build_model), not the Amazon-lane hardcoded default, so an ML-32M
+    config's cache (keyed only under local.gold_ml32m.interactions_5core) is
+    found. No Spark: the idempotent pre-check short-circuits before get_spark()
+    is ever imported, so a wrong table name would surface as a KeyError instead.
+    """
+    import yaml
+
+    from batch_recsys_lab.models import als_train as als_train_mod
+
+    ml32m_table = "local.gold_ml32m.interactions_5core"
+    snap = 4242
+    params = dict(rank=3, reg_param=0.1, alpha=40.0, max_iter=5, weighting="binary", seed=7)
+
+    factors_root = tmp_path / "als_ml32m"
+    U = np.ones((2, 3), dtype=np.float32)
+    V = np.ones((4, 3), dtype=np.float32)
+    _write_artifact(
+        factors_root,
+        U,
+        V,
+        params=params,
+        snap=snap,
+        manifest_overrides={"snapshot_ids": {ml32m_table: snap}},
+    )
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    (cache_dir / "cache_manifest.json").write_text(
+        json.dumps({"snapshot_ids": {ml32m_table: snap}})
+    )
+
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text(
+        yaml.safe_dump(
+            {
+                "kind": "eval",
+                "model": {
+                    "name": "als",
+                    "params": {**params, "factors_root": str(factors_root)},
+                },
+                "seeds": {"model": params["seed"]},
+                "tables": {"five_core": ml32m_table},
+                "cache_dir": str(cache_dir),
+            }
+        )
+    )
+
+    def _fail_get_spark(*args, **kwargs):
+        raise AssertionError(
+            "get_spark should not be called: the artifact is already up to "
+            "date, so main() must skip before starting Spark."
+        )
+
+    monkeypatch.setattr(als_train_mod, "_resolve_cache_dir", lambda p: Path(p))
+    import batch_recsys_lab.spark_session as spark_session_mod
+
+    monkeypatch.setattr(spark_session_mod, "get_spark", _fail_get_spark)
+
+    rc = als_train_mod.main(["--config", str(config_path)])
+    assert rc == 0

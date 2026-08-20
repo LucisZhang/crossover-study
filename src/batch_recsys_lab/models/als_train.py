@@ -42,6 +42,7 @@ from batch_recsys_lab.eval import runlog
 from batch_recsys_lab.eval.dataset import TRAIN_AGE_FILE
 from batch_recsys_lab.eval.harness import _resolve_cache_dir
 from batch_recsys_lab.models.als import (
+    FIVE_CORE_TABLE,
     TIME_DECAY,
     WEIGHTINGS,
     als_param_hash,
@@ -167,6 +168,7 @@ def train_als(
     git_sha: str | None = None,
     checkpoint_interval: int = 5,
     half_life_days: float | None = None,
+    five_core_table: str = FIVE_CORE_TABLE,
 ) -> Path:
     """Train ALS on one snapshot-keyed cache dir and persist the artifact.
 
@@ -174,12 +176,18 @@ def train_als(
     ``cache_manifest.json`` + ``train_*_idx.npy``). Returns the artifact dir.
     Idempotent: if a matching artifact already exists, prints a skip line and
     returns without touching Spark output.
+
+    ``five_core_table`` names the lane's five-core Iceberg table (default
+    preserves the Amazon-lane behavior); it is used ONLY to resolve the
+    snapshot id key in the cache manifest — it does not change which pairs
+    are read (those come from ``cache_dir``, already lane-scoped by
+    ``eval/extract.py``).
     """
     from pyspark.ml.recommendation import ALS
 
     cache_dir = Path(cache_dir)
     manifest = _load_cache_manifest(cache_dir)
-    snap = five_core_snapshot_id(manifest)
+    snap = five_core_snapshot_id(manifest, five_core_table)
     params = canonical_params(
         rank=rank,
         reg_param=reg_param,
@@ -331,11 +339,16 @@ def main(argv: list[str] | None = None) -> int:
     factors_root = params.get("factors_root", "data/eval/als")
     checkpoint_interval = int(config.get("train", {}).get("checkpoint_interval", 5))
     cache_dir = _resolve_cache_dir(config["cache_dir"])
+    # Config-driven table name, mirroring harness._build_model's tables_cfg
+    # lookup: an ML-32M config's tables.five_core points at
+    # local.gold_ml32m.interactions_5core; absent the key, the Amazon-lane
+    # default is preserved.
+    five_core_table = (config.get("tables") or {}).get("five_core", FIVE_CORE_TABLE)
 
     # Idempotency pre-check BEFORE starting Spark: the artifact identity is fully
     # determined by the cache manifest + params, no JVM required.
     manifest = _load_cache_manifest(cache_dir)
-    snap = five_core_snapshot_id(manifest)
+    snap = five_core_snapshot_id(manifest, five_core_table)
     half_life_days = params.get("half_life_days")
     canon = canonical_params(
         rank=int(params["rank"]),
@@ -373,6 +386,7 @@ def main(argv: list[str] | None = None) -> int:
             factors_root=factors_root,
             checkpoint_interval=checkpoint_interval,
             half_life_days=half_life_days,
+            five_core_table=five_core_table,
         )
     finally:
         spark.stop()
