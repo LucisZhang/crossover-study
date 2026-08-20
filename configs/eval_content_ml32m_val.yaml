@@ -1,0 +1,29 @@
+# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# VAL ONLY — TEST is untouched.
+# Arm A7 (content, MiniLM) — M* eligible. Mirrors eval_content_val.yaml,
+# ML-32M gold_ml32m namespace and ML-32M MiniLM artifact
+# (recipe_hash 9fa4d7d913f1).
+kind: eval
+model:
+  name: content
+  params:
+    recipe_hash: "9fa4d7d913f1"
+    artifact_root: data/eval/minilm_ml32m
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold_ml32m.interactions_5core
+  user_stats: local.gold_ml32m.user_stats
+  item_features: local.gold_ml32m.item_features
+  popularity: local.gold_ml32m.popularity
+cache_dir: data/eval/cache_ml32m
+splits_path: configs/splits_ml32m.yaml
+manifest_path: data/MANIFEST_ML32M.md
