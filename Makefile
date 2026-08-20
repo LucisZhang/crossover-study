@@ -24,7 +24,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m eval-extract-ml32m gold-ml32m-item-text item-text-export-ml32m embed-items-ml32m eval-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -334,7 +334,7 @@ item-train-stats-ml32m: java-check
 # reconciliation sits between ingest and silver on purpose — a bronze table that
 # does not match the hashed bytes must never become a silver table.
 data-ml32m: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
-data-ml32m: java-check ingest-ml32m bronze-verify-ml32m silver-ml32m gold-ml32m contracts-audit-ml32m item-train-stats-ml32m
+data-ml32m: java-check ingest-ml32m bronze-verify-ml32m silver-ml32m gold-ml32m gold-ml32m-item-text contracts-audit-ml32m item-train-stats-ml32m
 	@echo "make data-ml32m complete · RECSYS_RUN_ID=$(RECSYS_RUN_ID)"
 
 # T9-3a hinge: the pre-model churn statistic and its contrast against the recorded
@@ -346,6 +346,63 @@ data-ml32m: java-check ingest-ml32m bronze-verify-ml32m silver-ml32m gold-ml32m 
 churn-ml32m: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.churn_contrast \
 	  --config $(if $(CONFIG),$(CONFIG),configs/churn_contrast_ml32m.yaml) $(CHURN_FLAGS)
+
+# --- Phase 9: ML-32M model ladder, VAL stage (§8c, T9-3b) ---------------------
+# Mirrors eval-extract / eval exactly, in the gold_ml32m namespace and its own
+# cache root, keeping the Amazon lane (eval-extract/eval) wholly untouched.
+# NOTE: `extract-ml32m` (above) already names the raw-CSV re-extract step from
+# download-ml32m; this eval-cache build target is deliberately named
+# eval-extract-ml32m to avoid colliding with it.
+
+# Eval cache extract for ML-32M (Step A, mirrors eval-extract): Spark ->
+# numpy/scipy cache under data/eval/cache_ml32m, snapshot-keyed and idempotent,
+# split-labeled via configs/splits_ml32m.yaml (not the Amazon splits.yaml).
+#   make eval-extract-ml32m
+eval-extract-ml32m: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.extract \
+	  --out data/eval/cache_ml32m \
+	  --five-core-table local.gold_ml32m.interactions_5core \
+	  --user-stats-table local.gold_ml32m.user_stats \
+	  --item-features-table local.gold_ml32m.item_features \
+	  --popularity-table local.gold_ml32m.popularity \
+	  --splits-path configs/splits_ml32m.yaml
+
+# ML-32M item_text (Phase 9, T9-3b §3): the 5-core catalog LEFT JOINed to
+# item_features (title/genres) and to the TRAIN-cutoff tag aggregation over
+# silver_ml32m.tags (ts <= configs/splits_ml32m.yaml train_end, inclusive;
+# COUNT(DISTINCT user_id) weight; weight DESC, tag ASC; top 10). The contract
+# audit follows so contracts/ml32m/gold_ml32m_item_text.yaml is graded and the
+# §3(e) coverage measures land in dq_ml32m.dq_results BEFORE any embedding.
+gold-ml32m-item-text: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.item_text_ml32m --mode build
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.contracts.run_audit \
+	  --contracts-dir contracts/ml32m --dq-table local.dq_ml32m.dq_results
+
+# JVM-free ML-32M export (T9-3b §3e): reorders local.gold_ml32m.item_text to the
+# ML-32M eval cache's item_ids order and writes
+# data/eval/text_ml32m/<snapshot>/item_text.parquet + export_manifest.json.
+# Requires `make eval-extract-ml32m` for the live 5-core snapshot first.
+item-text-export-ml32m: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.item_text_ml32m --mode export
+
+# MiniLM Step A on the ML-32M lane (recipe v1_ml32m_title_genres_tags). Same
+# module, same locally cached model artifact, ML-32M roots
+# (data/eval/text_ml32m -> data/eval/minilm_ml32m). Idempotent.
+embed-items-ml32m:
+	$(CAFFEINATE) uv run --group embed python -m batch_recsys_lab.models.minilm_embed \
+	  --recipe ml32m
+
+# Eval scoring for one ML-32M config (Step B, mirrors eval): pure numpy/scipy,
+# no Spark. Scores the config's model over data/eval/cache_ml32m and APPENDS one
+# record to results/runs.jsonl. run_eval reads splits_path/manifest_path off the
+# config itself (configs/splits_ml32m.yaml, data/MANIFEST_ML32M.md) — see
+# run_eval.py's config-carried-path precedence — so no extra flags are needed
+# here.
+#   make eval-ml32m CONFIG=configs/eval_pop_t12m_ml32m_val.yaml
+eval-ml32m: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
+eval-ml32m:
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_*_ml32m_*.yaml"; exit 1; }
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
 
 # Paired-bootstrap delta between two eval runs (Phase 2, T5). Pure numpy.
 #   make compare CONFIG=configs/compare_als_vs_itemknn_val.yaml

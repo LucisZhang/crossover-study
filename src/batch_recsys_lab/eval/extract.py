@@ -535,6 +535,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--item-features-table", default=ITEM_FEATURES)
     parser.add_argument("--popularity-table", default=POPULARITY)
     parser.add_argument(
+        "--splits-path",
+        default=str(SPLITS_PATH),
+        help=(
+            "Path to the frozen splits YAML used to label TRAIN/VAL/TEST while "
+            "building the pair cache (default: configs/splits.yaml)."
+        ),
+    )
+    parser.add_argument(
         "--pinned-record",
         default=None,
         help=(
@@ -568,6 +576,7 @@ def main(argv: list[str] | None = None) -> int:
             user_stats_table=args.user_stats_table,
             item_features_table=args.item_features_table,
             popularity_table=args.popularity_table,
+            splits_path=args.splits_path,
             pinned_snapshot_ids=pinned_snapshot_ids,
             pinned_contracts=pinned_contracts,
         )

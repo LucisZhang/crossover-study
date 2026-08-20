@@ -19,6 +19,17 @@ Recipe v1 (``v1_title_brand_cat_features``): ``title + " " + brand_norm + " "
 + main_category + " " + " ".join(features)``, skipping null/empty parts.
 ``description``/``categories`` are NOT part of this recipe. ``brand_norm``
 "unknown" is kept as-is (not treated as missing).
+
+Recipe ``v1_ml32m_title_genres_tags`` (Phase 9, T9-3b; EXPERIMENT_LOG "Phase 9
+T9-3b preregistration" §3) mirrors it on the ML-32M lane: ``title + " " +
+" ".join(genres) + " " + " ".join(tags_top10)``, same joiner, same
+skip-empty rule, same model. Its tag-aggregation rule is a new degree of
+freedom, so it is bound into the artifact identity through
+:func:`recipe_hash`'s ``extra`` mapping — which enters the canonical JSON
+**only when non-None**, mirroring the ``half_life_days``-enters-the-param-hash-
+only-under-``time_decay`` pattern, so the Amazon recipe hash
+(``1f7878ff82bf…``) is provably unchanged (pinned by
+``tests/test_ml32m_recipe.py``).
 """
 
 from __future__ import annotations
@@ -30,6 +41,8 @@ import platform
 import subprocess
 import sys
 import time
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -37,6 +50,7 @@ import numpy as np
 import pyarrow.parquet as pq
 
 RECIPE_ID = "v1_title_brand_cat_features"
+RECIPE_ID_ML32M = "v1_ml32m_title_genres_tags"
 MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 EMBED_DIM = 384
 BATCH_SIZE = 256
@@ -45,6 +59,10 @@ PROGRESS_EVERY = 50_000
 DEFAULT_TEXT_ROOT = Path("data/eval/text")
 DEFAULT_ARTIFACT_ROOT = Path("data/eval/minilm")
 DEFAULT_CACHE_ROOT = Path("data/eval/cache")
+
+DEFAULT_TEXT_ROOT_ML32M = Path("data/eval/text_ml32m")
+DEFAULT_ARTIFACT_ROOT_ML32M = Path("data/eval/minilm_ml32m")
+DEFAULT_CACHE_ROOT_ML32M = Path("data/eval/cache_ml32m")
 
 
 # --- hashing / recipe --------------------------------------------------------
@@ -63,13 +81,32 @@ def item_ids_sha256(item_ids: list[str]) -> str:
     return hashlib.sha256("\n".join(item_ids).encode("utf-8")).hexdigest()
 
 
-def recipe_hash(recipe_id: str, fields: list[str], joiner: str, model_id: str) -> str:
-    spec = {
+def recipe_hash(
+    recipe_id: str,
+    fields: list[str],
+    joiner: str,
+    model_id: str,
+    extra: Mapping[str, object] | None = None,
+) -> str:
+    """SHA-256 of the canonical recipe spec.
+
+    ``extra`` binds recipe-specific degrees of freedom that are not expressible
+    as a field list (T9-3b §3h: the ML-32M tag source, cutoff, normalization,
+    weight, ordering and cap). It enters the canonical JSON **only when
+    non-None** — the same "optional key only under the option that needs it"
+    pattern as ``half_life_days`` in the ALS param hash — so every recipe hash
+    recorded before this parameter existed is byte-identical afterwards
+    (asserted by ``tests/test_ml32m_recipe.py`` against the recorded Amazon
+    prefix ``1f7878ff82bf``).
+    """
+    spec: dict[str, object] = {
         "recipe_id": recipe_id,
         "fields": fields,
         "joiner": joiner,
         "model_id": model_id,
     }
+    if extra is not None:
+        spec["extra"] = dict(extra)
     canonical = json.dumps(spec, sort_keys=True, separators=(",", ":"))
     return sha256_bytes(canonical.encode("utf-8"))
 
@@ -91,6 +128,103 @@ def build_recipe_text(row: dict) -> str:
     if features:
         parts.extend(str(f) for f in features if f)
     return " ".join(parts)
+
+
+def build_recipe_text_ml32m(row: dict) -> str:
+    """Recipe ``v1_ml32m_title_genres_tags`` (T9-3b §3g, exact).
+
+    ``" ".join`` of ``[title] + genres + tags_top10``, null/empty parts skipped,
+    no separator tokens and no field labels — the same shape as
+    :func:`build_recipe_text`. Titles keep their MovieLens year suffix
+    (``"Toy Story (1995)"``): kept, not stripped, and disclosed. Over-long
+    assembled text is truncated by the model's own ``max_seq_length=256``,
+    deterministically, exactly as the Amazon recipe relies on.
+    """
+    parts: list[str] = []
+    title = row.get("title")
+    if title:
+        parts.append(str(title))
+    genres = row.get("genres")
+    if genres is not None:
+        parts.extend(str(g) for g in genres if g)
+    tags = row.get("tags_top10")
+    if tags is not None:
+        parts.extend(str(t) for t in tags if t)
+    return " ".join(parts)
+
+
+# --- recipe registry ----------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Recipe:
+    """One frozen text recipe: identity, source columns, and default roots.
+
+    ``fields`` is the hashed field list (recipe identity); ``source_columns`` is
+    what the export parquet must carry to assemble the text. They coincide today
+    on both lanes and are kept separate so a future recipe can hash a field name
+    that is not literally a column.
+    """
+
+    recipe_id: str
+    fields: tuple[str, ...]
+    joiner: str
+    model_id: str
+    build_text: Callable[[dict], str]
+    source_columns: tuple[str, ...]
+    text_root: Path
+    cache_root: Path
+    artifact_root: Path
+    extra: Mapping[str, object] | None = None
+
+    def hash(self) -> str:
+        return recipe_hash(
+            self.recipe_id, list(self.fields), self.joiner, self.model_id, self.extra
+        )
+
+
+AMAZON_RECIPE = Recipe(
+    recipe_id=RECIPE_ID,
+    fields=("title", "brand_norm", "main_category", "features"),
+    joiner=" ",
+    model_id=MODEL_ID,
+    build_text=build_recipe_text,
+    source_columns=("title", "brand_norm", "main_category", "features"),
+    text_root=DEFAULT_TEXT_ROOT,
+    cache_root=DEFAULT_CACHE_ROOT,
+    artifact_root=DEFAULT_ARTIFACT_ROOT,
+    extra=None,  # NEVER set: this is what keeps 1f7878ff82bf… byte-identical.
+)
+
+# T9-3b §3(h), verbatim. Every value here is normative preregistered text — a
+# change to any string is a change to the recipe's identity (and therefore to
+# the artifact path), which is exactly the point of hashing it.
+ML32M_RECIPE_EXTRA: dict[str, object] = {
+    "tag_source": "local.silver_ml32m.tags",
+    "tag_cutoff": "2022-06-30T23:59:59.999Z",  # inclusive
+    "tag_norm": "silver_sanitized|lower|trim",
+    "tag_weight": "count_distinct_user_id",
+    "tag_order": "weight_desc,tag_asc",
+    "tag_top_k": 10,
+    "genres_source": "local.gold_ml32m.item_features.genres",
+    "genres_order": "as_stored",
+    "empty_policy": "skip",
+}
+
+ML32M_RECIPE = Recipe(
+    recipe_id=RECIPE_ID_ML32M,
+    fields=("title", "genres", "tags_top10"),
+    joiner=" ",
+    model_id=MODEL_ID,  # the SAME locally cached artifact the Amazon recipe used
+    build_text=build_recipe_text_ml32m,
+    source_columns=("title", "genres", "tags_top10"),
+    text_root=DEFAULT_TEXT_ROOT_ML32M,
+    cache_root=DEFAULT_CACHE_ROOT_ML32M,
+    artifact_root=DEFAULT_ARTIFACT_ROOT_ML32M,
+    extra=ML32M_RECIPE_EXTRA,
+)
+
+RECIPES: dict[str, Recipe] = {"amazon": AMAZON_RECIPE, "ml32m": ML32M_RECIPE}
 
 
 # --- provenance helpers -------------------------------------------------------
@@ -168,6 +302,7 @@ def embed_items(
     cache_dir: Path,
     *,
     artifact_root: str | Path = DEFAULT_ARTIFACT_ROOT,
+    recipe: Recipe = AMAZON_RECIPE,
 ) -> Path:
     text_dir = Path(text_dir)
     cache_dir = Path(cache_dir)
@@ -215,8 +350,8 @@ def embed_items(
             f"item_ids order: {recomputed_item_ids_sha256} != {cache_item_ids_sha256}"
         )
 
-    fields = ["title", "brand_norm", "main_category", "features"]
-    rhash = recipe_hash(RECIPE_ID, fields, " ", MODEL_ID)
+    fields = list(recipe.fields)
+    rhash = recipe.hash()
     rhash_short = rhash[:12]
 
     adir = Path(artifact_root) / str(five_core_snapshot) / rhash_short
@@ -231,20 +366,18 @@ def embed_items(
         return adir
 
     n_items = table.num_rows
-    titles = table.column("title").to_pylist()
-    brands = table.column("brand_norm").to_pylist()
-    main_cats = table.column("main_category").to_pylist()
-    features_col = table.column("features").to_pylist()
+    missing_cols = [c for c in recipe.source_columns if c not in table.column_names]
+    if missing_cols:
+        raise AssertionError(
+            f"item_text.parquet at {text_dir} is missing recipe "
+            f"{recipe.recipe_id} source columns {missing_cols}"
+        )
+    columns = {name: table.column(name).to_pylist() for name in recipe.source_columns}
 
     texts: list[str] = []
     for i in range(n_items):
-        row = {
-            "title": titles[i],
-            "brand_norm": brands[i],
-            "main_category": main_cats[i],
-            "features": features_col[i],
-        }
-        texts.append(build_recipe_text(row))
+        row = {name: values[i] for name, values in columns.items()}
+        texts.append(recipe.build_text(row))
 
     device, mps_failure_detail = _resolve_device()
 
@@ -257,12 +390,12 @@ def embed_items(
     from sentence_transformers import SentenceTransformer
 
     try:
-        model = SentenceTransformer(MODEL_ID, device=device)
+        model = SentenceTransformer(recipe.model_id, device=device)
     except Exception as exc:
         if device == "mps":
             mps_failure_detail = f"model load/encode on mps failed: {exc!r}"
             device = "cpu"
-            model = SentenceTransformer(MODEL_ID, device=device)
+            model = SentenceTransformer(recipe.model_id, device=device)
         else:
             raise
 
@@ -274,7 +407,7 @@ def embed_items(
 
         cache_info = scan_cache_dir()
         for repo in cache_info.repos:
-            if repo.repo_id == MODEL_ID and repo.repo_type == "model":
+            if repo.repo_id == recipe.model_id and repo.repo_type == "model":
                 revisions = sorted(repo.revisions, key=lambda r: r.last_modified, reverse=True)
                 if revisions:
                     model_revision = revisions[0].commit_hash
@@ -298,7 +431,7 @@ def embed_items(
             if device == "mps":
                 mps_failure_detail = f"encode on mps failed at batch starting {start}: {exc!r}"
                 device = "cpu"
-                model = SentenceTransformer(MODEL_ID, device=device)
+                model = SentenceTransformer(recipe.model_id, device=device)
                 out = model.encode(
                     batch,
                     batch_size=BATCH_SIZE,
@@ -324,11 +457,14 @@ def embed_items(
 
     manifest = {
         "schema_version": 1,
-        "model_id": MODEL_ID,
+        "model_id": recipe.model_id,
+        # §3(h): the resolved revision of the LOCALLY CACHED model artifact is
+        # recorded as provenance — no revision hash is preregistered, because
+        # none had been verified at registration time.
         "model_revision": model_revision,
-        "recipe_id": RECIPE_ID,
+        "recipe_id": recipe.recipe_id,
         "recipe_fields": fields,
-        "recipe_joiner": " ",
+        "recipe_joiner": recipe.joiner,
         "recipe_hash": rhash,
         "recipe_hash_short": rhash_short,
         "five_core_snapshot_id": five_core_snapshot,
@@ -350,6 +486,10 @@ def embed_items(
         "finished_ts": finished_ts,
         "git_sha": _git_short_sha(),
     }
+    # Only recipes that HAVE an `extra` carry the key, so an Amazon manifest
+    # written today is shaped exactly like the recorded one.
+    if recipe.extra is not None:
+        manifest["recipe_extra"] = dict(recipe.extra)
     (adir / "minilm_manifest.json").write_text(json.dumps(manifest, indent=2))
     print(
         f"embedded MiniLM: {adir}  n_items={n_items} dim={EMBED_DIM} "
@@ -398,9 +538,17 @@ def spot_check(adir: Path, text_dir: Path, query: str, k: int = 5) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="batch_recsys_lab.models.minilm_embed")
-    parser.add_argument("--text-root", default=str(DEFAULT_TEXT_ROOT))
-    parser.add_argument("--cache-root", default=str(DEFAULT_CACHE_ROOT))
-    parser.add_argument("--artifact-root", default=str(DEFAULT_ARTIFACT_ROOT))
+    parser.add_argument(
+        "--recipe",
+        choices=sorted(RECIPES),
+        default="amazon",
+        help="text recipe / lane: 'amazon' (v1_title_brand_cat_features) or "
+        "'ml32m' (v1_ml32m_title_genres_tags). Selects the recipe's default "
+        "text/cache/artifact roots unless they are given explicitly.",
+    )
+    parser.add_argument("--text-root", default=None)
+    parser.add_argument("--cache-root", default=None)
+    parser.add_argument("--artifact-root", default=None)
     parser.add_argument(
         "--five-core-snapshot",
         default=None,
@@ -414,7 +562,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("-k", type=int, default=5)
     args = parser.parse_args(argv)
 
-    text_root = Path(args.text_root)
+    recipe = RECIPES[args.recipe]
+    text_root = Path(args.text_root) if args.text_root else recipe.text_root
+    cache_root = Path(args.cache_root) if args.cache_root else recipe.cache_root
+    artifact_root = Path(args.artifact_root) if args.artifact_root else recipe.artifact_root
+
     if args.five_core_snapshot is not None:
         snap = args.five_core_snapshot
     else:
@@ -427,11 +579,11 @@ def main(argv: list[str] | None = None) -> int:
         snap = subdirs[0].name
 
     text_dir = text_root / snap
-    cache_dir = Path(args.cache_root) / snap
+    cache_dir = cache_root / snap
 
     if args.neighbors is not None:
         # Locate the artifact dir for this snapshot (same recipe as embed_items).
-        artifact_snap_dir = Path(args.artifact_root) / snap
+        artifact_snap_dir = artifact_root / snap
         subdirs = [p for p in artifact_snap_dir.iterdir() if p.is_dir()] if artifact_snap_dir.exists() else []
         if len(subdirs) != 1:
             raise ValueError(
@@ -441,7 +593,7 @@ def main(argv: list[str] | None = None) -> int:
         spot_check(subdirs[0], text_dir, args.neighbors, k=args.k)
         return 0
 
-    embed_items(text_dir, cache_dir, artifact_root=args.artifact_root)
+    embed_items(text_dir, cache_dir, artifact_root=artifact_root, recipe=recipe)
     return 0
 
 

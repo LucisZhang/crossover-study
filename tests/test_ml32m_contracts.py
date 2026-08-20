@@ -56,6 +56,11 @@ EXPECTED_ML32M = {
     "gold_ml32m_user_stats.yaml": "local.gold_ml32m.user_stats",
     "gold_ml32m_item_features.yaml": "local.gold_ml32m.item_features",
     "gold_ml32m_popularity.yaml": "local.gold_ml32m.popularity",
+    # T9-3b: the content arm's item-text table (title + genres + TRAIN-cutoff
+    # tags). Every contract in this directory is graded by
+    # `make contracts-audit-ml32m`, so its table must be built before that
+    # target runs — `make data-ml32m` orders gold-ml32m-item-text ahead of it.
+    "gold_ml32m_item_text.yaml": "local.gold_ml32m.item_text",
 }
 
 HALF_STARS = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]

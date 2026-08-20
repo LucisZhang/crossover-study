@@ -1,0 +1,50 @@
+# Contract for local.gold_ml32m.item_text (Phase 9, T9-3b; UPGRADE_PLAN.md §8c,
+# EXPERIMENT_LOG "Phase 9 T9-3b preregistration" §3).
+#
+# Mirrors contracts/gold_item_text.yaml on the ML-32M lane: the distinct 5-core
+# catalog LEFT JOINed to gold_ml32m.item_features (title/genres) and to the
+# TRAIN-cutoff tag aggregation over silver_ml32m.tags (§3a–e).
+#
+# As on the Amazon side, row-count == distinct 5-core catalog count and
+# parent_asin uniqueness are NOT expressible as contract checks (the engine has
+# no `unique` or cross-table-count kind) — both are hard-asserted inside
+# features/item_text_ml32m.build_item_text_ml32m before this contract is audited.
+# The §3(e) coverage measures (zero-in-window-tag share, empty-genres share) are
+# likewise computed there and written to local.dq_ml32m.dq_results with
+# status="measured", because unknown_share only matches an exact scalar sentinel
+# and cannot express "NULL or empty array".
+name: gold_ml32m_item_text
+version: 1
+table: local.gold_ml32m.item_text
+
+columns:
+  - {name: parent_asin, dtype: string, nullable: false}      # str(movieId) — lab-wide item identity
+  - {name: title, dtype: string, nullable: true}             # NULL if the 5-core item has no movies.csv row
+  - {name: genres, dtype: "array<string>", nullable: true}   # as stored in item_features (§3f)
+  - {name: tags_top10, dtype: "array<string>", nullable: false}  # EMPTY LIST, never NULL, never a placeholder (§3e)
+
+checks:
+  - id: parent_asin_non_null
+    kind: not_null
+    action: fail
+    columns: [parent_asin]
+
+  # tags_top10 is built with coalesce(..., array()) so "no in-window tags" is an
+  # empty list rather than NULL (§3e). A NULL here would mean the LEFT JOIN
+  # coalesce was lost, which would silently change the embedding text.
+  - id: tags_top10_non_null
+    kind: not_null
+    action: fail
+    columns: [tags_top10]
+
+  # Control-char hygiene on the only scalar text column. genres/tags_top10 are
+  # array<string> and the engine's rlike-based check cannot inspect elements;
+  # both are sanitized upstream (silver_ml32m) — see the build docstring.
+  - id: text_hygiene
+    kind: no_control_chars
+    action: fail
+    columns: [title]
+
+  - id: no_dead_columns
+    kind: no_all_null
+    action: fail

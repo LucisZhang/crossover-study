@@ -27,18 +27,37 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow-stale", action="store_true")
     parser.add_argument(
         "--splits-path",
-        default=str(runlog.DEFAULT_SPLITS_PATH),
-        help="Path to the frozen splits YAML (default: configs/splits.yaml).",
+        default=None,
+        help=(
+            "Path to the frozen splits YAML. Precedence: this flag, then the "
+            "config's own 'splits_path' key (if present), then the default "
+            f"({runlog.DEFAULT_SPLITS_PATH})."
+        ),
     )
     parser.add_argument(
         "--manifest-path",
-        default=str(runlog.DEFAULT_MANIFEST_PATH),
-        help="Path to the dataset manifest (default: data/MANIFEST.md).",
+        default=None,
+        help=(
+            "Path to the dataset manifest. Precedence: this flag, then the "
+            "config's own 'manifest_path' key (if present), then the default "
+            f"({runlog.DEFAULT_MANIFEST_PATH})."
+        ),
     )
     args = parser.parse_args(argv)
 
     config_path = Path(args.config)
     config = yaml.safe_load(config_path.read_text())
+
+    # Precedence: explicit CLI flag > config-carried path > lab default. A
+    # config may declare its own splits_path/manifest_path (mirrors the
+    # dataset_manifest_path pattern in churn_contrast.build_churn_contrast)
+    # so an ML-32M config can't silently fall through to the Amazon defaults.
+    splits_path = args.splits_path or config.get("splits_path") or str(
+        runlog.DEFAULT_SPLITS_PATH
+    )
+    manifest_path = args.manifest_path or config.get("manifest_path") or str(
+        runlog.DEFAULT_MANIFEST_PATH
+    )
 
     try:
         run_eval(
@@ -46,8 +65,8 @@ def main(argv: list[str] | None = None) -> int:
             config_path=config_path,
             results_path=args.results,
             allow_stale=args.allow_stale,
-            splits_path=args.splits_path,
-            manifest_path=args.manifest_path,
+            splits_path=splits_path,
+            manifest_path=manifest_path,
         )
     except Exception as exc:  # noqa: BLE001 - CLI boundary: report + non-zero exit
         print(f"ERROR: {exc}", file=sys.stderr)

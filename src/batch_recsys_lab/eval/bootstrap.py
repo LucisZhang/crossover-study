@@ -135,6 +135,54 @@ def ci_mean(
     return {"value": float(np.mean(values)), "ci_lo": float(lo), "ci_hi": float(hi)}
 
 
+def paired_delta_resamples(
+    a: np.ndarray,
+    b: np.ndarray,
+    n_resamples: int = DEFAULT_N_RESAMPLES,
+    seed: SeedLike = DEFAULT_SEED,
+) -> np.ndarray:
+    """The ``n_resamples`` paired resampled deltas behind :func:`paired_delta_ci`.
+
+    Exposed so the achieved-significance level (:func:`asl_p_value`) is computed
+    from the SAME draws as the CI — same seed, same resample matrix, no second
+    evaluation of any model (T9-3b preregistration §5e).
+    """
+    a = np.asarray(a)
+    b = np.asarray(b)
+    resamples = resample_matrix(a.shape[0], n_resamples, seed)
+    return a[resamples].mean(axis=1) - b[resamples].mean(axis=1)
+
+
+def asl_p_value(resampled_deltas: np.ndarray) -> float:
+    """Two-sided bootstrap achieved-significance level, T9-3b §5(e) verbatim::
+
+        p = min(1, 2 * min((1 + #{D_b <= 0}) / (B+1), (1 + #{D_b >= 0}) / (B+1)))
+
+    Pure post-processing of draws already taken (:func:`paired_delta_resamples`)
+    — it costs nothing but arithmetic and cannot constitute a second look at
+    TEST. Both tails are add-one ("+1") smoothed, so p is never 0.
+
+    Resolution: with ``B = 1000`` the smallest attainable *one-sided* term is
+    ``1/1001 ≈ 0.000999`` (the figure §5e names as the floor) and therefore the
+    smallest attainable *two-sided* p is ``2/1001 ≈ 0.001998``. §5e's "report a p
+    at the floor as ``< 0.001``" is a REPORTING rule about that one-sided
+    resolution; this function returns the two-sided value exactly as specified
+    and never rounds.
+
+    ``resampled_deltas`` must be finite: a NaN would silently drop out of both
+    ``<= 0`` and ``>= 0`` counts and deflate p.
+    """
+    d = np.asarray(resampled_deltas, dtype=float).ravel()
+    if d.size == 0:
+        raise ValueError("asl_p_value needs at least one resampled delta")
+    if not np.all(np.isfinite(d)):
+        raise ValueError("asl_p_value requires finite resampled deltas")
+    b = int(d.size)
+    p_le = (1 + int(np.count_nonzero(d <= 0.0))) / (b + 1)
+    p_ge = (1 + int(np.count_nonzero(d >= 0.0))) / (b + 1)
+    return float(min(1.0, 2.0 * min(p_le, p_ge)))
+
+
 def paired_delta_ci(
     a: np.ndarray,
     b: np.ndarray,
@@ -147,11 +195,14 @@ def paired_delta_ci(
     order (caller's responsibility). Resample user indices ONCE (a shared
     :func:`resample_matrix`) and apply that same index set to both arms per
     resample, so shared resampling noise cancels rather than compounds.
+
+    The returned keys are deliberately unchanged (recorded comparison records
+    carry this exact shape); a p-value is obtained by passing
+    :func:`paired_delta_resamples` to :func:`asl_p_value`.
     """
     a = np.asarray(a)
     b = np.asarray(b)
-    resamples = resample_matrix(a.shape[0], n_resamples, seed)
-    resampled_deltas = a[resamples].mean(axis=1) - b[resamples].mean(axis=1)
+    resampled_deltas = paired_delta_resamples(a, b, n_resamples, seed)
     lo, hi = np.percentile(resampled_deltas, [2.5, 97.5])
     delta = float(np.mean(a) - np.mean(b))
     return {

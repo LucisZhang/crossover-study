@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 from batch_recsys_lab.eval.bootstrap import (
     MAX_RESAMPLE_ELEMENTS,
     RESAMPLE_BLOCK_ELEMENTS,
+    asl_p_value,
     ci_mean,
     paired_delta_ci,
+    paired_delta_resamples,
     resample_matrix,
     segment_cis,
 )
@@ -192,3 +195,81 @@ def test_segment_cis_chunked_matches_single_call_byte_for_byte():
     # Per-segment [seed, ordinal] streams are preserved, not collapsed.
     assert single["a"]["ci_lo"] != single["b"]["ci_lo"]
     assert chunked["solo"] == single["solo"]  # 1-user segment skips both paths
+
+
+# --------------------------------------------------------------------------- #
+# Bootstrap achieved-significance level (Phase 9, T9-3b preregistration §5e):
+#
+#   p = min(1, 2 * min((1 + #{D_b <= 0}) / (B+1), (1 + #{D_b >= 0}) / (B+1)))
+#
+# Pure post-processing of resample draws that already exist — never a second
+# evaluation of TEST.
+# --------------------------------------------------------------------------- #
+
+
+def test_asl_p_value_hand_computed_fixture():
+    # B = 10.  #{D <= 0} = 3 (-2, -1, 0), #{D >= 0} = 8 (0 and the seven > 0).
+    # p = min(1, 2 * min(4/11, 9/11)) = 8/11.
+    deltas = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+    assert asl_p_value(deltas) == pytest.approx(8 / 11)
+
+
+def test_asl_p_value_one_sided_extremes_are_add_one_smoothed():
+    # All deltas strictly positive: #{D <= 0} = 0 -> 2 * 1/11.  Never exactly 0.
+    assert asl_p_value(np.arange(1.0, 11.0)) == pytest.approx(2 / 11)
+    # Mirror image, same magnitude: the p-value is direction-symmetric (§5f).
+    assert asl_p_value(-np.arange(1.0, 11.0)) == pytest.approx(2 / 11)
+
+
+def test_asl_p_value_is_capped_at_one():
+    # A delta distribution straddling zero evenly doubles past 1 and is clipped.
+    deltas = np.array([-1.0, -1.0, 1.0, 1.0])
+    # #{<=0} = 2, #{>=0} = 2 -> 2 * 3/5 = 1.2 -> 1.0
+    assert asl_p_value(deltas) == 1.0
+
+
+def test_asl_p_value_all_zero_deltas_is_one():
+    assert asl_p_value(np.zeros(1000)) == 1.0
+
+
+def test_asl_p_value_resolution_floor_at_b_1000():
+    # §5e's stated floor 1/1001 is the ONE-SIDED tail resolution; the two-sided
+    # p bottoms out at 2/1001. Pinned so the reporting rule is not mis-applied.
+    assert asl_p_value(np.ones(1000)) == pytest.approx(2 / 1001)
+
+
+def test_asl_p_value_rejects_empty_and_non_finite_input():
+    with pytest.raises(ValueError):
+        asl_p_value(np.array([]))
+    with pytest.raises(ValueError):
+        asl_p_value(np.array([1.0, np.nan, -1.0]))
+
+
+def test_asl_p_value_uses_the_same_draws_as_the_paired_ci():
+    rng = np.random.default_rng(11)
+    a = rng.random(120)
+    b = rng.random(120)
+    deltas = paired_delta_resamples(a, b, n_resamples=1000, seed=SEED)
+    ci = paired_delta_ci(a, b, n_resamples=1000, seed=SEED)
+    lo, hi = np.percentile(deltas, [2.5, 97.5])
+    # Same seed, same resample matrix: the CI is a function of these very draws.
+    assert (float(lo), float(hi)) == (ci["ci_lo"], ci["ci_hi"])
+    assert 0.0 < asl_p_value(deltas) <= 1.0
+
+    # A constant positive offset: every resampled delta is +0.5, so the CI
+    # excludes zero AND the ASL sits at its two-sided floor — CI and p-value
+    # agree because they read the same draws.
+    shifted = paired_delta_ci(b + 0.5, b, n_resamples=1000, seed=SEED)
+    assert shifted["excludes_zero"] is True
+    assert asl_p_value(
+        paired_delta_resamples(b + 0.5, b, n_resamples=1000, seed=SEED)
+    ) == pytest.approx(2 / 1001)
+
+
+def test_paired_delta_resamples_is_deterministic_and_shaped():
+    rng = np.random.default_rng(12)
+    a, b = rng.random(40), rng.random(40)
+    first = paired_delta_resamples(a, b, n_resamples=250, seed=SEED)
+    second = paired_delta_resamples(a, b, n_resamples=250, seed=SEED)
+    assert first.shape == (250,)
+    assert np.array_equal(first, second)
