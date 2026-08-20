@@ -494,7 +494,7 @@ def build_churn_contrast(config: dict, results_path: Path) -> dict:
         Path(config["reference"].get("results_path", results_path)),
     )
     manifest_path = config.get("dataset_manifest_path") or runlog.DEFAULT_MANIFEST_PATH
-    manifest = verify_dataset_manifest(
+    dataset_manifest = verify_dataset_manifest(
         manifest_path,
         config.get("dataset_manifest_must_contain"),
         config.get("dataset_manifest_required_files"),
@@ -591,8 +591,8 @@ def build_churn_contrast(config: dict, results_path: Path) -> dict:
         "item_features_table": item_features_table,
         "splits_path": str(splits_path),
         "dataset_manifest_path": str(manifest_path),
-        "dataset_manifest_marker": manifest["marker"],
-        "dataset_manifest_files": manifest["files"],
+        "dataset_manifest_marker": dataset_manifest["marker"],
+        "dataset_manifest_files": dataset_manifest["files"],
         "iceberg_snapshots": snapshots,
         "contracts": contracts,
         "item_stats": item_stats,
