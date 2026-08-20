@@ -1,0 +1,35 @@
+# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# VAL ONLY — TEST is untouched.
+# item-kNN-t12m (A4): co-occurrence built ONLY from TRAIN pairs inside the
+# trailing 365-day window at train_end (mirrors the Amazon T8-2 arm); user
+# profile vectors at scoring time stay the FULL TRAIN history. Zero free
+# parameters — top_n/shrinkage held at A3's Rule-S1 VAL winner (top_n=50:
+# argmax was n200 but all three CIs overlap, tie breaks to the cheapest
+# config). This VAL run is a sanity record, not a selection (Rule S2).
+# Requires train_age_days.npy in cache_ml32m:  extract_age first.
+kind: eval
+model:
+  name: item_knn
+  params:
+    top_n: 50
+    shrinkage: 0.0
+    block_size: 8192
+    train_window_days: 365
+protocol:
+  eval_split: val
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold_ml32m.interactions_5core
+  user_stats: local.gold_ml32m.user_stats
+  item_features: local.gold_ml32m.item_features
+  popularity: local.gold_ml32m.popularity
+cache_dir: data/eval/cache_ml32m
+splits_path: configs/splits_ml32m.yaml
+manifest_path: data/MANIFEST_ML32M.md
