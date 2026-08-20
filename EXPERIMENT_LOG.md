@@ -2191,3 +2191,696 @@ multiplicity policy) must precede the first TEST run. Robustness follow-ups
 from the 2026-08-20 review (atomic extract/publish, audit receipts in the
 record, make -j ordering, snapshot re-pin on read) are queued as a separate
 task, none blocking this record.
+
+## Phase 9 T9-3b preregistration — ML-32M model ladder: hypotheses, arms, VAL grids, selection rules, multiplicity policy, decision rules (2026-08-20)
+
+Registered 2026-08-20, BEFORE any ML-32M model run (VAL or TEST) and before
+any ML-32M model artifact, eval cache, or item-text export exists in the
+tree (plan §8c T9-3b, approved 2026-08-19; §8b T8-4 spec as amended by the
+T9-2 multiplicity policy). The only ML-32M number that exists at
+registration time is the T9-3a data-stage churn contrast
+(`20260820T134403Z-e2263d2`). Every grid value below is *mirrored* from a
+constant already frozen on the Amazon side — none is tuned, and none was
+chosen after seeing an ML-32M model score, because none exists.
+
+Governing frozen inputs: `configs/splits_ml32m.yaml` (frozen 2026-08-19 —
+TRAIN ≤ 2022-06-30T23:59:59.999Z, VAL 2022-H2 ≤ 2022-12-31T23:59:59.999Z,
+TEST 2023-01-01 → 2023-11-01T00:00:00Z exclusive), 5-core snapshot
+3433604384732745693 (31,921,467 interactions, 200,948 users, 43,884 items),
+`local.gold_ml32m.item_features` snapshot 8148139012671154899, manifest
+`data/MANIFEST_ML32M.md`. Every VAL and TEST run pins this lineage in its
+run record, and **a lineage or cache-alignment mismatch aborts before any
+run record is appended**. All runs execute on the machine of record (the
+rented Linux box) — no VAL/TEST result may mix machines (T8-2 substrate
+entry: counts are identical cross-platform, floats may drift one ulp).
+
+---
+
+### 1. Hypotheses
+
+**Regime premise (measured, not assumed).** T9-3a measured the antecedent
+of the §8b/T9-2 claim on both sides: share of TEST GT interactions on items
+with TRAIN support ≤ 4 is **0.06403 on ML-32M** (`20260820T134403Z-e2263d2`)
+vs **0.41113 on Amazon Electronics** (`20260817T095926Z-633d454`) — a 6.4×
+regime gap. On Amazon, 34.5% of TEST GT mass sat on items that did not
+exist in TRAIN at all, a structural cap no TRAIN-frozen model could clear
+(T8-1 ceiling 0.6546). On ML-32M that cap is 5.8%, and 91.0% of TEST GT
+mass falls on items active in TRAIN within 90 days of the cutoff.
+
+**H0 (null, the incumbent hypothesis).** On ML-32M, the primary confirmatory
+personalized arm M\* (Rule S4) does not beat the confirmatory popularity
+comparator P\* (Rule S6) at any user-history depth: for every depth bucket
+*d*, `Δ(d) = NDCG@10(M*, d) − NDCG@10(P*, d) ≤ 0` after the multiplicity
+correction in §5. Under H0 the Amazon result generalizes to a low-churn
+catalog, catalog churn is **not** the controlling variable, and the
+mechanism story from Phase 8/9 narrows sharply: popularity wins for reasons
+that survive a 6.4× change in churn (pop-bias in the evaluation protocol,
+full-catalog ranking difficulty, or implicit-positive semantics). That is a
+*publishable* outcome and this preregistration treats it as the default,
+not the failure case.
+
+**H1 (crossover, directional).** On ML-32M there exists a depth bucket
+*b* satisfying the full §7 D1 coherence condition — at least one
+BH-significant positive bucket in Family P, and a shallowest bucket *b*
+such that **every** bucket at or above *b* has point-estimate `Δ > 0` and no
+BH-significant negative bucket sits at or above *b* — so that
+**n\* = the lower edge of b**, drawn from the deep-bucket edges
+**{0, 1, 5, 10, 20, 50, 100}**. H1 is therefore not "some cell came out
+positive"; it is "personalization wins from a definable history depth
+onward and keeps winning." Under H1 the churn contrast supports "the
+crossover appears when the catalog holds still," and the Amazon null is
+explained by the measured 41.11% churn rather than by the model ladder.
+An outcome with significant positives that fails the coherence condition is
+neither H1 nor H0 confirmed; it is the pre-named D5 (§7).
+
+**Directional expectation is permitted here and declared: H1 is expected
+to be favored over H0.** The permission derives from the *data stage*, not
+from any model evaluation: the 0.06403 vs 0.41113 contrast and the 91.0%
+≤90d-recency mass were computed and committed before any model saw the
+data (T9-3a, §8c). No model score on either dataset informs the direction.
+
+**What the direction must NOT do.** The folk prior "MovieLens is
+collaborative filtering's home turf" is explicitly barred from every
+TEST-touching decision rule below. Concretely: (a) no rule in §3, §4, §5 or
+§6 conditions on the outcome direction; (b) the acceptance thresholds, the
+BH family definitions, and the verdict language for T9-3c are symmetric —
+a significant *negative* Δ is recorded and reported with the same
+machinery, at the same α, in the same table, as a significant positive Δ;
+(c) no arm gets a second TEST run, a re-tune, or a "sanity re-check"
+because its result came out on the unexpected side. If the outcome is a
+double null, the entry that reports it is titled and framed as a result,
+not as a shortfall.
+
+**What H1 does not claim.** Even a clean ML-32M crossover is a **regime
+contrast, not causal proof**. ML-32M differs from Amazon Electronics on
+several axes simultaneously (explicit 0.5–5.0 ratings vs implicit review
+events; 159 mean interactions/user vs 9.4; 43,884 items vs 368,228; movie
+catalog with a long-lived back catalog vs a churning electronics catalog;
+rating-entry timestamps on a backfilled catalog). Churn is the axis we
+*measured*; it is not the only axis that moved. See §7.
+
+---
+
+### 2. Arms and the complete VAL grid (mirrored from the Amazon ladder)
+
+All VAL runs use `protocol.eval_split: val`, `knowledge_cutoff: train_end`,
+`k_list: [10, 20, 50]`, `bootstrap: {n_resamples: 1000, seed: 20260805}`,
+tables in the `local.gold_ml32m.*` namespace, `cache_dir:
+data/eval/cache_ml32m`. Metrics emitted per run: **Recall@{10,20,50},
+NDCG@{10,20}, MRR, HitRate@10**, full-catalog ranking over all 43,884
+items with TRAIN-seen items excluded (invariant #4 — no sampled negatives).
+
+| # | arm | VAL grid | # VAL runs |
+|---|---|---|---|
+| A0 | random | none (seeded floor) | 1 |
+| A1 | pop-alltime — **P\* candidate** | `as_of: train_end`, `window_days: null` | 1 |
+| A2 | pop-t12m — **P\* candidate** | `as_of: train_end`, `window_days: 365` | 1 |
+| A3 | item-kNN (static) — M\* eligible | `top_n ∈ {50, 100, 200}`, `shrinkage: 0.0`, cosine, `block_size: 8192` | 3 |
+| A4 | item-kNN-t12m — M\* eligible | `train_window_days: 365`; `top_n` **held** at A3's VAL winner; no free params | 1 (sanity, not selection) |
+| A5 | ALS (binary) — M\* eligible | coordinate-descent sweep, below | 10 |
+| A6 | ALS-decay — M\* eligible | `half_life_days ∈ {90, 365, 1460}`, all other params at A5's selected config | 3 |
+| A7 | content (MiniLM) — M\* eligible | none (recipe frozen in §3) | 1 |
+| A8 | blend (content+pop) — **M\* INELIGIBLE** (§4 S4) | `alpha ∈ {0.1, 0.3, 0.5, 0.7, 0.9}`, pop component fixed at `as_of: train_end, window_days: 365` | 5 |
+| A9 | hybrid / routing policy | `n*` fitted on VAL over the §4 S5 grid; VAL-only fit | 1 confirming |
+
+**A5, the ALS coordinate-descent sweep (mirrors Phase 3 E1–E10 exactly).**
+Anchor: `rank=64, reg_param=0.01, alpha=10.0, max_iter=15,
+weighting=binary, seeds.model=20260805`, `implicitPrefs=True`. One variable
+moves at a time from the anchor; the axis winner is carried into the next
+axis in the Phase 3 order (rank → reg → alpha → iter → weighting):
+
+- rank ∈ {32, **64** (anchor), 128}
+- reg_param ∈ {0.001, **0.01** (anchor), 0.1}
+- alpha ∈ {1.0, **10.0** (anchor), 40.0}
+- max_iter ∈ {8, **15** (anchor), 25}
+- weighting ∈ {**binary** (anchor), rating}
+
+1 anchor run + 9 non-anchor points = **10 VAL runs** (rank 2, reg 2, alpha
+2, iter 2, weighting 1). No other ALS value may be evaluated on VAL.
+`checkpoint_interval` is training infra, excluded from the param hash by
+design, and may be set freely for memory/disk reasons (numerically
+neutral). **Pre-declared feasibility fallback:** if rank 128 is infeasible
+on the box, the frontier is published at rank 64 and the infeasibility is
+disclosed — the §12-sanctioned cut, mirroring `eval_als_val_rank128.yaml`.
+
+**`weighting=rating` on ML-32M, disclosed.** The existing code path feeds
+the raw star rating as `ratingCol` under `implicitPrefs=True`
+(`c = 1 + α·r`). On ML-32M `r ∈ {0.5, 1.0, …, 5.0}`, so the low end is 0.5
+rather than Amazon's 1.0. Same code, slightly different confidence range;
+no rescaling is applied, because rescaling would be a new tunable.
+
+**A6, the half-life grid {90, 365, 1460} days — mirrored, not re-derived.**
+These are the lab's frozen recency constants (T8-2 preregistration: the
+regime-map recency axis ≤90d / 91–365d / >365d, and 1460d as the
+deliberately mild decay). `age_days = train_end − latest TRAIN interaction
+ts`; `r = 2^(−age_days / half_life_days)`; at age 0, `r = 1`, identical to
+binary. Only the half-life is tuned.
+
+**A8, the blend.** `alpha · minmax_per_user(content) + (1−alpha) ·
+minmax(log1p(pop))`; cold rows degenerate to pure popularity by
+construction. α grid {0.1, 0.3, 0.5, 0.7, 0.9} is the Amazon grid verbatim.
+The blend's **internal** popularity component stays at `as_of: train_end,
+window_days: 365` (the Amazon blend's component) **regardless of which
+variant wins P\***, because the blend is a mirrored arm, not a comparator;
+changing its internals with P\* would make it a different model from the
+Amazon one and break the contrast.
+
+**Popularity is computed from TRAIN only and is NOT refreshed at TEST
+time**, for both datasets: `as_of: train_end` means pop-t12m is 6–16 months
+stale when scored against ML-32M TEST (2023), exactly as it was against
+Amazon TEST. Refreshing popularity on ML-32M would change the protocol
+between the two regimes and destroy the contrast. This is a deliberate,
+declared handicap applied symmetrically.
+
+**Implicit-positive semantics, inherited and disclosed.** Per invariant #6,
+every rating in the 5-core is an implicit positive regardless of star
+value; a 0.5-star rating is a positive. A "rating ≥ 4" thresholded variant
+is **out of scope and may not be added**: the 5-core, the frozen split, and
+the T9-3a churn statistic are all computed over all-ratings, and re-coring
+on a threshold would invalidate the very number the contrast hinges on.
+This is a real limitation of the contrast and belongs in §8, not in a
+post-hoc grid extension.
+
+**Rejected arms and alternatives (recorded so they cannot be added later):**
+genre-conditional popularity (the ML analogue of `pop_category`) — not in
+the §8c ladder, and adding it would introduce an arm with no Amazon
+counterpart; a "rating ≥ 4" positives variant (above); any deep/sequential
+recommender (invariant #6, lane discipline); any Amazon↔ML-32M transfer or
+joint model (meaningless under disjoint catalogs). **Peer-draft
+alternatives considered and rejected during registration** (independent
+Codex draft, same task, neither draft seen by the other): tag cap K=20, a
+field-labeled embedding text template, an NFKC-based normalization
+pipeline, the Phase 4 five-segment axis as the primary family without BH
+correction, and a `top_n` grid for item-kNN-t12m. All five were rejected
+for the same two reasons: they deviate from §8c's "the existing MiniLM
+recipe" mirror requirement (K, template, normalization) or from T8-2
+precedent and this phase's own correction mandate (uncorrected primary
+family; a zero-free-parameter recency arm acquiring free parameters).
+
+---
+
+### 3. Content arm — recipe `v1_ml32m_title_genres_tags`, fully specified
+
+§8c requires the content arm on **title+genres+tags** via the existing
+MiniLM recipe. `local.gold_ml32m.item_features` carries only
+`(parent_asin, title, genres)`; tags live in `local.silver_ml32m.tags`
+(the T9-3a tags lane: `user_id, parent_asin, tag, ts`, control-char
+normalized and trimmed, empty tags already quarantined). The aggregation
+from tag *events* to a per-item tag *string* is therefore a new degree of
+freedom, and it is frozen here, before any embedding exists, so that the
+recipe hash is fully determined by this entry.
+
+**(a) Tag source restriction — leakage guard (mandatory).** Tags are
+timestamped user events, unlike Amazon's static product metadata. Only
+tags with `ts ≤ 2022-06-30T23:59:59.999Z` (= `train_end`, inclusive; the
+same boundary semantics as the frozen splits and the pop-t12m window) may
+enter the recipe. A tag written in 2023 describing a 2023-popular film
+would inject post-cutoff information into the item representation and
+would silently violate invariant #1. This is *stricter* than the Amazon
+recipe, and the asymmetry is deliberate and disclosed.
+
+**(b) Normalization.** Per tag row: the silver value (already C0/DEL
+stripped, `\n`→space, whitespace-collapsed, trimmed) is lowercased with
+Spark `lower()` (simple, locale-independent). Rows that are empty after
+normalization are dropped (re-assertion; the silver gate should already
+have quarantined them — the count is recorded as a measure).
+
+**(c) Dedup and weight.** `tag_weight(item, tag_norm) = COUNT(DISTINCT
+user_id)`. One user applying the same tag to the same movie many times
+counts once; two users applying it counts twice. Tag *timestamps* beyond
+the §3(a) filter are not used for weighting (no recency weighting on tags
+— that would be a new tunable).
+
+**(d) Ranking and cap.** Per `parent_asin`, order by `tag_weight DESC`,
+then `tag_norm ASC` (Spark's default UTF-8 binary string ordering) as the
+deterministic tie-break; take the **top K = 10**. K is frozen a priori at
+10, chosen to keep title+genres+tags inside all-MiniLM-L6-v2's 256-word-piece
+window rather than by any quality signal; **no K sweep is permitted** —
+sweeping K would tune a text recipe and would multiply recipe hashes.
+No minimum-weight filter and no tag-length cap are applied: for thinly
+tagged movies the top-10 may include idiosyncratic single-user tags, and
+that is accepted and disclosed, in preference to inventing a threshold
+constant. Over-long assembled text is truncated by the model's own
+`max_seq_length=256`, which is deterministic — the same truncation the
+Amazon recipe relies on.
+
+**(e) Join order and coverage.** LEFT JOIN from the 5-core catalog
+(`local.gold_ml32m.interactions_5core` distinct `parent_asin`, reordered to
+the eval cache's `item_ids` sequence, set-equality asserted first, exactly
+as `item_text.export_item_text` does on Amazon) onto
+`local.gold_ml32m.item_features` onto the aggregated tag table. A movie
+with no in-window tags gets an **empty list**, never a placeholder token.
+The share of catalog items with zero in-window tags and the share with
+empty `genres` are published to `dq_ml32m.dq_results` as measures **before**
+the embedding job runs.
+
+**(f) Genres.** Taken as stored in `gold_ml32m.item_features`
+(`array<string>`, already split on `|`, with `(no genres listed)` mapped to
+an empty array by the T9-3a silver transform). Order preserved as stored —
+deterministic given the SHA-verified source; no re-sorting, mirroring how
+the Amazon recipe consumes `features`.
+
+**(g) Text template (exact).** Mirrors `minilm_embed.build_recipe_text`:
+parts joined by a single space, null/empty parts skipped, no separator
+tokens, no field labels:
+
+```
+text(item) = " ".join(
+    ([title] if title else [])
+    + [g for g in genres if g]
+    + [t for t in tags_top10 if t]
+)
+```
+
+Titles keep their MovieLens year suffix (`"Toy Story (1995)"`) — kept, not
+stripped, and disclosed.
+
+**(h) Identity / hash / model artifact.** `RECIPE_ID =
+"v1_ml32m_title_genres_tags"`, `MODEL_ID =
+"sentence-transformers/all-MiniLM-L6-v2"`, `EMBED_DIM = 384`,
+`BATCH_SIZE = 256`, fp16 output, row-aligned to the eval cache `item_ids`.
+The embedding uses **the same locally cached model artifact the Amazon
+recipe used** — not a fresh download that could resolve to a different
+revision. The resolved model revision / weights hash is **recorded in the
+embedding artifact manifest** (`minilm_manifest.json`) as provenance; no
+specific revision hash is preregistered here, because none has been
+verified at registration time, and preregistering an unverified hash would
+be a fabricated receipt.
+
+The recipe hash **must** bind the aggregation rule, otherwise this
+specification is not enforced by the artifact identity. `recipe_hash()`
+gains an optional `extra` mapping that enters the canonical JSON **only
+when non-None**, mirroring the established `half_life_days`-enters-the-param-
+hash-only-under-`time_decay` pattern — so Amazon's recorded recipe hash
+`1f7878ff82bf` is provably unchanged (a back-compat unit test asserts this
+before any ML-32M embedding is produced). No expected ML-32M hash value is
+preregistered (it is a function of this spec and is recorded when first
+computed); the run config's declared `recipe_hash` and the artifact
+manifest's `recipe_hash` must match exactly, and a mismatch **aborts**.
+For ML-32M:
+
+```
+fields = ["title", "genres", "tags_top10"]
+joiner = " "
+extra  = {
+  "tag_source": "local.silver_ml32m.tags",
+  "tag_cutoff": "2022-06-30T23:59:59.999Z",   # inclusive
+  "tag_norm": "silver_sanitized|lower|trim",
+  "tag_weight": "count_distinct_user_id",
+  "tag_order": "weight_desc,tag_asc",
+  "tag_top_k": 10,
+  "genres_source": "local.gold_ml32m.item_features.genres",
+  "genres_order": "as_stored",
+  "empty_policy": "skip"
+}
+```
+
+**(i) Scoring.** Unchanged from Amazon: user profile = L2-normalized mean
+of the user's TRAIN item embeddings, cosine similarity against the
+L2-normalized catalog; cold users collapse to all-zero scores by
+construction; the same ANN/exact path as the Amazon content arm.
+
+**(j) §8c fallback — fail-closed. Quoted:** "if metadata proves unusable,
+disclose as a limitation rather than substituting."
+
+Metadata is **"unusable" only** for (i) a structural/provenance failure
+detected *before* content evaluation — missing required title/genre/tag
+columns; non-unique or incomplete catalog alignment; an unavailable or
+empty TRAIN-cutoff tag source; a recipe/hash/model-revision mismatch;
+non-finite or wrong-shape embeddings; or inability to build a receipted
+artifact — or (ii) the outcome-blind coverage threshold fixed here:
+**> 50% of the 5-core catalog has an entirely empty assembled text string**
+(no title AND no genres AND no in-window tags). Coverage below 100% but
+above that line is a disclosure, not a stop.
+
+**Poor VAL quality is explicitly NOT unusable metadata.** A content arm
+that simply scores badly on VAL goes to TEST under the frozen protocol like
+any other arm.
+
+If a qualifying failure occurs: **omit both the content arm (A7) and its
+dependent blend (A8)**, select M\* from the remaining classical arms by the
+unchanged Rule S4, and disclose the missing arms and the reason in T9-3c
+and in the case study's "What this does not prove." Do **not** silently
+substitute plots/synopses, the tag-genome features, a different tag cutoff
+or cap, another encoder, collaborative embeddings, or any other
+metadata/model recipe.
+
+---
+
+### 4. VAL selection rules (all tuning on VAL only — invariant #1)
+
+Selection metric is **global VAL NDCG@10**, the lab's primary metric, at
+the primary model seed **20260805** only (Phase 3 / T8-2 tuning practice).
+
+**Rule S1 — argmax with a CI tie-break (mirrors T8-2).** Within each arm's
+grid, the selected config is the argmax of global VAL NDCG@10. If the
+argmax's 95% bootstrap CI **overlaps** the incumbent/anchor's CI, the
+comparison is a tie and the **cheaper** config wins (smaller rank, fewer
+iterations, smaller `top_n`, smaller `alpha`, `binary` over `rating`,
+smaller half-life). Applied axis by axis for A5's coordinate sweep, in the
+declared axis order.
+
+*Rejected alternative, recorded:* Phase 3's absolute 0.0001 tie band. It is
+calibrated to Amazon's ~0.004 NDCG@10 scale; ML-32M's dense-regime scores
+are expected to be an order of magnitude larger, where 0.0001 would be a
+rounding error and the band would never bind. The CI-overlap rule is
+scale-free and is the lab's most recent precedent (T8-2). Consequence
+accepted: with 200,948 users, VAL CIs will be narrow and the tie-break may
+almost never trigger — i.e. selection will be near-pure argmax.
+
+**Rule S2 — A4 (item-kNN-t12m) has no free parameters.** Its single VAL run
+is recorded as a *sanity* record, not a selection record, with `top_n` held
+at A3's winner. On Amazon this arm collapsed on VAL (0.00056 vs pop-t12m
+0.01034) and still went to TEST under the frozen protocol; the same applies
+here — a bad VAL number does not remove an arm.
+
+**Rule S3 — A6 (ALS-decay) regression clause (mirrors T8-2 verbatim in
+substance).** If all three half-lives score below the selected static-ALS
+(A5) VAL baseline, the decay mechanism failed on VAL; the best of the three
+still goes to TEST (the confirmatory question is vs P\*, not vs static
+ALS) with the VAL regression disclosed. More generally: if every value in a
+family loses on VAL to its comparator or incumbent, the mechanically
+selected argmax still advances to TEST and the regression is disclosed —
+**failure to improve is not permission to expand or rerun a grid.**
+
+**Rule S4 — the primary confirmatory arm M\* is selected on VAL, blind to
+TEST.** Exactly one arm carries the primary confirmatory family in §5:
+**M\* = argmax of global VAL NDCG@10 among {A3 item-kNN, A4 item-kNN-t12m,
+A5 ALS, A6 ALS-decay, A7 content}** at each arm's selected config.
+CI-overlap ties break toward the **simpler** arm in the order
+**A3 < A4 < A5 < A6 < A7** (fewest moving parts first).
+
+**A8 (the blend) is excluded from M\* eligibility.** The blend contains the
+popularity comparator's own signal by construction (`(1−α)·minmax(log1p(pop))`),
+so a blend-beats-popularity sign change would not answer the question this
+phase asks — *does personalization beat popularity, and at what history
+depth* — it would mostly report that adding popularity to popularity does
+not hurt. The blend keeps its full VAL α grid, its one TEST run, and its
+place in the secondary families; it is reported as **deployment /
+performance evidence** (the Amazon-side "one effective arm" result has the
+same status) and **cannot set n\***.
+A0 (random) is a floor, A1/A2 are the comparator candidates, and A9 is a
+routing wrapper — none is M\*-eligible either.
+
+**Rule S6 — the confirmatory popularity comparator P\* is selected on VAL,
+blind to TEST.** **P\* = argmax of global VAL NDCG@10 between A1
+(pop-alltime) and A2 (pop-t12m).** CI-overlap tie → the variant with the
+**larger CI lower bound**; if still tied, **pop-alltime** by arm-id order.
+Rationale: on a low-churn catalog where 91.0% of TEST GT mass sits on
+items active within 90 days of the cutoff and the back catalog stays
+relevant, **all-time popularity may well be the stronger reference**, and a
+crossover claim is only credible against the *stronger* popularity baseline
+— beating the weaker of two popularity variants is not a crossover, it is a
+comparator choice. This rule is outcome-blind (VAL-only, fixed before any
+TEST number exists) and mechanical.
+
+*Disclosed asymmetry:* the Amazon side's committed confirmatory comparator
+is **pop-t12m** (Phase 4/8 records). If P\* resolves to pop-alltime on
+ML-32M, the two regimes are compared each against **its own VAL-selected
+popularity reference**, and the cross-regime chart labels each regime's
+reference explicitly rather than forcing a single variant across datasets.
+Both popularity variants still receive their own TEST records either way,
+so the non-selected variant's numbers are published, not hidden.
+
+**Rule S5 — routing policy (A9), VAL-only fit.** `n*` is fitted on VAL over
+the Phase 4 T13 grid (`n_star ∈ {none/∞} ∪ the deep-bucket lower edges
+{1, 5, 10, 20, 50, 100}`, low arm = M\*, high arm = P\*), selecting the cell
+that maximizes global VAL NDCG@10. **If the fitted `n*` is infinite** (i.e.
+routing degenerates to a single arm, as it did on Amazon), no hybrid TEST
+run is spent — the hybrid would be numerically identical to that arm, and
+identity is asserted on the VAL confirming run instead. **If `n*` is
+finite**, exactly one hybrid TEST run is spent.
+
+**Freezing.** After the selections are logged in this file, the selected
+config hashes, **M\***, and **P\*** are frozen before any TEST run.
+
+---
+
+### 5. Multiplicity policy
+
+**The §8c/T9-2 amendment, verbatim:**
+
+> The §8b T8-4 spec stands as written with **one amendment**: the
+> preregistration must now include an explicit multiplicity policy — the
+> **primary confirmatory test is the per-depth-segment crossover on the
+> history axis** (5–8 tests, mirroring the Phase 4 exhibits); regime-map
+> cells are **secondary**, corrected with Benjamini–Hochberg at FDR 0.05
+> across all cells per arm.
+
+**Operationalization.**
+
+**(a) The history axis is the 7 T8-3 deep buckets, plus the global cell —
+8 tests.** `DEEP_BUCKET_LABELS = ("0", "1-4", "5-9", "10-19", "20-49",
+"50-99", "100+")`, lower edges **{0, 1, 5, 10, 20, 50, 100}**, plus one
+all-users test = 8, inside §8c's "5–8 tests" allowance. *Why not the Phase
+4 five-segment axis (`0/1-4/5-9/10-19/20+`)?* Because ML-32M's 5-core
+averages ~159 interactions per user (31,921,467 / 200,948, T9-3a record)
+against Amazon's ~9.4: the Amazon axis would place the overwhelming
+majority of ML-32M users in a single `20+` bucket and destroy exactly the
+resolution the crossover question needs. This choice is made from a
+**data-stage** density fact already committed in T9-3a, with no TEST-side
+counting, and is fixed now. The five-segment axis is still computed and
+reported as a **secondary** cross-dataset comparability exhibit.
+Disclosure of an asymmetry: the deep buckets were labeled *exploratory* on
+Amazon (T8-3); here they are preregistered as *confirmatory*, and any
+Amazon-side numbers shown beside them in the regime-contrast chart retain
+the Amazon exploratory label.
+
+**(b) Family P (primary confirmatory).** **M\* vs P\***, paired delta on
+**NDCG@10**, one test per populated deep bucket + one global test (m ≤ 8).
+A bucket with **zero TEST users** yields no test and is excluded with its
+count disclosed; that exclusion is driven by user counts, not by outcomes.
+Benjamini–Hochberg at **FDR 0.05** within Family P.
+
+**(c) Family S1 (secondary, per arm).** Every other arm (including A8 the
+blend, and the non-selected popularity variant) **vs P\*** across the same
+deep buckets: BH at FDR 0.05 **within that arm's** bucket family.
+
+**(d) Family S2 (secondary, per arm).** Regime-map cells (support axis:
+zero / low / high; recency axis: ≤90d / 91–365d / >365d / absent — the
+committed `CELL_AXES`), recomposed through the T8-1 machinery, **each arm
+vs P\***: BH at FDR 0.05 **across all cells per arm**, exactly as the
+amendment reads.
+
+**(e) p-values.** The bootstrap emits CIs, not p-values. The two-sided
+achieved-significance-level is computed **from the same 1,000 paired
+resampled deltas, same seed, same resample matrix** — a pure post-processing
+of resamples already drawn, requiring no additional TEST evaluation:
+
+```
+p = min(1.0, 2 * min( (1 + #{D_b <= 0}) / (B+1),
+                      (1 + #{D_b >= 0}) / (B+1) ))     # B = 1000
+```
+
+Resolution floor is 1/1001 ≈ 0.000999; any p at the floor is reported as
+`< 0.001`, not as an exact value.
+
+**(f) Direction and symmetry.** BH runs on two-sided p-values. A *win*
+requires `p_BH-significant AND Δ > 0`; a *loss* requires `p_BH-significant
+AND Δ < 0`. Both are recorded in the same table with the same emphasis.
+
+**(g) Metric robustness, reported not confirmatory.** Recall@20 is computed
+for every test in every family and reported alongside. A crossover claim is
+labeled **"metric-robust"** only when Recall@20 agrees in sign and
+significance. §8c's own critique — that NDCG@10 and Recall@20 are highly
+correlated on the same cells, so the dual-metric guard is only partial
+protection — is why the dual-metric agreement is a *label*, not the
+confirmatory criterion. The confirmatory criterion is BH-corrected NDCG@10.
+
+**(h) Uncorrected numbers are still published**, clearly marked as
+uncorrected, so that this phase's own correction of Phase 8 is auditable
+rather than a second unauditable judgment call.
+
+---
+
+### 6. TEST protocol (frozen-TEST invariant #1)
+
+**Exactly ONE TEST evaluation per selected arm. No iteration, no re-runs on
+an unexpected result.** TEST is entered only after (i) all VAL runs are
+recorded in `results/runs.jsonl`, (ii) the §4 selections — including M\*
+and P\* — are appended to this log with their VAL numbers, and (iii) the
+content-recipe artifact hashes are recorded.
+
+| arm | TEST records | seeds |
+|---|---|---|
+| A0 random | 1 | fixed seed recorded |
+| A1 pop-alltime | 1 | deterministic |
+| A2 pop-t12m | 1 | deterministic |
+| A3 item-kNN @ selected `top_n` | 1 | deterministic |
+| A4 item-kNN-t12m | 1 | deterministic |
+| A5 ALS @ selected config | 3 | 20260805 (primary), 20260806, 20260807 — mean±sd |
+| A6 ALS-decay @ selected half-life | 3 | same three seeds — mean±sd |
+| A7 content (MiniLM) | 1 | deterministic given the recipe hash |
+| A8 blend @ selected α | 1 | deterministic |
+| A9 hybrid | 0 or 1 | only if VAL-fitted `n*` is finite (Rule S5) |
+
+Both popularity variants are evaluated on TEST regardless of which one is
+P\*; only P\* appears as the comparator in Families P/S1/S2.
+
+**Seed discipline for inference.** **Seed 20260805 is the sole per-user
+artifact used for all paired TEST deltas and for every segment-level and
+cell-level inference.** Seeds 20260806 and 20260807 are **stability
+evidence only** — they contribute the reported mean±sd and nothing else,
+and they **never enter a paired CI, a p-value, or a BH family**. This
+prevents a second seed from becoming a second look at TEST.
+
+**Deterministic vs stochastic, and the "headline at 3 seeds" requirement.**
+Only the ALS family is stochastic (Spark ALS retraining is not bit-stable;
+rescoring from a persisted factor artifact is). A3/A4/A7/A8 are
+deterministic functions of frozen inputs — their identity is carried by
+recorded artifact SHA-256s, not by seed replication, and re-running them
+would produce byte-identical scores. **If M\* lands on a deterministic arm,
+the §8c "headline config at 3 seeds" requirement is satisfied by the ALS
+arms' 3-seed records plus M\*'s artifact-hash determinism, and that
+substitution is disclosed in T9-3c** — spending three identical TEST runs
+on a deterministic arm would consume TEST budget for no information.
+
+**Infrastructure retries.** A run that dies for infrastructure reasons
+(OOM, disk, preemption, host failure) may be retried **only with a
+byte-identical config**, and the retry is logged here with its cause. A
+**completed** TEST record is never replaced, re-run, or deleted — the log
+is append-only and a wrong run gets a superseding entry, not a rewrite
+(invariant #3). A lineage or cache-alignment mismatch **aborts before any
+run record is appended**, so a mis-pinned run never becomes a record that
+has to be superseded.
+
+**Comparisons.** For every arm: paired-bootstrap delta **vs P\***
+(1,000 resamples, seed 20260805, **paired within comparison** — the same
+resample matrix for both members, per-segment child seeds
+`default_rng([base_seed, axis_ordinal, segment_ordinal, bucket_ordinal])`),
+over: global, the 7 deep buckets (Family P/S1), the 5 Phase 4 segments
+(comparability exhibit), and the regime-map cells (Family S2, recomposed
+through the committed T8-1 machinery with its identity-anchor assertion —
+single-bucket recomposition must reproduce the arm's own recorded global
+metrics, and any mismatch aborts).
+
+**Reproducibility.** Every TEST record carries config hash, git SHA,
+`data/MANIFEST_ML32M.md` hash, and the ML-32M Iceberg snapshot ID
+(invariant #3), and the ladder is regenerable via **`make reproduce-ml32m`**
+pinned to that snapshot (§8c acceptance). `data/MANIFEST.md` is **never**
+touched — it is a compared field of the pinned Amazon headline
+(`eval/reproduce.FIELDS_COMPARED`), as T9-3a discovered.
+
+---
+
+### 7. Decision rules → T9-3c verdict language (both outcomes ship)
+
+Symmetric by construction: each outcome below has a pre-written headline,
+a pre-agreed chart, and the same evidence obligations. All tests below are
+**M\* vs P\***, BH-corrected within Family P (§5b).
+
+**D1 — CROSSOVER at n\*.** Requires **both**:
+   (i) at least one BH-significant **positive** bucket in Family P; **and**
+   (ii) a **coherence** condition: there exists a shallowest bucket *b*
+   such that **every** bucket at or above *b* has point-estimate `Δ > 0`,
+   and **no** BH-significant **negative** bucket sits at or above *b*.
+   Then **n\* = the lower edge of b**, drawn from {0, 1, 5, 10, 20, 50, 100}.
+T9-3c reports the crossover with CIs; the crossover chart is rendered under
+**both** regimes side by side, each against its own VAL-selected popularity
+reference (Rule S6); the headline becomes *"the crossover appears when the
+catalog holds still — 6.4× less churn, and personalization finally wins
+past n\* interactions of history."* Required companions: the
+metric-robustness label (§5g), the routing policy refit under the ML-32M
+regime, and an explicit statement that Amazon's null is *consistent with*
+the churn mechanism, **not proven** by it (§1, "regime contrast, not causal
+proof").
+
+**D2 — GLOBAL-ONLY WIN.** The global test in Family P is BH-significant and
+positive but no individual depth bucket is. Verdict: *"personalization wins
+on average on the low-churn catalog, but no history-depth threshold is
+identified"* — an aggregate win with n\* undetermined; the routing narrative
+stays at "no routing," and the aggregate win is reported as such. This
+intermediate outcome is named now so it cannot be silently rounded into D1.
+
+**D3 — DOUBLE NULL.** No BH-significant positive test in Family P. Verdict:
+*"popularity dominates even where the catalog holds still"* — the Amazon
+null replicates across a 6.4× churn gap; catalog churn is **not** the
+controlling variable; the mechanism story narrows to explanations that
+survive both regimes, and those candidate explanations (protocol popularity
+bias under full-catalog ranking, implicit-positive semantics on explicit
+ratings, TRAIN-frozen popularity's surprising strength on stale windows) are
+listed as open questions, not asserted. The case study's headline stays
+null-first, now with an external replication behind it — a **stronger**
+claim than the single-dataset null it replaces (§12's standing position:
+a null here is an outcome, not a failure).
+
+**D4 — SIGNIFICANT NEGATIVES.** If BH-significant *negative* deltas appear
+(personalization measurably worse than popularity at some depth), they are
+reported in the same table and the same prose register as wins would be.
+
+**D5 — MIXED under the preregistered crossover definition.** Condition (i)
+holds but condition (ii) fails: BH-significant positives are interleaved
+with BH-significant negatives, or a bucket above the candidate *b* has a
+negative point estimate. Verdict language: *"significant per-depth wins
+exist but do not form a crossover under the preregistered definition —
+no n\* is claimed."* The positive buckets are reported with their CIs and
+BH-adjusted p-values, and the incoherence is shown, not smoothed. **D5 may
+not be reported as D1, and may not be reported as D3** — an isolated
+positive cell is exactly the Phase 8 failure mode this phase exists to
+correct (T9-1), and burying real per-depth wins in a "null" headline would
+be the mirror-image error.
+
+**In every branch:** secondary families (S1, S2) are reported as
+*secondary*, BH-corrected, and may not be promoted to the headline — that
+promotion is precisely the Phase 8 error this phase exists to correct
+(T9-1). The blend (A8), being M\*-ineligible, may appear in the headline
+only as deployment/performance evidence and never as the crossover arm.
+Verdict entry appended to this log; records in `results/runs.jsonl`; case
+study and demo updated only where existing numbers are directly superseded.
+
+---
+
+### 8. Caveats, fixed in advance
+
+1. **Regime contrast, not causal proof.** Several variables move at once
+   between the datasets (§1). Churn is the axis measured; density, catalog
+   size, feedback type, and domain all differ. No causal claim about churn
+   is licensed by either outcome.
+2. **MovieLens timestamp caveat.** ML-32M timestamps are *rating-entry*
+   times, not consumption times, on a catalog that users backfill — a user
+   in 2023 may rate a 1994 film. Temporal splits on this dataset therefore
+   split *rating behavior*, not *release/consumption*, which mechanically
+   dampens catalog churn and is part of why 0.06403 is small (Sun et al.,
+   arXiv:2307.09985). Cited in T9-3c and in the site's "What this does not
+   prove."
+3. **Explicit ratings treated as implicit positives** (§2), including
+   0.5-star ratings. Frozen upstream; a thresholded variant is out of scope.
+   Implicit binary ALS also intentionally ignores star magnitude except on
+   the single `weighting=rating` sweep point.
+4. **Popularity is TRAIN-frozen and stale at TEST time** on both datasets by
+   design (§2). This handicaps popularity identically in both regimes; it
+   does not eliminate the protocol's general pop-bias.
+5. **The comparator differs by regime if Rule S6 selects pop-alltime** —
+   disclosed in §4 and labeled on every cross-regime exhibit.
+6. **The ALS sweep is a preregistered coordinate search** over the Amazon
+   values, not an exhaustive joint optimum. Reported regardless of outcome.
+7. **Tag coverage** is partial and the top-10 rule may admit single-user
+   tags on thinly-tagged movies (§3d); the coverage measures are published
+   before the embedding runs.
+8. **Directional hypothesis** is declared (§1) and is data-stage-derived; the
+   decision rules are outcome-symmetric and were written before any model
+   number existed.
+9. **Cross-machine float drift**: all ML-32M VAL and TEST runs execute on the
+   machine of record; no result mixes machines (T8-2 substrate entry).
+10. **Research license**: ML-32M is never redistributed; only hashes,
+    aggregate metrics, and receipted derived results are published. Cite
+    Harper & Konstan 2015.
+
+---
+
+### 9. Mechanics declared before implementation
+
+- New code required before the first VAL run: ML-32M eval cache extract
+  (`data/eval/cache_ml32m/<snapshot>/`), the `gold_ml32m.item_text` build +
+  export in eval-cache `item_ids` order, the tag aggregation of §3, the
+  `recipe_hash(extra=…)` extension, and the ML-32M-namespaced config set.
+  Unit tests land **with** that code and **before** any VAL run: recipe-hash
+  back-compat (Amazon `1f7878ff82bf` unchanged), tag-cutoff boundary
+  (inclusive at `train_end`), tag ranking determinism including the
+  lexicographic tie-break, empty-tag/empty-genre handling, and the bootstrap
+  ASL p-value against a hand-computed fixture.
+- The ALS `age_days` cache for A6 is built by the same one-shot deterministic
+  job used in T8-2, pinned to the ML-32M 5-core snapshot, with the
+  exact-alignment assertion against the cached pair arrays (mismatch aborts).
+- No ML-32M model artifact, eval cache, or embedding exists as of this
+  entry. The first VAL run may not start until this entry is committed.
