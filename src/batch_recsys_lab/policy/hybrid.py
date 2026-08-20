@@ -48,7 +48,9 @@ class HybridRecommender:
 
     name = "hybrid"
 
-    def __init__(self, n_star, low: dict, high: dict, seeds: dict | None = None):
+    def __init__(
+        self, n_star, low: dict, high: dict, seeds: dict | None = None, tables: dict | None = None
+    ):
         # Deferred import — see module docstring (avoids harness<->policy cycle).
         from batch_recsys_lab.eval.harness import _build_model
 
@@ -57,8 +59,8 @@ class HybridRecommender:
         self.low_cfg = dict(low)
         self.high_cfg = dict(high)
         seeds = seeds or {}
-        self._low = _build_model(self.low_cfg, seeds)
-        self._high = _build_model(self.high_cfg, seeds)
+        self._low = _build_model(self.low_cfg, seeds, tables)
+        self._high = _build_model(self.high_cfg, seeds, tables)
         self.params = {
             "n_star": None if self.n_star == float("inf") else self.n_star,
             "low": {"name": self.low_cfg["name"], "params": self.low_cfg.get("params") or {}},

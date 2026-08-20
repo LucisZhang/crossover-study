@@ -30,6 +30,7 @@ from batch_recsys_lab.models.als import (
     als_param_hash,
     artifact_dir,
     canonical_params,
+    five_core_snapshot_id,
     sha256_file,
 )
 
@@ -238,6 +239,41 @@ def test_build_model_als_wiring(tmp_path):
     assert model.factors_root == str(tmp_path)
     # params echoed into the record carry the six identity keys.
     assert set(model.params) >= set(_PARAMS)
+
+
+def test_five_core_snapshot_id_default_table():
+    manifest = {"snapshot_ids": {FIVE_CORE_TABLE: 42}}
+    assert five_core_snapshot_id(manifest) == 42
+
+
+def test_five_core_snapshot_id_non_default_table():
+    ml32m_table = "local.gold_ml32m.interactions_5core"
+    manifest = {"snapshot_ids": {ml32m_table: 4242}}
+    assert five_core_snapshot_id(manifest, ml32m_table) == 4242
+    # The default-table lookup must NOT silently succeed against a manifest
+    # that only carries the ML-32M key.
+    with pytest.raises(KeyError):
+        five_core_snapshot_id(manifest)
+
+
+def test_build_model_als_wiring_non_default_five_core_table(tmp_path):
+    ml32m_table = "local.gold_ml32m.interactions_5core"
+    model_cfg = {
+        "name": "als",
+        "params": {
+            "rank": 3,
+            "reg_param": 0.1,
+            "alpha": 40.0,
+            "max_iter": 5,
+            "weighting": "binary",
+            "factors_root": str(tmp_path),
+        },
+    }
+    model = _build_model(model_cfg, {"model": 7}, {"five_core": ml32m_table})
+    assert model.five_core_table == ml32m_table
+    # Not part of the identity/param hash — Amazon and ML-32M runs with
+    # identical model params must still hash identically.
+    assert "five_core_table" not in model.params
 
 
 def test_build_model_als_missing_seed_raises():

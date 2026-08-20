@@ -16,6 +16,7 @@ from pathlib import Path
 
 import yaml
 
+from batch_recsys_lab.eval import runlog
 from batch_recsys_lab.eval.harness import run_eval
 
 
@@ -24,6 +25,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", required=True)
     parser.add_argument("--results", default="results/runs.jsonl")
     parser.add_argument("--allow-stale", action="store_true")
+    parser.add_argument(
+        "--splits-path",
+        default=str(runlog.DEFAULT_SPLITS_PATH),
+        help="Path to the frozen splits YAML (default: configs/splits.yaml).",
+    )
+    parser.add_argument(
+        "--manifest-path",
+        default=str(runlog.DEFAULT_MANIFEST_PATH),
+        help="Path to the dataset manifest (default: data/MANIFEST.md).",
+    )
     args = parser.parse_args(argv)
 
     config_path = Path(args.config)
@@ -35,6 +46,8 @@ def main(argv: list[str] | None = None) -> int:
             config_path=config_path,
             results_path=args.results,
             allow_stale=args.allow_stale,
+            splits_path=args.splits_path,
+            manifest_path=args.manifest_path,
         )
     except Exception as exc:  # noqa: BLE001 - CLI boundary: report + non-zero exit
         print(f"ERROR: {exc}", file=sys.stderr)

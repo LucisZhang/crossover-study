@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 
 from batch_recsys_lab.eval.dataset import EvalDataset
+from batch_recsys_lab.models.als import FIVE_CORE_TABLE
 from batch_recsys_lab.models.content import DEFAULT_ARTIFACT_ROOT, ContentRecommender
 
 
@@ -61,12 +62,15 @@ class ContentPopBlendRecommender:
         window_days: int,
         recipe_hash: str,
         artifact_root: str | Path = DEFAULT_ARTIFACT_ROOT,
+        five_core_table: str = FIVE_CORE_TABLE,
     ):
         self.alpha = float(alpha)
         self.as_of = str(as_of)
         self.window_days = int(window_days)
         self.recipe_hash = str(recipe_hash)
         self.artifact_root = str(artifact_root)
+        # Not part of self.params — see ALSRecommender's five_core_table note.
+        self.five_core_table = str(five_core_table)
         self.params = {
             "alpha": self.alpha,
             "as_of": self.as_of,
@@ -75,7 +79,9 @@ class ContentPopBlendRecommender:
             "artifact_root": self.artifact_root,
         }
         self._content = ContentRecommender(
-            recipe_hash=self.recipe_hash, artifact_root=self.artifact_root
+            recipe_hash=self.recipe_hash,
+            artifact_root=self.artifact_root,
+            five_core_table=self.five_core_table,
         )
         self._pop_normed: np.ndarray | None = None
 

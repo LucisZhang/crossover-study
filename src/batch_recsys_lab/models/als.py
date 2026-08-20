@@ -138,9 +138,15 @@ def als_param_hash(params: dict) -> str:
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:12]
 
 
-def five_core_snapshot_id(manifest: dict) -> int:
-    """The five-core snapshot id the cache (and thus the artifact) is keyed by."""
-    return int(manifest["snapshot_ids"][FIVE_CORE_TABLE])
+def five_core_snapshot_id(manifest: dict, five_core_table: str = FIVE_CORE_TABLE) -> int:
+    """The five-core snapshot id the cache (and thus the artifact) is keyed by.
+
+    ``five_core_table`` defaults to the Amazon lane's table name
+    (``FIVE_CORE_TABLE``) so every pre-existing call site is unaffected; a
+    caller running against a different lane (e.g. ML-32M's
+    ``local.gold_ml32m.interactions_5core``) passes that table name so the
+    lookup hits the right key in ``manifest["snapshot_ids"]``."""
+    return int(manifest["snapshot_ids"][five_core_table])
 
 
 def artifact_dir(factors_root: str | Path, snapshot_id: int, param_hash: str) -> Path:
@@ -186,6 +192,7 @@ class ALSRecommender:
         seed: int,
         factors_root: str | Path = "data/eval/als",
         half_life_days: float | None = None,
+        five_core_table: str = FIVE_CORE_TABLE,
     ):
         self.rank = int(rank)
         self.reg_param = float(reg_param)
@@ -194,6 +201,10 @@ class ALSRecommender:
         self.weighting = str(weighting)
         self.seed = int(seed)
         self.factors_root = str(factors_root)
+        # Not part of self.params / the param hash — identity is defined by the
+        # model params only; the table name just tells fit() which manifest key
+        # to resolve the snapshot id from (default preserves Amazon-lane behavior).
+        self.five_core_table = str(five_core_table)
         # Identity-bearing only under weighting='time_decay' (see canonical_params);
         # Step B itself never applies the decay — it scores persisted factors.
         self.half_life_days = None if half_life_days is None else float(half_life_days)
@@ -220,7 +231,7 @@ class ALSRecommender:
         snapshot or the factor shapes disagree with what this instance expects.
         """
         manifest = ds.manifest
-        snap = five_core_snapshot_id(manifest)
+        snap = five_core_snapshot_id(manifest, self.five_core_table)
         param_hash = als_param_hash(self.params)
         adir = artifact_dir(self.factors_root, snap, param_hash)
         man_path = adir / "als_manifest.json"

@@ -38,7 +38,7 @@ from batch_recsys_lab.eval.metrics import (
     topk_indices,
 )
 from batch_recsys_lab.eval.protocol import segment_of
-from batch_recsys_lab.models.als import ALSRecommender
+from batch_recsys_lab.models.als import FIVE_CORE_TABLE, ALSRecommender
 from batch_recsys_lab.models.content import ContentRecommender
 from batch_recsys_lab.models.content_blend import ContentPopBlendRecommender
 from batch_recsys_lab.models.item_knn import ItemKNNRecommender
@@ -75,10 +75,17 @@ def _resolve_cache_dir(cache_dir: str | Path) -> Path:
     )
 
 
-def _build_model(model_cfg: dict, seeds: dict):
-    """Instantiate a model from ``config['model']`` via a small registry."""
+def _build_model(model_cfg: dict, seeds: dict, tables_cfg: dict | None = None):
+    """Instantiate a model from ``config['model']`` via a small registry.
+
+    ``tables_cfg`` (``config['tables']``) supplies the ``five_core`` table name
+    for models keyed by the five-core snapshot id (als, content,
+    content_pop_blend). Defaults to the Amazon-lane table name so configs that
+    omit ``tables:`` (or don't set ``five_core``) are unaffected.
+    """
     name = model_cfg["name"]
     params = dict(model_cfg.get("params") or {})
+    five_core_table = (tables_cfg or {}).get("five_core", FIVE_CORE_TABLE)
     if name == "random":
         seed = seeds.get("model")
         if seed is None:
@@ -115,11 +122,13 @@ def _build_model(model_cfg: dict, seeds: dict):
             # Identity-bearing only for weighting='time_decay' (Phase 8, T8-2);
             # ignored — and hash-neutral — for binary/rating.
             half_life_days=params.get("half_life_days"),
+            five_core_table=five_core_table,
         )
     if name == "content":
         return ContentRecommender(
             recipe_hash=params["recipe_hash"],
             artifact_root=params.get("artifact_root", "data/eval/minilm"),
+            five_core_table=five_core_table,
         )
     if name == "content_pop_blend":
         return ContentPopBlendRecommender(
@@ -128,6 +137,7 @@ def _build_model(model_cfg: dict, seeds: dict):
             window_days=int(params["window_days"]),
             recipe_hash=params["recipe_hash"],
             artifact_root=params.get("artifact_root", "data/eval/minilm"),
+            five_core_table=five_core_table,
         )
     if name == "hybrid":
         # Deferred import — policy.hybrid imports this module's _build_model,
@@ -140,6 +150,7 @@ def _build_model(model_cfg: dict, seeds: dict):
             low=params["low"],
             high=params["high"],
             seeds=seeds,
+            tables=tables_cfg,
         )
     raise ValueError(f"unknown model name: {name!r}")
 
@@ -294,7 +305,7 @@ def run_eval(
         runlog.check_stale_cache(manifest["snapshot_ids"], warehouse, allow_stale)
     runlog.check_test_dirty(eval_split, git["git_dirty"])
 
-    model = _build_model(config["model"], seeds_cfg)
+    model = _build_model(config["model"], seeds_cfg, tables_cfg)
     model.fit(ds)
 
     gt = ds.gt[eval_split]

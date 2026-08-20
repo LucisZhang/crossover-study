@@ -30,7 +30,7 @@ import numpy as np
 import scipy.sparse as sp
 
 from batch_recsys_lab.eval.dataset import EvalDataset
-from batch_recsys_lab.models.als import five_core_snapshot_id, sha256_file
+from batch_recsys_lab.models.als import FIVE_CORE_TABLE, five_core_snapshot_id, sha256_file
 from batch_recsys_lab.models.minilm_embed import item_ids_sha256
 
 DEFAULT_ARTIFACT_ROOT = "data/eval/minilm"
@@ -70,9 +70,12 @@ class ContentRecommender:
         self,
         recipe_hash: str,
         artifact_root: str | Path = DEFAULT_ARTIFACT_ROOT,
+        five_core_table: str = FIVE_CORE_TABLE,
     ):
         self.recipe_hash = str(recipe_hash)
         self.artifact_root = str(artifact_root)
+        # Not part of self.params — see ALSRecommender's five_core_table note.
+        self.five_core_table = str(five_core_table)
         self.params = {"recipe_hash": self.recipe_hash, "artifact_root": self.artifact_root}
         self._E_norm: np.ndarray | None = None
         self._train_csr: sp.csr_matrix | None = None
@@ -86,7 +89,7 @@ class ContentRecommender:
         hash disagree with what this cache actually contains.
         """
         manifest = ds.manifest
-        snap = five_core_snapshot_id(manifest)
+        snap = five_core_snapshot_id(manifest, self.five_core_table)
         adir = artifact_dir(self.artifact_root, snap, self.recipe_hash)
         man_path = adir / "minilm_manifest.json"
         emb_path = adir / "embeddings.npy"
