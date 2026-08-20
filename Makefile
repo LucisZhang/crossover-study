@@ -24,7 +24,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m eval-extract-ml32m gold-ml32m-item-text item-text-export-ml32m embed-items-ml32m eval-ml32m confirmatory-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m eval-extract-ml32m gold-ml32m-item-text item-text-export-ml32m embed-items-ml32m eval-ml32m confirmatory-ml32m compare embed-items crossover-chart crossover-chart-ml32m-deep ann-index bench-duckdb reproduce-headline reproduce-ml32m ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -433,6 +433,15 @@ crossover-chart:
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/crossover_*.yaml"; exit 1; }
 	uv run python -m batch_recsys_lab.eval.crossover_chart --config $(CONFIG)
 
+# Deep-bucket CONFIRMATORY chart, ML-32M TEST (Phase 9, T9-3c). Renders Family
+# P's paired NDCG@10 deltas (M* vs P*, BH FDR 0.05) STRICTLY from
+# results/confirmatory_ml32m_test.json (derived; no Spark, no re-computation,
+# never touches results/runs.jsonl). Requires `make confirmatory-ml32m` first.
+#   make crossover-chart-ml32m-deep CONFIG=configs/crossover_ml32m_deep_test.yaml
+crossover-chart-ml32m-deep:
+	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/crossover_ml32m_deep_*.yaml"; exit 1; }
+	uv run python -m batch_recsys_lab.eval.crossover_chart_ml32m_deep --config $(CONFIG)
+
 # MiniLM item-embedding Step A (Phase 4, T10). JVM-free: reads the T9 export
 # (data/eval/text/<snapshot>/item_text.parquet), re-verifies alignment, and
 # writes data/eval/minilm/<snapshot>/<recipe_hash_short>/embeddings.npy +
@@ -472,6 +481,21 @@ bench-duckdb:
 # extract step only.
 reproduce-headline: java-check
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.reproduce
+
+# Snapshot-pinned reproduction of the two ML-32M TEST records that feed the
+# T9-3c confirmatory ladder (M* = item-kNN-t12m, P* = pop-t12m), plus a
+# re-derivation check of the confirmatory verdict itself (Phase 9, T9-3c).
+# Mirrors reproduce-headline exactly: pinned Iceberg time travel at each
+# record's own snapshot IDs, ORIGINAL configs (hash-verified), field-wise diff
+# against the recorded records into a SCRATCH cache
+# (data/eval/cache_repro_ml32m) -- NEVER appends to results/runs.jsonl. Then
+# re-runs the confirmatory analysis and asserts its verdict block is identical
+# to the committed results/confirmatory_ml32m_test.json (excluding
+# generated_ts/git_sha/git_dirty/wall_clock_s/hardware). Exits non-zero unless
+# both eval reproductions are byte_exact AND the verdict is identical. Needs
+# the JVM for the extract step only.
+reproduce-ml32m: java-check
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.reproduce_ml32m
 
 # --- Lakehouse ops exhibits (Phase 5, T20) -----------------------------------
 # Every step runs against local.ops.interactions_monthly ONLY: a disposable copy

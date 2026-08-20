@@ -1,0 +1,11 @@
+# P* pin, ML-32M lane (Phase 9, T9-3c). `make reproduce-ml32m` re-runs THIS
+# recorded run (pop-t12m -- Rule S6) via eval/reproduce.py's snapshot-pinned
+# reproduce(), mirroring configs/headline.yaml exactly; only the pinned
+# run_id, results/cache paths differ. append=False always: this NEVER writes
+# to results/runs.jsonl (T9-3c task spec).
+#
+# Frozen 2026-08-21 ("T9-3b VAL ladder complete", EXPERIMENT_LOG.md): P* is the
+# confirmatory comparator for the T9-3c ML-32M ladder.
+headline_run_id: "20260820T221055Z-20d8ff9"
+results_path: "results/runs.jsonl"
+cache_repro_root: "data/eval/cache_repro_ml32m"

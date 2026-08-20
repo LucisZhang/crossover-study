@@ -131,29 +131,40 @@ def load_headline(path: str | Path = DEFAULT_HEADLINE) -> dict:
     return cfg
 
 
-def find_record(results_path: str | Path, run_id: str, kind: str = "eval") -> dict:
+def find_record(
+    results_path: str | Path, run_id: str, kind: str = "eval", config_path: str | None = None
+) -> dict:
     """The single ``kind`` record with ``run_id``.
 
     Unlike ``compare._resolve_arm`` (last match wins), reproduction demands an
     UNAMBIGUOUS target: 0 matches and >1 matches are both errors, because
     "reproduce the headline" must name exactly one thing.
+
+    ``config_path``, if given, disambiguates a run_id collision (two records
+    with the SAME run_id string, e.g. from overlapping campaigns that both
+    derived their id from ``date -u ... -git_sha`` in the same second) by also
+    requiring ``rec["config_path"] == config_path``. This only narrows an
+    otherwise->1-match set; it never widens 0 matches, and callers that never
+    pass it see the exact prior behavior (Amazon headline.yaml is unaffected).
     """
     results_path = Path(results_path)
     if not results_path.exists():
         raise FileNotFoundError(f"results log {results_path} not found")
-    matches = [
-        rec
-        for rec in (
-            json.loads(line) for line in results_path.read_text().splitlines() if line.strip()
-        )
-        if rec.get("kind") == kind and rec.get("run_id") == run_id
+    all_records = [
+        json.loads(line) for line in results_path.read_text().splitlines() if line.strip()
     ]
+    matches = [rec for rec in all_records if rec.get("kind") == kind and rec.get("run_id") == run_id]
     if not matches:
         raise ValueError(f"no kind={kind!r} record with run_id={run_id!r} in {results_path}")
+    if len(matches) > 1 and config_path is not None:
+        narrowed = [rec for rec in matches if rec.get("config_path") == config_path]
+        if narrowed:
+            matches = narrowed
     if len(matches) > 1:
         raise ValueError(
             f"{len(matches)} kind={kind!r} records with run_id={run_id!r} in "
             f"{results_path}; the headline pin must identify exactly one run"
+            + (f" (config_path={config_path!r} did not disambiguate)" if config_path else "")
         )
     return matches[0]
 
@@ -458,7 +469,9 @@ def reproduce(
     results_path = root / headline["results_path"]
     cache_repro_root = root / headline["cache_repro_root"]
 
-    record = find_record(results_path, run_id_target)
+    record = find_record(
+        results_path, run_id_target, config_path=headline.get("expected_config_path")
+    )
 
     git = runlog.git_info()
     if git["git_dirty"]:

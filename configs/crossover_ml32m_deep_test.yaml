@@ -1,0 +1,22 @@
+# Deep-bucket CONFIRMATORY chart, ML-32M TEST (Phase 9, T9-3c). Renders Family
+# P's paired NDCG@10 deltas (M* = item-kNN-t12m minus P* = pop-t12m) over the 7
+# deep buckets, STRICTLY from results/confirmatory_ml32m_test.json (derived,
+# never re-computed, never touches results/runs.jsonl):
+#   uv run python -m batch_recsys_lab.eval.crossover_chart_ml32m_deep \
+#     --config configs/crossover_ml32m_deep_test.yaml
+#
+# Family P's rows are already BH-corrected at FDR 0.05 within the family (T9-3b
+# preregistration §5b); "primary confirmatory family (preregistered)" is not a
+# chart-time claim, it is a quote of that status. Two DISTINCT preregistered
+# n* concepts exist and must not be conflated: (a) the D1 CROSSOVER depth from
+# the confirmatory Family P verdict (results/confirmatory_ml32m_test.json:
+# verdict.n_star = 20, crossover bucket 20-49) -- this is what this chart
+# annotates; (b) the Rule S5 fitted ROUTING depth (n* = 100, EXPERIMENT_LOG.md
+# "T9-3b VAL ladder complete": "fitted n* = 100, objective 0.089686"), which
+# belongs to the hybrid arm A9, not to this exhibit.
+title: "ML-32M deep-bucket confirmatory: M* (item-kNN-t12m) vs P* (pop-t12m) (TEST)"
+subtitle: "Paired delta NDCG@10 by history-depth bucket; bands are 95% bootstrap CIs (n_resamples=1000, seed=20260805); filled diamonds = BH-significant at FDR 0.05"
+xlabel: "User history depth (TRAIN interactions per TEST user)"
+annotation_label: "primary confirmatory family (preregistered); BH FDR 0.05"
+n_star_annotation: 20
+n_star_annotation_label: "crossover depth n* = 20 (D1, preregistered definition)"

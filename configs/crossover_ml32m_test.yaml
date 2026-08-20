@@ -1,0 +1,53 @@
+# Crossover chart, ML-32M TEST (Phase 9, T9-3c). ML-32M twin of
+# configs/crossover_test.yaml -- comparability-only 5-segment exhibit (T9-3b
+# preregistration §5a: this axis carries NO BH correction and is not a
+# confirmatory claim; the confirmatory result lives in
+# configs/crossover_ml32m_deep_test.yaml / results/confirmatory_ml32m_test.json).
+# Rendered strictly from results/runs.jsonl by eval/crossover_chart.py:
+#   make crossover-chart CONFIG=configs/crossover_ml32m_test.yaml
+#
+# Line selection (all ML-32M TEST, seed 20260805 -- T9-3b VAL ladder complete,
+# EXPERIMENT_LOG.md 2026-08-21):
+#   blend a=0.1     20260820T221933Z-20d8ff9  VAL-selected alpha, eval_blend_ml32m_test.yaml
+#   pop-t12m        20260820T221055Z-20d8ff9  P* -- Rule S6, eval_pop_t12m_ml32m_test.yaml
+#   ALS (seed 20260805) 20260820T222202Z-20d8ff9  eval_als_ml32m_test_seed1.yaml
+#   item-kNN-t12m   20260820T221701Z-20d8ff9  M* -- Rule S4, eval_itemknn_t12m_ml32m_test.yaml
+#     NOTE: this run_id string is shared with a duplicate campaign-1 alsdecay
+#     record (run-id timestamp collision across overlapping campaigns,
+#     eval_alsdecay_ml32m_test_seed1.yaml, config_path differs). crossover_chart's
+#     index_runs() builds a dict keyed by run_id from a single sequential pass
+#     over the append-only log with "last occurrence wins"; the alsdecay record
+#     appears at an earlier line than the item_knn record, so the dict resolves
+#     to the item_knn (M*) record -- verified against a local copy of
+#     results/runs.jsonl (both records inspected by index/model/config_path).
+#     See configs/confirmatory_ml32m_test.yaml's identical note.
+#   content         20260820T221831Z-20d8ff9  eval_content_ml32m_test.yaml
+#
+# Regime contrast (T9-3a, EXPERIMENT_LOG.md 2026-08-20): ML-32M's zero/low-support
+# churn is 6.4% vs Amazon Electronics' 41.1% -- the mechanism this exhibit is
+# comparing against, not a claim of a crossover on this axis.
+
+runs_log: results/runs.jsonl
+split: test
+metric: "ndcg@10"
+output_stem: crossover_ml32m_test
+segments: ["0", "1-4", "5-9", "10-19", "20+"]
+
+title: "How much history before personalization beats popularity? (ML-32M TEST, comparability)"
+subtitle: "NDCG@10 by user history depth - full-catalog ranking, 43,884 items; bands are 95% bootstrap CIs; ML-32M, TEST = 2023-01-01 -> 2023-11-01. Regime contrast: 6.4% zero/low-support churn vs Amazon's 41.1%."
+xlabel: "User history depth (TRAIN interactions per TEST user)"
+
+annotation: "Comparability-only 5-segment exhibit (T9-3b prereg §5a): NO BH\ncorrection, not a confirmatory claim. The primary confirmatory result (M* =\nitem-kNN-t12m vs P* = pop-t12m, BH FDR 0.05 over 7 deep buckets + global) is\nconfigs/crossover_ml32m_deep_test.yaml / results/confirmatory_ml32m_test.json.\nSee EXPERIMENT_LOG.md T9-3b/T9-3c."
+
+lines:
+  - label: "blend α=0.1 (content+pop)"
+    run_id: "20260820T221933Z-20d8ff9"
+    highlight: true
+  - label: "pop-t12m (P*)"
+    run_id: "20260820T221055Z-20d8ff9"
+  - label: "ALS (seed 20260805)"
+    run_id: "20260820T222202Z-20d8ff9"
+  - label: "item-kNN-t12m (M*)"
+    run_id: "20260820T221701Z-20d8ff9"
+  - label: "content (MiniLM)"
+    run_id: "20260820T221831Z-20d8ff9"
