@@ -1,0 +1,28 @@
+# T9-3b ONE-SHOT TEST run (preregistration 1731cef + selections 53c98ae). Exactly one TEST evaluation per selected arm — never re-run.
+# Arm A7 (content, MiniLM) — M* eligible, not selected. TEST twin of
+# config instructions (val twin uses the truncated 12-hex-char form
+# "9fa4d7d913f1"; same artifact).
+kind: eval
+model:
+  name: content
+  params:
+    recipe_hash: "9fa4d7d913f1"
+    artifact_root: data/eval/minilm_ml32m
+protocol:
+  eval_split: test
+  knowledge_cutoff: train_end
+  k_list: [10, 20, 50]
+  batch_size: 1024
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+seeds:
+  model: null
+tables:
+  five_core: local.gold_ml32m.interactions_5core
+  user_stats: local.gold_ml32m.user_stats
+  item_features: local.gold_ml32m.item_features
+  popularity: local.gold_ml32m.popularity
+cache_dir: data/eval/cache_ml32m
+splits_path: configs/splits_ml32m.yaml
+manifest_path: data/MANIFEST_ML32M.md
