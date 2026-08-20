@@ -1,5 +1,7 @@
 data/*
 !data/MANIFEST.md
+!data/MANIFEST_ML32M.md
+.remote/
 .venv/
 __pycache__/
 *.pyc

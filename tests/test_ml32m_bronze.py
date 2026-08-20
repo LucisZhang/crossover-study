@@ -3,9 +3,10 @@
 Never touches ``data/raw/ml32m`` (nothing is downloaded on this machine) — writes
 small CSV files to a tmp dir and ingests them against the tmp Iceberg warehouse.
 
-Covers the three things that differ from the Amazon gz-jsonl path: the csv reader
-branch, the corrupt-record accounting under PERMISSIVE csv parsing, and the
-positional-schema header guard.
+Covers the things that differ from the Amazon gz-jsonl path: the csv reader
+branch, the corrupt-record accounting under PERMISSIVE csv parsing, the
+positional-schema header guard, and the RFC-4180 quote escaping that a real run
+proved is not optional.
 """
 
 from __future__ import annotations
@@ -25,6 +26,18 @@ pytestmark = pytest.mark.spark
 
 RATINGS_HEADER = "userId,movieId,rating,timestamp"
 MOVIES_HEADER = "movieId,title,genres"
+TAGS_HEADER = "userId,movieId,tag,timestamp"
+
+# The exact line from ml-32m/movies.csv that the default (backslash) escape lost:
+# RFC-4180 doubled quotes inside a quoted field. Real run: 87,584 of 87,585 rows.
+MOVIE_284105_RAW = (
+    '284105,"The Newbridge Tourism Board Presents: ""We\'re Newbridge, '
+    'We\'re Comin\' To Get Ya!"" (2014)",Comedy'
+)
+MOVIE_284105_TITLE = (
+    'The Newbridge Tourism Board Presents: "We\'re Newbridge, '
+    "We're Comin' To Get Ya!\" (2014)"
+)
 
 
 def _write(path, lines):
@@ -103,6 +116,72 @@ def test_ingest_movies_keeps_quoted_titles_and_raw_genres(spark, tmp_path):
     assert rows[2]["title"] == "American President, The (1995)"
     assert rows[1]["genres"] == "Adventure|Animation|Children"
     assert rows[3]["genres"] == "(no genres listed)"
+
+
+def test_rfc4180_doubled_quotes_parse_and_no_row_is_lost(spark, tmp_path):
+    """Regression: movieId 284105 was silently dropped on the real 87,585-row file.
+
+    Spark's CSV default escape is backslash, so the doubled quotes below ended the
+    quoted field early, the record blew apart into extra columns, and PERMISSIVE
+    mode discarded it as corrupt. With ``escape='"'`` it is one clean row.
+    """
+    src = _write(
+        tmp_path / "movies_quoted.csv",
+        [
+            MOVIES_HEADER,
+            "1,Toy Story (1995),Adventure|Animation|Children",
+            MOVIE_284105_RAW,
+            '2,"American President, The (1995)",Comedy|Drama|Romance',
+        ],
+    )
+
+    summary = ingest_table(spark, "movies", src, repartition=1, specs=TABLE_SPECS)
+
+    # The whole point: nothing is corrupt and nothing is missing.
+    assert (summary["total_parsed"], summary["corrupt"], summary["written"]) == (3, 0, 3)
+    rows = {r["movieId"]: r for r in spark.table("local.bronze_ml32m.movies").collect()}
+    assert set(rows) == {1, 2, 284105}
+    # The doubled "" collapses to a single literal quote; the embedded comma and
+    # apostrophes survive; the genre column is NOT eaten by the title.
+    assert rows[284105]["title"] == MOVIE_284105_TITLE
+    assert rows[284105]["genres"] == "Comedy"
+
+
+def test_every_ml32m_spec_declares_the_rfc4180_escape():
+    # One reader dialect for the dataset: a future spec that forgets the escape is
+    # a data-loss bug that no unit test on the other tables would catch.
+    for name, spec in TABLE_SPECS.items():
+        assert spec.read_options == {"header": "true", "escape": '"'}, name
+        assert spec.fmt == "csv", name
+        assert spec.namespace == "local.bronze_ml32m", name
+        # multiLine stays off: one physical line == one record is what makes the
+        # manifest's byte-counted row totals a valid bronze-verify-ml32m gate.
+        assert "multiLine" not in spec.read_options, name
+
+
+def test_ingest_tags_keeps_commas_and_quotes_in_free_text(spark, tmp_path):
+    src = _write(
+        tmp_path / "tags.csv",
+        [
+            TAGS_HEADER,
+            "1,1,funny,1577836800",
+            '2,2,"dark, gritty",1577836801',
+            '3,3,"says ""hello""",1577836802',
+        ],
+    )
+
+    summary = ingest_table(spark, "tags", src, repartition=1, specs=TABLE_SPECS)
+
+    assert (summary["total_parsed"], summary["corrupt"], summary["written"]) == (3, 0, 3)
+    df = spark.table("local.bronze_ml32m.tags")
+    assert dict(df.dtypes) == {
+        "userId": "bigint",
+        "movieId": "bigint",
+        "tag": "string",
+        "timestamp": "bigint",
+    }
+    tags = {r["movieId"]: r["tag"] for r in df.collect()}
+    assert tags == {1: "funny", 2: "dark, gritty", 3: 'says "hello"'}
 
 
 def test_header_drift_refuses_to_ingest(spark, tmp_path):

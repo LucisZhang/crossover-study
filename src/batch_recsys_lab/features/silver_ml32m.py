@@ -10,8 +10,8 @@ code). The gate/audit/dedup/accounting helpers are imported from
 column set are ML-32M's own.
 
 Ordering matters, exactly as in the Amazon lane: ``build_items`` MUST run before
-``build_interactions`` — the interactions contract's ``item_fk`` orphan-rate
-measure joins against ``local.silver_ml32m.items``.
+``build_interactions`` and ``build_tags`` — both of those contracts' ``item_fk``
+orphan-rate measures join against ``local.silver_ml32m.items``.
 
 Two dataset-specific notes:
 
@@ -29,6 +29,13 @@ Two dataset-specific notes:
 
 Ratings are kept as a provenance column only — this lab treats every interaction as
 an implicit-feedback positive (CLAUDE.md invariant #6), on ML-32M as on Amazon.
+
+``tags`` is landed here too (``build_tags``) because §8c T9-3b's content arm is
+"title+genres+tags", so the DATA stage must produce it — the model stage may not
+reach back into bronze for un-gated text. It is a silver table only: no gold
+projection, because T9-3b builds its own ``item_text`` from it. Its natural key is
+(user, item, TAG), not (user, item), so ``keep_latest`` has no meaning for it and
+is not applied; exact 4-tuple duplicates are still removed and counted.
 """
 
 from __future__ import annotations
@@ -61,13 +68,17 @@ from batch_recsys_lab.spark_session import get_spark
 CONTRACTS_DIR = Path(__file__).resolve().parents[3] / "contracts" / "ml32m"
 ITEMS_CONTRACT = CONTRACTS_DIR / "silver_ml32m_items.yaml"
 INTERACTIONS_CONTRACT = CONTRACTS_DIR / "silver_ml32m_interactions.yaml"
+TAGS_CONTRACT = CONTRACTS_DIR / "silver_ml32m_tags.yaml"
 
 BRONZE_MOVIES = "local.bronze_ml32m.movies"
 BRONZE_RATINGS = "local.bronze_ml32m.ratings"
+BRONZE_TAGS = "local.bronze_ml32m.tags"
 SILVER_ITEMS = "local.silver_ml32m.items"
 SILVER_INTERACTIONS = "local.silver_ml32m.interactions"
+SILVER_TAGS = "local.silver_ml32m.tags"
 QUARANTINE_ITEMS = "local.quarantine_ml32m.items"
 QUARANTINE_INTERACTIONS = "local.quarantine_ml32m.interactions"
+QUARANTINE_TAGS = "local.quarantine_ml32m.tags"
 
 # Separate DQ ledger: the Amazon ledger backs the published DQ dashboard, and a
 # second dataset's rows in it would silently change that exhibit's totals.
@@ -79,6 +90,7 @@ RUN_ID_COL = "run_id"
 # Silver column projections (declared order == contract column order).
 SILVER_ITEM_COLS = ["parent_asin", "title", "genres"]
 SILVER_INTERACTION_COLS = ["user_id", "parent_asin", "rating", "ts"]
+SILVER_TAG_COLS = ["user_id", "parent_asin", "tag", "ts"]
 
 # movies.csv marks a genre-less film with this literal token rather than an empty
 # field; silver turns it into an empty array (normalization is silver's job).
@@ -129,6 +141,32 @@ def transform_interactions(bronze: DataFrame) -> DataFrame:
         F.col("movieId").cast("string").alias("parent_asin"),
         F.col("rating"),
         F.timestamp_seconds(F.col("timestamp")).alias("ts"),
+    )
+
+
+# --- Tags transform ------------------------------------------------------------
+
+
+def transform_tags(bronze: DataFrame) -> DataFrame:
+    """Typed silver-tags projection from ``bronze_ml32m.tags``.
+
+    Same key/timestamp treatment as :func:`transform_interactions` (string keys,
+    epoch-SECONDS → timestamp). The tag itself is control-char normalized and
+    trimmed, and a tag that is empty after trimming becomes NULL so the contract's
+    ``keys_non_null`` quarantines it with a reason — an empty string would
+    otherwise survive as a real-looking token in the T9-3b text corpus.
+
+    Returns the four silver columns plus one internal measure helper
+    (``_tag_missing`` bool) — callers drop it before :func:`gate`.
+    """
+    normalized = F.trim(_normalize_control_chars(F.col("tag")))
+    tag = F.when(normalized == F.lit(""), F.lit(None).cast("string")).otherwise(normalized)
+    return bronze.select(
+        F.col("userId").cast("string").alias("user_id"),
+        F.col("movieId").cast("string").alias("parent_asin"),
+        tag.alias("tag"),
+        F.timestamp_seconds(F.col("timestamp")).alias("ts"),
+        tag.isNull().alias("_tag_missing"),
     )
 
 
@@ -297,9 +335,102 @@ def build_interactions(
     return summary
 
 
+# --- Build: tags ---------------------------------------------------------------
+
+
+def build_tags(
+    spark: SparkSession,
+    run_id: str | None = None,
+    bronze_table: str = BRONZE_TAGS,
+    silver_table: str = SILVER_TAGS,
+    quarantine_table: str = QUARANTINE_TAGS,
+    summary_path: str = BUILD_SUMMARY_LOG,
+    write_summary: bool = True,
+    dq_table: str = DQ_TABLE,
+) -> dict:
+    """Build ``local.silver_ml32m.tags`` (+ quarantine + dq_results + summary line).
+
+    Gate → exact-dup, with no ``keep_latest`` stage: a (user, item) pair may carry
+    many distinct tags, so "latest wins" would silently destroy data. Only exact
+    duplicates of the full (user, item, tag, ts) tuple are collapsed, and the count
+    is reported — expected 0, verified rather than assumed.
+    """
+    start = time.perf_counter()
+    rid, rts = _resolve_run_id(run_id)
+    contract = load_contract(TAGS_CONTRACT)
+
+    projected = transform_tags(spark.table(bronze_table)).localCheckpoint(eager=True)
+
+    measure = projected.agg(
+        F.count(F.lit(1)).alias("total"),
+        F.sum(F.col("_tag_missing").cast("long")).alias("tag_missing"),
+    ).collect()[0]
+    total = int(measure["total"] or 0)
+
+    gate_res = gate(projected.select(*SILVER_TAG_COLS), contract)
+    quarantined_rows = gate_res.quarantined_rows
+    kept_n = gate_res.total_rows - quarantined_rows
+
+    spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {silver_table.rsplit('.', 1)[0]}")
+    spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {quarantine_table.rsplit('.', 1)[0]}")
+    gate_res.quarantine_df.withColumn(RUN_ID_COL, F.lit(rid)).writeTo(
+        quarantine_table
+    ).createOrReplace()
+    quarantined = _primary_reason_breakdown(gate_res.quarantine_df)
+
+    deduped = drop_exact_duplicates(gate_res.kept_df, SILVER_TAG_COLS).localCheckpoint(
+        eager=True
+    )
+    final_n = deduped.count()
+    exact_duplicate = kept_n - final_n
+    deduped.writeTo(silver_table).createOrReplace()
+
+    results = audit(spark, contract, silver_table, run_id=rid)
+    results += _gate_count_results(gate_res, contract, silver_table, total, rid, rts)
+    results.append(
+        DqResult(
+            run_id=rid, run_ts=rts, table_name=silver_table,
+            contract_name=contract.name, contract_version=contract.version,
+            check_id="tag_missing_share", check_kind="measure", column="tag",
+            status="measured", violation_count=int(measure["tag_missing"] or 0),
+            total_rows=total,
+            metric_value=((measure["tag_missing"] or 0) / total if total else 0.0),
+            details=json.dumps(
+                {
+                    "definition": "bronze tag NULL, or empty after control-char "
+                    "normalization + trim",
+                    "disposition": "quarantined by keys_non_null (never written as '')",
+                }
+            ),
+        )
+    )
+    write_dq_results(spark, results, dq_table)
+
+    failures = _fail_action_failures(results, contract)
+    if failures:
+        raise RuntimeError(f"{silver_table}: fail-action audit checks failed: {failures}")
+
+    summary = {
+        "table": "ml32m_tags",
+        "run_id": rid,
+        "input_rows": total,
+        "kept": final_n,
+        "quarantined": quarantined,
+        "exact_duplicate": exact_duplicate,
+        # No supersede semantics for tags: the natural key includes the tag text.
+        "superseded_by_later_review": 0,
+        "built_at": datetime.now(timezone.utc).isoformat(),
+        "wall_clock_s": round(time.perf_counter() - start, 3),
+    }
+    _assert_conservation(summary)
+    if write_summary:
+        _write_summary(summary, summary_path)
+    return summary
+
+
 # --- CLI ---------------------------------------------------------------------
 
-_BUILDERS = {"items": build_items, "interactions": build_interactions}
+_BUILDERS = {"items": build_items, "interactions": build_interactions, "tags": build_tags}
 
 
 def main(argv: list[str] | None = None) -> int:

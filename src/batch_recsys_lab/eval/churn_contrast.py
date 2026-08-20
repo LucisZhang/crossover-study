@@ -73,6 +73,7 @@ from batch_recsys_lab.eval.regime_map import (
     support_codes,
 )
 from batch_recsys_lab.features import item_train_stats
+from batch_recsys_lab.ingest.download_ml32m import parse_manifest_text
 from batch_recsys_lab.features.splits import SplitConfig, load_splits
 from batch_recsys_lab.spark_session import get_spark
 
@@ -216,6 +217,8 @@ def collect_inputs(
     )
     item_ids = catalog_pdf["parent_asin"].tolist()
 
+    five_core_rows_total = spark.table(five_core_table).count()
+
     labeled = (
         spark.table(five_core_table)
         .select("user_id", "parent_asin", "ts")
@@ -276,6 +279,7 @@ def collect_inputs(
         "n_users": int(in_catalog["u"] or 0),
         "gt_interactions_total": int(in_catalog["n"] or 0),
         "gt_interactions_all_5core": int(all_5core["n"] or 0),
+        "five_core_rows_total": int(five_core_rows_total),
         "gt_users_all_5core": int(all_5core["u"] or 0),
         "catalog_join_loss_interactions": int((all_5core["n"] or 0) - (in_catalog["n"] or 0)),
         "catalog_join_loss_items": int(len(stats_pdf) - int(keep.sum())),
@@ -292,6 +296,37 @@ def collect_inputs(
             "high": int((support_all >= 5).sum()),
         },
     }
+
+
+# --- anti-vacuity ------------------------------------------------------------------
+
+
+def assert_non_vacuous(data: dict, five_core_table: str, split: str) -> None:
+    """Refuse to publish a share computed over nothing.
+
+    ``0/0`` is the failure mode this whole job is exposed to: every downstream
+    check (bucket cross-checks, gate bands, the contrast against 0.4111) is
+    satisfied by an empty input, and ``compute_churn`` would return a clean
+    ``measured_share`` of 0.0 that lands in ``results/runs.jsonl`` as a finding.
+    An empty 5-core table (gold never built, or built into a different warehouse)
+    and an empty eval window (wrong splits file, or ts read as millis when
+    MovieLens publishes seconds) are broken runs, not results.
+    """
+    if data["five_core_rows_total"] == 0:
+        raise RuntimeError(
+            f"{five_core_table} is EMPTY: there is nothing to compute a churn share "
+            "over. Build the ML-32M gold stage first (`make data-ml32m`) and check "
+            "that this process points at the same warehouse."
+        )
+    if data["gt_interactions_total"] == 0:
+        raise RuntimeError(
+            f"0 {split.upper()} ground-truth interactions after the item-catalog join "
+            f"({data['gt_interactions_all_5core']} {split}-window rows in "
+            f"{five_core_table}, {data['five_core_rows_total']} rows in total; catalog "
+            f"{data['coverage']['catalog_size']} items). The churn share would be 0/0. "
+            "Check the frozen split window, the ts unit (ML-32M publishes epoch "
+            "SECONDS), and that item_features was built from this 5-core snapshot."
+        )
 
 
 # --- provenance ------------------------------------------------------------------
@@ -324,28 +359,80 @@ def load_item_stats_manifest(stats_root: str | Path, snapshot_id: int) -> tuple[
     return stats_dir, manifest
 
 
-def verify_dataset_manifest(manifest_path: str | Path, must_contain: str | None) -> str:
-    """The recorded ``dataset_manifest_hash`` must describe THIS dataset.
+def verify_dataset_manifest(
+    manifest_path: str | Path,
+    must_contain: str | None,
+    required_files: list[dict] | None = None,
+) -> dict:
+    """The recorded ``dataset_manifest_hash`` must describe THIS dataset, in full.
 
-    ``data/MANIFEST.md`` is shared by both lanes, so hashing it proves nothing
-    unless the ML-32M section (URL + locally computed SHA-256s, per §8c T9-3a
-    "Download ML-32M with SHA-256s in data/MANIFEST.md") is actually in it. The
-    marker is a config value rather than a hardcoded string so a second contrast
-    dataset would declare its own. Returns the manifest text's marker for the log.
+    ``dataset_manifest_hash`` is a hash of a *file*; on its own it attests only
+    that some markdown existed. A substring probe (``must_contain``) was the first
+    version of this guard and it was too weak: a manifest that merely mentions
+    ``ml-32m.zip`` in prose would pass while recording no checksum at all. So the
+    document is parsed (``ingest/download_ml32m.parse_manifest`` — the same module
+    that writes it) and every file the config declares must carry:
+
+    * a 64-hex SHA-256 (our locally computed ground truth),
+    * a byte size,
+    * for CSVs, a data-row count — the number ``make bronze-verify-ml32m`` gates
+      the live bronze tables against,
+    * and, where the config declares a published count, exact agreement with it.
+
+    Every problem is collected and reported at once; the caller gets one message
+    listing what is missing rather than a whack-a-mole sequence.
+
+    Returns ``{"marker": str, "path": str, "files": {...}}`` for the run record, so
+    the per-file hashes travel inside the record and not merely a whole-file digest.
     """
     path = Path(manifest_path)
     if not path.exists():
         raise RuntimeError(f"dataset manifest {path} does not exist")
-    if not must_contain:
-        return ""
-    if must_contain not in path.read_text():
+    text = path.read_text()
+    marker = must_contain or ""
+    if must_contain and must_contain not in text:
         raise RuntimeError(
             f"{path} does not mention {must_contain!r}: the raw-data SHA-256s for this "
             "dataset are not recorded yet, so the record's dataset_manifest_hash would "
-            "attest to a manifest that never saw it. Run `make manifest-ml32m` and paste "
-            "the printed fragment into the manifest first (UPGRADE_PLAN.md §8c T9-3a)."
+            "attest to a manifest that never saw it. Run `make manifest-ml32m` first "
+            "(it writes data/MANIFEST_ML32M.md; data/MANIFEST.md is the Amazon lane's "
+            "file and must not be edited — UPGRADE_PLAN.md §8c T9-3a)."
         )
-    return must_contain
+
+    entries = parse_manifest_text(text)
+    verified: dict[str, dict] = {}
+    problems: list[str] = []
+    for spec in required_files or []:
+        filename = spec["filename"]
+        needs_rows = spec.get("kind", "csv") == "csv"
+        entry = entries.get(filename)
+        if entry is None:
+            problems.append(f"{filename}: no '### {filename}' entry under '## Files'")
+            continue
+        sha, size, rows = entry.get("sha256"), entry.get("size"), entry.get("data_rows")
+        if not sha:
+            problems.append(f"{filename}: no 64-hex SHA-256 line")
+        if not size:
+            problems.append(f"{filename}: no positive '- Size (bytes): N' line")
+        if needs_rows and not rows:
+            problems.append(f"{filename}: no positive '- Data rows (excl. header): N' line")
+        published = spec.get("published_rows")
+        if published is not None and rows is not None and int(rows) != int(published):
+            problems.append(
+                f"{filename}: manifest records {rows} data rows but the config's "
+                f"published count is {published}"
+            )
+        verified[filename] = {"sha256": sha, "size": size, "data_rows": rows}
+
+    if problems:
+        raise RuntimeError(
+            f"{path} does not record this dataset completely:\n  - "
+            + "\n  - ".join(problems)
+            + "\n  Regenerate it with `make manifest-ml32m` after `fetch` has extracted "
+            "every declared file. A run record whose dataset_manifest_hash points at an "
+            "incomplete manifest cannot be reproduced from it."
+        )
+    return {"marker": marker, "path": str(path), "files": verified}
 
 
 def verify_reference(reference: dict, results_path: Path) -> dict:
@@ -407,8 +494,10 @@ def build_churn_contrast(config: dict, results_path: Path) -> dict:
         Path(config["reference"].get("results_path", results_path)),
     )
     manifest_path = config.get("dataset_manifest_path") or runlog.DEFAULT_MANIFEST_PATH
-    manifest_marker = verify_dataset_manifest(
-        manifest_path, config.get("dataset_manifest_must_contain")
+    manifest = verify_dataset_manifest(
+        manifest_path,
+        config.get("dataset_manifest_must_contain"),
+        config.get("dataset_manifest_required_files"),
     )
 
     spark = get_spark(
@@ -429,6 +518,8 @@ def build_churn_contrast(config: dict, results_path: Path) -> dict:
         data = collect_inputs(spark, splits, five_core_table, item_features_table, split)
     finally:
         spark.stop()
+
+    assert_non_vacuous(data, five_core_table, split)
 
     if data["coverage"]["missing_from_stats"] and not config.get("allow_missing_item_stats"):
         raise RuntimeError(
@@ -500,7 +591,8 @@ def build_churn_contrast(config: dict, results_path: Path) -> dict:
         "item_features_table": item_features_table,
         "splits_path": str(splits_path),
         "dataset_manifest_path": str(manifest_path),
-        "dataset_manifest_marker": manifest_marker,
+        "dataset_manifest_marker": manifest["marker"],
+        "dataset_manifest_files": manifest["files"],
         "iceberg_snapshots": snapshots,
         "contracts": contracts,
         "item_stats": item_stats,
@@ -508,6 +600,7 @@ def build_churn_contrast(config: dict, results_path: Path) -> dict:
         "gt_accounting": {
             "gt_interactions_total": data["gt_interactions_total"],
             "gt_interactions_all_5core": data["gt_interactions_all_5core"],
+            "five_core_rows_total": data["five_core_rows_total"],
             "catalog_join_loss_interactions": data["catalog_join_loss_interactions"],
             "catalog_join_loss_items": data["catalog_join_loss_items"],
             "n_users": data["n_users"],
@@ -545,6 +638,10 @@ def build_record(config_path: Path, out: dict) -> dict:
         "dataset_manifest_path": str(manifest_path),
         "dataset_manifest_hash": runlog.dataset_manifest_hash(manifest_path),
         "dataset_manifest_marker": out.get("dataset_manifest_marker"),
+        # Per-file SHA-256 / size / row counts, verified by verify_dataset_manifest.
+        # The whole-file hash alone would not survive a reformat of the manifest;
+        # these do, and they are what a reproducer actually needs.
+        "dataset_manifest_files": out.get("dataset_manifest_files"),
         "iceberg_snapshots": out["iceberg_snapshots"],
         "contracts": out["contracts"],
         "item_stats": out["item_stats"],
@@ -587,6 +684,15 @@ def _print_report(out: dict) -> None:
         f"churn contrast · dataset={out['dataset']} split={out['split']} "
         f"users={acc['n_users']} GT interactions={acc['gt_interactions_total']} "
         f"catalog={out['headline']['catalog_size']}"
+    )
+    if out.get("dataset_manifest_files"):
+        print(
+            f"  dataset manifest: {out['dataset_manifest_path']} "
+            f"({', '.join(sorted(out['dataset_manifest_files']))} verified: sha256 + size"
+            " + row counts)"
+        )
+    print(
+        f"  5-core rows (all splits): {acc.get('five_core_rows_total')}"
     )
     print(
         f"  catalog join: {acc['gt_interactions_all_5core']} TEST 5-core interactions -> "

@@ -22,6 +22,7 @@ import yaml
 from batch_recsys_lab.eval.churn_contrast import (
     MISSING_MS,
     RECORD_KIND,
+    assert_non_vacuous,
     build_record,
     compute_churn,
     load_item_stats_manifest,
@@ -216,34 +217,162 @@ def test_shipped_config_anchor_matches_the_committed_amazon_run():
     assert reference["band"] == ">=0.25"
 
 
+SHA_A = "a" * 64
+SHA_B = "b" * 64
+SHA_C = "c" * 64
+SHA_D = "d" * 64
+
+
+def _manifest_text(
+    zip_sha=SHA_A,
+    ratings_rows="32000204",
+    movies_rows="87585",
+    tags_rows="2000072",
+    movies_sha=SHA_C,
+) -> str:
+    return "\n".join(
+        [
+            "# MovieLens 32M (ML-32M) — Data Manifest",
+            "",
+            "## Files",
+            "",
+            "### ml-32m.zip",
+            "",
+            "- URL: https://files.grouplens.org/datasets/movielens/ml-32m.zip",
+            "- Size (bytes): 250000000",
+            f"- SHA-256 (computed locally — ours is ground truth): {zip_sha}",
+            "",
+            "### ratings.csv",
+            "",
+            "- Extracted from: ml-32m.zip (ml-32m/ratings.csv)",
+            "- Size (bytes): 877076222",
+            f"- Data rows (excl. header): {ratings_rows}",
+            f"- SHA-256 (computed locally — ours is ground truth): {SHA_B}",
+            "",
+            "### movies.csv",
+            "",
+            "- Extracted from: ml-32m.zip (ml-32m/movies.csv)",
+            "- Size (bytes): 4242926",
+            f"- Data rows (excl. header): {movies_rows}",
+            f"- SHA-256 (computed locally — ours is ground truth): {movies_sha}",
+            "",
+            "### tags.csv",
+            "",
+            "- Extracted from: ml-32m.zip (ml-32m/tags.csv)",
+            "- Size (bytes): 118000000",
+            f"- Data rows (excl. header): {tags_rows}",
+            f"- SHA-256 (computed locally — ours is ground truth): {SHA_D}",
+            "",
+        ]
+    )
+
+
+def _required():
+    return yaml.safe_load(CONFIG_PATH.read_text())["dataset_manifest_required_files"]
+
+
 def test_dataset_manifest_must_mention_this_dataset(tmp_path):
-    manifest = tmp_path / "MANIFEST.md"
+    manifest = tmp_path / "MANIFEST_ML32M.md"
     manifest.write_text("# Amazon Reviews 2023 — Electronics — Data Manifest\n")
     with pytest.raises(RuntimeError, match="ml-32m.zip"):
         verify_dataset_manifest(manifest, "ml-32m.zip")
 
     manifest.write_text("...\n- URL: https://files.grouplens.org/.../ml-32m.zip\n")
-    assert verify_dataset_manifest(manifest, "ml-32m.zip") == "ml-32m.zip"
+    # Marker only, nothing required: the weak legacy behaviour still holds.
+    assert verify_dataset_manifest(manifest, "ml-32m.zip")["marker"] == "ml-32m.zip"
     # No marker declared => no claim made, nothing to check.
-    assert verify_dataset_manifest(manifest, None) == ""
+    assert verify_dataset_manifest(manifest, None)["marker"] == ""
     with pytest.raises(RuntimeError, match="does not exist"):
         verify_dataset_manifest(tmp_path / "nope.md", "ml-32m.zip")
 
 
+def test_manifest_verification_requires_hash_size_and_rows_per_file(tmp_path):
+    manifest = tmp_path / "MANIFEST_ML32M.md"
+    manifest.write_text(_manifest_text())
+
+    out = verify_dataset_manifest(manifest, "ml-32m.zip", _required())
+    assert out["files"]["movies.csv"] == {
+        "sha256": SHA_C,
+        "size": 4242926,
+        "data_rows": 87585,
+    }
+    # The zip is an archive: hash + size, no row count required.
+    assert out["files"]["ml-32m.zip"]["data_rows"] is None
+    assert set(out["files"]) == {"ml-32m.zip", "ratings.csv", "movies.csv", "tags.csv"}
+
+    # Prose that merely NAMES the file is exactly what the old substring probe
+    # accepted and what this guard exists to reject.
+    manifest.write_text(
+        "# ML-32M\n\nDownloaded ml-32m.zip with ratings.csv, movies.csv, tags.csv.\n"
+    )
+    with pytest.raises(RuntimeError) as err:
+        verify_dataset_manifest(manifest, "ml-32m.zip", _required())
+    message = str(err.value)
+    for filename in ("ml-32m.zip", "ratings.csv", "movies.csv", "tags.csv"):
+        assert f"{filename}: no '### {filename}' entry" in message
+
+
+def test_manifest_verification_rejects_a_truncated_or_short_hash(tmp_path):
+    manifest = tmp_path / "MANIFEST_ML32M.md"
+    manifest.write_text(_manifest_text(movies_sha="c" * 40))
+    with pytest.raises(RuntimeError, match="movies.csv: no 64-hex SHA-256"):
+        verify_dataset_manifest(manifest, "ml-32m.zip", _required())
+
+
+def test_manifest_row_counts_must_equal_the_published_counts(tmp_path):
+    manifest = tmp_path / "MANIFEST_ML32M.md"
+    # The real defect this catches: 87,584 landed instead of 87,585.
+    manifest.write_text(_manifest_text(movies_rows="87584"))
+    with pytest.raises(RuntimeError, match=r"movies.csv: manifest records 87584 data rows"):
+        verify_dataset_manifest(manifest, "ml-32m.zip", _required())
+
+    # tags.csv declares no published count (none is verified in this repo), so any
+    # row count is accepted — but a MISSING row count is not.
+    manifest.write_text(_manifest_text(tags_rows="12345"))
+    assert verify_dataset_manifest(manifest, "ml-32m.zip", _required())["files"][
+        "tags.csv"
+    ]["data_rows"] == 12345
+    manifest.write_text(_manifest_text().replace("- Data rows (excl. header): 2000072\n", ""))
+    with pytest.raises(RuntimeError, match=r"tags.csv: no positive '- Data rows"):
+        verify_dataset_manifest(manifest, "ml-32m.zip", _required())
+
+
 def test_shipped_config_declares_the_manifest_guard():
     config = yaml.safe_load(CONFIG_PATH.read_text())
-    assert config["dataset_manifest_path"] == "data/MANIFEST.md"
+    # CRITICAL: not data/MANIFEST.md. runlog.dataset_manifest_hash hashes the whole
+    # file and eval/reproduce.py compares that field, so ML-32M content in the
+    # Amazon manifest would break `make reproduce-headline`'s byte_exact verdict.
+    assert config["dataset_manifest_path"] == "data/MANIFEST_ML32M.md"
     assert config["dataset_manifest_must_contain"] == "ml-32m.zip"
-    # Live behaviour, whichever state the shared manifest is in: before the owner
-    # records the ML-32M SHA-256s the job must refuse; after, it must accept. (As
-    # of T9-3a the manifest is still Amazon-only, so this takes the refusal path.)
+    required = {spec["filename"]: spec for spec in config["dataset_manifest_required_files"]}
+    assert set(required) == {"ml-32m.zip", "ratings.csv", "movies.csv", "tags.csv"}
+    assert required["ratings.csv"]["published_rows"] == 32_000_204
+    assert required["movies.csv"]["published_rows"] == 87_585
+    # No invented published figure for tags.
+    assert "published_rows" not in required["tags.csv"]
+
+    # Live behaviour, whichever state the working tree is in: before the owner
+    # records the ML-32M SHA-256s the job must refuse; after, it must accept.
     manifest_path = REPO_ROOT / config["dataset_manifest_path"]
-    marker = config["dataset_manifest_must_contain"]
-    if marker in manifest_path.read_text():
-        assert verify_dataset_manifest(manifest_path, marker) == marker
+    if manifest_path.exists():
+        assert (
+            verify_dataset_manifest(
+                manifest_path,
+                config["dataset_manifest_must_contain"],
+                config["dataset_manifest_required_files"],
+            )["marker"]
+            == "ml-32m.zip"
+        )
     else:
-        with pytest.raises(RuntimeError, match="ml-32m.zip"):
-            verify_dataset_manifest(manifest_path, marker)
+        with pytest.raises(RuntimeError, match="does not exist"):
+            verify_dataset_manifest(manifest_path, config["dataset_manifest_must_contain"])
+
+
+def test_the_amazon_manifest_never_carries_ml32m_content():
+    # The regression itself: appending the ML-32M block to data/MANIFEST.md moves
+    # dataset_manifest_hash and flips the pinned headline's reproduce verdict.
+    amazon_manifest = (REPO_ROOT / "data" / "MANIFEST.md").read_text()
+    assert "ml-32m" not in amazon_manifest.lower()
 
 
 def test_shipped_config_points_at_the_ml32m_lane_only():
@@ -256,6 +385,46 @@ def test_shipped_config_points_at_the_ml32m_lane_only():
     # No Amazon table may appear anywhere in the ML-32M job's inputs.
     for key in ("five_core_table", "item_features_table"):
         assert ".gold." not in config[key]
+
+
+# --------------------------------------------------------------------------- #
+# Anti-vacuity: 0/0 must never be published as a finding.
+# --------------------------------------------------------------------------- #
+
+
+def _collected(five_core_rows, all_5core, joined, catalog=3):
+    return {
+        "five_core_rows_total": five_core_rows,
+        "gt_interactions_all_5core": all_5core,
+        "gt_interactions_total": joined,
+        "coverage": {"catalog_size": catalog},
+    }
+
+
+def test_empty_five_core_is_a_hard_failure():
+    with pytest.raises(RuntimeError, match="is EMPTY"):
+        assert_non_vacuous(_collected(0, 0, 0), "local.gold_ml32m.interactions_5core", "test")
+
+
+def test_zero_ground_truth_is_a_hard_failure_even_with_a_populated_table():
+    # The dangerous case: the table is full, but the TEST window (or the catalog
+    # join) is empty — compute_churn would happily return measured_share 0.0.
+    with pytest.raises(RuntimeError, match=r"0 TEST ground-truth interactions"):
+        assert_non_vacuous(
+            _collected(32_000_000, 0, 0), "local.gold_ml32m.interactions_5core", "test"
+        )
+    with pytest.raises(RuntimeError, match=r"catalog join"):
+        # Rows exist in the window but every one falls outside the item catalog.
+        assert_non_vacuous(
+            _collected(32_000_000, 1_000, 0), "local.gold_ml32m.interactions_5core", "test"
+        )
+
+
+def test_a_single_ground_truth_interaction_is_enough_to_proceed():
+    assert (
+        assert_non_vacuous(_collected(10, 1, 1), "local.gold_ml32m.interactions_5core", "test")
+        is None
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -296,14 +465,19 @@ def test_item_stats_manifest_must_match_the_live_snapshot(tmp_path):
 
 
 def test_record_carries_the_full_provenance_manifest(tmp_path):
+    ml32m_manifest = tmp_path / "MANIFEST_ML32M.md"
+    ml32m_manifest.write_text(_manifest_text())
     out = {
         "dataset": "ml32m",
         "split": "test",
         "five_core_table": "local.gold_ml32m.interactions_5core",
         "item_features_table": "local.gold_ml32m.item_features",
         "splits_path": str(REPO_ROOT / "configs" / "splits_ml32m.yaml"),
-        "dataset_manifest_path": str(REPO_ROOT / "data" / "MANIFEST.md"),
+        "dataset_manifest_path": str(ml32m_manifest),
         "dataset_manifest_marker": "ml-32m.zip",
+        "dataset_manifest_files": verify_dataset_manifest(
+            ml32m_manifest, "ml-32m.zip", _required()
+        )["files"],
         "iceberg_snapshots": {
             "local.gold_ml32m.interactions_5core": 111,
             "local.gold_ml32m.item_features": 222,
@@ -336,6 +510,9 @@ def test_record_carries_the_full_provenance_manifest(tmp_path):
     # Invariant #3: config hash, git SHA, dataset manifest hash, snapshot IDs.
     assert record["config_hash"].startswith("sha256:")
     assert record["dataset_manifest_hash"].startswith("sha256:")
+    # Per-file provenance travels inside the record, not just a whole-file digest.
+    assert record["dataset_manifest_files"]["movies.csv"]["data_rows"] == 87_585
+    assert record["dataset_manifest_files"]["ratings.csv"]["sha256"] == SHA_B
     assert record["git_sha"] and isinstance(record["git_dirty"], bool)
     assert record["iceberg_snapshots"] == out["iceberg_snapshots"]
     assert record["contracts"] == out["contracts"]

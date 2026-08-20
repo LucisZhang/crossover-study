@@ -26,10 +26,29 @@ warehouse: data/warehouse
 item_stats_dir: data/eval/item_train_stats_ml32m
 
 # Provenance guard: the record's dataset_manifest_hash attests to this file, so
-# the job refuses to run until the ML-32M SHA-256 block (printed by
-# `make manifest-ml32m`) has actually been recorded in it (§8c T9-3a).
-dataset_manifest_path: data/MANIFEST.md
+# the job refuses to run until `make manifest-ml32m` has actually recorded the
+# ML-32M SHA-256s in it (§8c T9-3a).
+#
+# This is the ML-32M manifest, NOT data/MANIFEST.md. dataset_manifest_hash hashes
+# the whole file and eval/reproduce.py compares that field, so ML-32M content
+# inside data/MANIFEST.md would break `make reproduce-headline`'s byte_exact
+# verdict for the pinned Amazon headline. One manifest per dataset.
+dataset_manifest_path: data/MANIFEST_ML32M.md
 dataset_manifest_must_contain: "ml-32m.zip"
+
+# Each of these must appear under '## Files' with a 64-hex SHA-256, a byte size,
+# and (kind: csv) a data-row count. `published_rows`, where given, is the ML-32M
+# README's own figure and must equal the manifest's counted rows — the manifest is
+# ground truth for what we hold, the published count is the independent check that
+# what we hold is the whole dataset. tags.csv declares no published_rows: no
+# verified figure for tag applications exists in this repo, and inventing one
+# would manufacture a check that proves nothing. Its row count is still required,
+# and `make bronze-verify-ml32m` gates bronze against it.
+dataset_manifest_required_files:
+  - {filename: "ml-32m.zip", kind: archive}
+  - {filename: "ratings.csv", kind: csv, published_rows: 32000204}
+  - {filename: "movies.csv", kind: csv, published_rows: 87585}
+  - {filename: "tags.csv", kind: csv}
 
 # The Amazon anchor. Not trusted as a literal: the job locates this
 # kind="regime_map" record in results/runs.jsonl and requires

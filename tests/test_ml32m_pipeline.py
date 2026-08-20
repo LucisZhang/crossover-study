@@ -5,9 +5,10 @@ Runs the REAL builders end to end against the tmp Iceberg warehouse — no
 downloaded data, no fixtures on disk — so the lane is proven runnable before it
 ever meets the 32M-row source:
 
-  bronze_ml32m (inline rows) → silver (gate/quarantine/dedup/contracts)
-    → gold 5-core (k=2 here; k=5 in production) → user_stats / item_features /
-      popularity → eval/churn_contrast.collect_inputs + compute_churn
+  bronze_ml32m (inline rows) → silver items/interactions/tags
+    (gate/quarantine/dedup/contracts) → gold 5-core (k=2 here; k=5 in production)
+      → user_stats / item_features / popularity
+        → eval/churn_contrast.collect_inputs + compute_churn
 
 The micro-dataset is designed so every branch that matters is exercised and every
 expected number is hand-computable:
@@ -48,8 +49,10 @@ PRE_1995_TS = 700000000  # 1992-03-08T00:00:00Z — below the contract's lower b
 
 BRONZE_RATINGS = "local.bronze_ml32m.ratings"
 BRONZE_MOVIES = "local.bronze_ml32m.movies"
+BRONZE_TAGS = "local.bronze_ml32m.tags"
 RATINGS_DDL = "userId long, movieId long, rating double, timestamp long"
 MOVIES_DDL = "movieId long, title string, genres string"
+TAGS_DDL = "userId long, movieId long, tag string, timestamp long"
 
 RATING_ROWS = [
     # --- TRAIN -----------------------------------------------------------------
@@ -74,6 +77,18 @@ RATING_ROWS = [
     (7, 1, 4.0, PRE_1995_TS),  # ts below 1995-01-01
 ]
 
+# tags.csv micro-set (7 rows): 3 survive, 3 are quarantined for a distinct
+# reason, 1 is an exact duplicate. Hand-computable, like the ratings set above.
+TAG_ROWS = [
+    (1, 1, "funny", TRAIN_TS),
+    (1, 1, "funny", TRAIN_TS),  # exact 4-tuple duplicate -> collapsed, counted
+    (2, 1, "  spaced  ", TRAIN_TS),  # trimmed to "spaced"
+    (3, 2, "", TEST_TS),  # empty text -> NULL -> keys_non_null
+    (4, 3, None, TRAIN_TS),  # null text -> keys_non_null
+    (5, 99, "orphan tag", TEST_TS),  # movie absent from movies.csv -> item_fk measure
+    (6, 1, "old", PRE_1995_TS),  # ts below 1995-01-01 -> ts_range
+]
+
 MOVIE_ROWS = [
     (1, "Toy Story (1995)", "Adventure|Animation|Children"),
     (2, "American President, The (1995)", "Comedy|Drama|Romance"),
@@ -88,12 +103,15 @@ def ml32m_built(spark):
     spark.sql("CREATE NAMESPACE IF NOT EXISTS local.bronze_ml32m")
     spark.createDataFrame(RATING_ROWS, RATINGS_DDL).writeTo(BRONZE_RATINGS).createOrReplace()
     spark.createDataFrame(MOVIE_ROWS, MOVIES_DDL).writeTo(BRONZE_MOVIES).createOrReplace()
+    spark.createDataFrame(TAG_ROWS, TAGS_DDL).writeTo(BRONZE_TAGS).createOrReplace()
 
     # write_summary=False: the build summary log is a data/ artifact, not a test one.
     items = silver_ml32m.build_items(spark, run_id="testrun", write_summary=False)
     interactions = silver_ml32m.build_interactions(
         spark, run_id="testrun", write_summary=False
     )
+    # Tags after items: the tags contract's item_fk measure reads silver items.
+    tags = silver_ml32m.build_tags(spark, run_id="testrun", write_summary=False)
     core = gold_ml32m.build_five_core(spark, k=2, run_id="testrun")
     features = gold_ml32m.build_gold_features(
         spark, run_id="testrun", splits_path=SPLITS_ML32M
@@ -101,6 +119,7 @@ def ml32m_built(spark):
     return {
         "items": items,
         "interactions": interactions,
+        "tags": tags,
         "core": core,
         "features": features,
     }
@@ -170,6 +189,64 @@ def test_silver_conservation_and_quarantine_reasons(spark, ml32m_built):
 
     assert spark.table(silver_ml32m.SILVER_INTERACTIONS).count() == 14
     assert spark.table(silver_ml32m.SILVER_ITEMS).count() == 4
+
+
+def test_transform_tags_trims_and_nulls_empty_text(spark):
+    df = silver_ml32m.transform_tags(
+        spark.createDataFrame(
+            [(1, 1, "  spaced  ", TRAIN_TS), (2, 2, "   ", TRAIN_TS)], TAGS_DDL
+        )
+    )
+    rows = {r["user_id"]: r for r in df.collect()}
+    assert rows["1"]["tag"] == "spaced" and rows["1"]["_tag_missing"] is False
+    # Whitespace-only is not a tag: NULL, so the contract quarantines it with a
+    # reason instead of shipping an empty token into the T9-3b text corpus.
+    assert rows["2"]["tag"] is None and rows["2"]["_tag_missing"] is True
+    assert rows["1"]["ts"].year == 2020
+
+
+def test_silver_tags_conservation_and_quarantine_reasons(spark, ml32m_built):
+    tags = ml32m_built["tags"]
+    assert tags["input_rows"] == len(TAG_ROWS) == 7
+    assert tags["quarantined"] == {"keys_non_null": 2, "ts_range": 1}
+    # Exact 4-tuple duplicate collapsed; no keep_latest stage (a (user, item) pair
+    # may legitimately carry many distinct tags, so "latest wins" would lose data).
+    assert tags["exact_duplicate"] == 1
+    assert tags["superseded_by_later_review"] == 0
+    assert tags["kept"] == 3
+    assert (
+        tags["kept"]
+        + sum(tags["quarantined"].values())
+        + tags["exact_duplicate"]
+        + tags["superseded_by_later_review"]
+    ) == tags["input_rows"]
+
+    rows = spark.table(silver_ml32m.SILVER_TAGS).collect()
+    assert {(r["user_id"], r["parent_asin"], r["tag"]) for r in rows} == {
+        ("1", "1", "funny"),
+        ("2", "1", "spaced"),
+        ("5", "99", "orphan tag"),
+    }
+
+
+def test_silver_tags_publishes_the_missing_and_orphan_measures(spark, ml32m_built):
+    dq = spark.table(silver_ml32m.DQ_TABLE)
+    rows = {
+        r["check_id"]: r
+        for r in dq.where(dq["table_name"] == silver_ml32m.SILVER_TAGS).collect()
+    }
+    # PRE-gate null/empty rate: 2 of 7 — the number that carries information.
+    missing = rows["tag_missing_share"]
+    assert missing["status"] == "measured"
+    assert (missing["violation_count"], missing["total_rows"]) == (2, 7)
+    assert missing["metric_value"] == pytest.approx(2 / 7)
+    # Published-table re-assertion: no empty string survived the gate.
+    assert rows["empty_tag_share"]["violation_count"] == 0
+    # Referential health is MEASURED, not dropped: the tag on m99 stays.
+    orphan = rows["item_fk"]
+    assert orphan["status"] == "measured"
+    assert orphan["violation_count"] == 1
+    assert orphan["metric_value"] == pytest.approx(1 / 3)
 
 
 def test_silver_dq_ledger_is_separate_and_carries_the_uniqueness_measure(spark):

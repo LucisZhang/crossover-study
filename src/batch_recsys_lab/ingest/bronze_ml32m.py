@@ -12,6 +12,16 @@ declared in :data:`TABLE_SPECS`:
   splittable, so unlike the Amazon 6.5GB non-splittable gz the read is already
   parallel; the DISK_ONLY persist in ``ingest_table`` still buys the
   parse-once-count-twice-write-once shape.
+* **``escape='"'`` (RFC 4180)** — Spark's CSV default escape is backslash, but the
+  MovieLens files escape a quote inside a quoted field by DOUBLING it. With the
+  default, movieId 284105 (``... Presents: "We're Newbridge, ..."``) blew the
+  field apart and was silently lost: the real run landed 87,584 of 87,585
+  movies. The option is set on EVERY spec, not just ``movies``: ratings/tags do
+  not change behaviour under it (ratings is purely numeric, tags is already
+  RFC-4180), and one reader dialect for the dataset is one fact to verify rather
+  than three. ``multiLine`` is deliberately NOT enabled — keeping one record per
+  physical line is what makes the manifest's byte-counted data-row totals a
+  valid cross-check in ``ingest/reconcile_ml32m.py``.
 * **positional-schema guard** — a headered CSV read against a declared schema is
   positional (``enforceSchema``), so an upstream rename/reorder would be ingested
   silently under the old names. ``expected_header`` makes the header itself a
@@ -26,12 +36,14 @@ epoch-millis; silver owns the conversion in both cases), ``rating`` stays the
 0.5..5.0 half-star double. Column names are the source's own — bronze is the
 faithful layer, silver renames.
 
-``tags.csv`` and ``links.csv`` are not ingested: nothing downstream reads them
-(the content arm, if it runs in T9-3b, is title+genres). They stay inside the
-downloaded zip.
+``tags.csv`` IS ingested (§8c T9-3b's content arm is "title+genres+tags", so the
+data stage must land it). ``links.csv`` is not: it holds only IMDb/TMDb foreign
+keys, which nothing in this lab reads. It stays inside the downloaded zip and is
+called out as deliberately unused in ``data/MANIFEST_ML32M.md``.
 
     uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table ratings
     uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table movies
+    uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table tags
 """
 
 from __future__ import annotations
@@ -76,7 +88,22 @@ MOVIES_SCHEMA = StructType(
     ]
 )
 
-_CSV_OPTIONS = {"header": "true"}
+# --- tags.csv (userId,movieId,tag,timestamp) -----------------------------------
+# Free text: tags carry commas and doubled quotes, which is exactly why the
+# RFC-4180 escape below is not optional. timestamp is epoch SECONDS, as ratings.
+TAGS_SCHEMA = StructType(
+    [
+        StructField("userId", LongType()),
+        StructField("movieId", LongType()),
+        StructField("tag", StringType()),
+        StructField("timestamp", LongType()),
+    ]
+)
+
+# escape='"': RFC-4180 doubled quotes, NOT Spark's default backslash. See the
+# module docstring — the default silently dropped one movies.csv row on the real
+# 87,585-row file.
+_CSV_OPTIONS = {"header": "true", "escape": '"'}
 
 TABLE_SPECS: dict[str, TableSpec] = {
     "ratings": TableSpec(
@@ -97,6 +124,15 @@ TABLE_SPECS: dict[str, TableSpec] = {
         namespace=BRONZE_ML32M_NAMESPACE,
         expected_header=("movieId", "title", "genres"),
     ),
+    "tags": TableSpec(
+        schema=TAGS_SCHEMA,
+        default_input=f"{RAW_DIR}/tags.csv",
+        default_repartition=4,
+        fmt="csv",
+        read_options=_CSV_OPTIONS,
+        namespace=BRONZE_ML32M_NAMESPACE,
+        expected_header=("userId", "movieId", "tag", "timestamp"),
+    ),
 }
 
 
@@ -111,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
         "--repartition",
         type=int,
         default=None,
-        help="Post-read partition count (default: 32 ratings / 4 movies).",
+        help="Post-read partition count (default: 32 ratings / 4 movies / 4 tags).",
     )
     args = parser.parse_args(argv)
 

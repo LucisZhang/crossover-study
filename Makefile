@@ -24,7 +24,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -241,13 +241,21 @@ deep-buckets:
 # `make reproduce-headline` is unaffected.
 
 # Download + hash ML-32M (~239MB zip). The §5 disk gate runs first, as for any
-# download. The archive's CRCs are verified (there is no published checksum), the
-# two ingested CSVs are extracted with their headers checked, and the manifest
-# step PRINTS a data/MANIFEST.md fragment with our locally computed SHA-256s —
-# it never edits the manifest (that would drop the Amazon sections).
+# download. The archive's CRCs are verified (there is no published checksum) and
+# the three ingested CSVs (ratings/movies/tags) are extracted with their headers
+# checked. The manifest step writes **data/MANIFEST_ML32M.md** — its own committed
+# file. It must NEVER write data/MANIFEST.md: run records hash the whole manifest
+# file and `make reproduce-headline` compares that hash, so ML-32M content in the
+# Amazon manifest breaks the pinned headline's byte_exact verdict.
 download-ml32m: disk-gate
 	uv run python -m batch_recsys_lab.ingest.download_ml32m fetch
 	uv run python -m batch_recsys_lab.ingest.download_ml32m manifest
+
+# Re-extract the CSVs from an ml-32m.zip that is already on disk (CRCs verified,
+# headers checked). Use this instead of `download-ml32m` when the member list
+# grows — e.g. adding tags.csv must not trigger a 239MB re-download.
+extract-ml32m:
+	uv run python -m batch_recsys_lab.ingest.download_ml32m extract
 
 manifest-ml32m:
 	uv run python -m batch_recsys_lab.ingest.download_ml32m manifest
@@ -261,17 +269,32 @@ ingest-ml32m-ratings:
 ingest-ml32m-movies:
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table movies
 
-ingest-ml32m: ingest-ml32m-movies ingest-ml32m-ratings
+ingest-ml32m-tags:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.ingest.bronze_ml32m --table tags
 
-# Silver. Items first: the interactions contract's item_fk orphan measure reads
-# local.silver_ml32m.items.
+ingest-ml32m: ingest-ml32m-movies ingest-ml32m-ratings ingest-ml32m-tags
+
+# Bronze reconciliation, ML-32M (mirrors `bronze-verify`, but EXACT). Every
+# bronze_ml32m row count must equal the data-row count recorded in
+# data/MANIFEST_ML32M.md; any delta exits non-zero. This is the check that catches
+# a silent CSV parse loss — the first real ingest landed 87,584 of 87,585 movies.
+bronze-verify-ml32m:
+	uv run python -m batch_recsys_lab.ingest.reconcile_ml32m
+
+# Silver. Items first: the interactions AND tags contracts' item_fk orphan
+# measures read local.silver_ml32m.items.
 silver-ml32m-items:
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver_ml32m --table items
 
 silver-ml32m-interactions:
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver_ml32m --table interactions
 
-silver-ml32m: silver-ml32m-items silver-ml32m-interactions
+# Tags: silver only (no gold projection). T9-3b's content arm is title+genres+tags
+# and builds its own item_text from this table.
+silver-ml32m-tags:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.features.silver_ml32m --table tags
+
+silver-ml32m: silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags
 
 # Gold. core = the shared iterative 5-core prune (k=5, mirror design) with the
 # ML-32M projection; features = user_stats + item_features + popularity off the
@@ -289,7 +312,8 @@ gold-ml32m: gold-ml32m-core gold-ml32m-features
 # the published DQ dashboard's totals are untouched. GOTCHA (same shape as the
 # fresh-warehouse wrinkle in EXPERIMENT_LOG 2026-08-17): every contract in the
 # directory is graded, so all six ML-32M tables must exist before this runs — a
-# missing table is a hard AuditError, not a skip.
+# missing table is a hard AuditError, not a skip — including
+# local.silver_ml32m.tags, whose contract lives in the same directory.
 contracts-audit-ml32m:
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.contracts.run_audit \
 	  --contracts-dir contracts/ml32m --dq-table local.dq_ml32m.dq_results
@@ -303,12 +327,14 @@ item-train-stats-ml32m: java-check
 	  --splits-path configs/splits_ml32m.yaml \
 	  --out data/eval/item_train_stats_ml32m $(ITEM_STATS_FLAGS)
 
-# Full ML-32M data stage: bronze -> silver -> gold -> contracts -> item axis.
-# ONE run id ties every step's dq_results / funnel / build-summary rows together,
-# same convention as `make data`. Unlike `make data` this DOES include bronze:
-# the ML-32M ingest is minutes, not hours.
+# Full ML-32M data stage: bronze -> BRONZE RECONCILIATION -> silver -> gold ->
+# contracts -> item axis. ONE run id ties every step's dq_results / funnel /
+# build-summary rows together, same convention as `make data`. Unlike `make data`
+# this DOES include bronze: the ML-32M ingest is minutes, not hours. The
+# reconciliation sits between ingest and silver on purpose — a bronze table that
+# does not match the hashed bytes must never become a silver table.
 data-ml32m: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(shell date -u +%Y%m%dT%H%M%SZ)-$(shell git rev-parse --short HEAD 2>/dev/null))
-data-ml32m: java-check ingest-ml32m silver-ml32m gold-ml32m contracts-audit-ml32m item-train-stats-ml32m
+data-ml32m: java-check ingest-ml32m bronze-verify-ml32m silver-ml32m gold-ml32m contracts-audit-ml32m item-train-stats-ml32m
 	@echo "make data-ml32m complete · RECSYS_RUN_ID=$(RECSYS_RUN_ID)"
 
 # T9-3a hinge: the pre-model churn statistic and its contrast against the recorded
