@@ -14,6 +14,9 @@
 # annotates; (b) the Rule S5 fitted ROUTING depth (n* = 100, EXPERIMENT_LOG.md
 # "T9-3b VAL ladder complete": "fitted n* = 100, objective 0.089686"), which
 # belongs to the hybrid arm A9, not to this exhibit.
+confirmatory_json: results/confirmatory_ml32m_test.json
+metric: "ndcg@10"
+output_stem: crossover_ml32m_deep_test
 title: "ML-32M deep-bucket confirmatory: M* (item-kNN-t12m) vs P* (pop-t12m) (TEST)"
 subtitle: "Paired delta NDCG@10 by history-depth bucket; bands are 95% bootstrap CIs (n_resamples=1000, seed=20260805); filled diamonds = BH-significant at FDR 0.05"
 xlabel: "User history depth (TRAIN interactions per TEST user)"
