@@ -794,6 +794,10 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
     n_resamples = int(boot.get("n_resamples", 1000))
     base_seed = int(boot.get("seed", 20260805))
     split = config.get("split", "test")
+    # Opt-in (T9-3c Family S2): add the §5(e) two-sided ASL p-value to every
+    # cell's delta block, drawn off that cell's own child seed. Default False
+    # keeps the committed T8-1 record shape and values byte-identical.
+    asl_p_values = bool(config.get("asl_p_values", False))
 
     cache_dir = _resolve_cache_dir(config["cache_dir"])
     cache_manifest = json.loads((cache_dir / "cache_manifest.json").read_text())
@@ -1044,6 +1048,7 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
                     delta_pair,
                     [base_seed, axis_ord, seg_ord, b_ord],
                     n_resamples,
+                    asl_p_values=asl_p_values,
                 )
                 cell_gt = int(gt_count[mask, b_ord].sum())
                 rows.append(
@@ -1106,6 +1111,7 @@ def build_regime_map(config: dict, results_path: Path) -> dict:
         "k_list": list(k_list),
         "seed": base_seed,
         "n_resamples": n_resamples,
+        "asl_p_values": asl_p_values,
         "cache_dir": str(cache_dir),
         "cache_manifest": cache_manifest,
         "item_stats_dir": str(stats_dir),

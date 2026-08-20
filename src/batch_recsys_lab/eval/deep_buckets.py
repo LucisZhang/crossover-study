@@ -109,6 +109,10 @@ def build_buckets(config: dict, results_path: Path) -> dict:
     base_seed = int(boot.get("seed", 20260805))
     split = config.get("split", "test")
     tolerance = float((config.get("self_check") or {}).get("tolerance", DEFAULT_TOLERANCE))
+    # Opt-in (T9-3c): add the §5(e) two-sided ASL p-value to every bucket's delta
+    # block, drawn off that bucket's own child seed. Default False keeps the
+    # committed T8-3 record shape and values byte-identical.
+    asl_p_values = bool(config.get("asl_p_values", False))
 
     cache_dir = _resolve_cache_dir(config["cache_dir"])
     cache_manifest = json.loads((cache_dir / "cache_manifest.json").read_text())
@@ -214,7 +218,12 @@ def build_buckets(config: dict, results_path: Path) -> dict:
             key: {m: arms[key]["values"][m][mask] for m in metrics} for key in arm_order
         }
         block = cell_block(
-            arm_values, metrics, delta_pair, [base_seed, b_ord], n_resamples
+            arm_values,
+            metrics,
+            delta_pair,
+            [base_seed, b_ord],
+            n_resamples,
+            asl_p_values=asl_p_values,
         )
         buckets.append(
             {
@@ -235,6 +244,7 @@ def build_buckets(config: dict, results_path: Path) -> dict:
         "metrics": list(metrics),
         "seed": base_seed,
         "n_resamples": n_resamples,
+        "asl_p_values": asl_p_values,
         "cache_dir": str(cache_dir),
         "cache_manifest": cache_manifest,
         "artifact_paths": artifact_paths,

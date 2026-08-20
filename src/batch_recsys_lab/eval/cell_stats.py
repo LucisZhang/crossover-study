@@ -37,7 +37,13 @@ from __future__ import annotations
 
 import numpy as np
 
-from batch_recsys_lab.eval.bootstrap import ci_mean, paired_delta_ci, resample_matrix
+from batch_recsys_lab.eval.bootstrap import (
+    asl_p_value,
+    ci_mean,
+    paired_delta_ci,
+    paired_delta_resamples,
+    resample_matrix,
+)
 
 
 def _with_width(block: dict, lo_key: str = "ci_lo", hi_key: str = "ci_hi") -> dict:
@@ -54,6 +60,7 @@ def cell_block(
     delta_pair: tuple[str, str],
     seed_entropy: list[int],
     n_resamples: int,
+    asl_p_values: bool = False,
 ) -> dict:
     """One cell's evidence block.
 
@@ -64,6 +71,17 @@ def cell_block(
     ``"<minuend>_minus_<subtrahend>"``.
 
     Returns ``{"n_users", "arms", "delta", "delta_label", "seed_entropy"}``.
+
+    ``asl_p_values`` (opt-in, default OFF so every previously recorded block is
+    byte-identical in value AND in key set) adds ``"p_value"`` to each metric's
+    delta block: the two-sided achieved-significance level of T9-3b §5(e),
+    computed by :func:`eval.bootstrap.asl_p_value` from
+    :func:`eval.bootstrap.paired_delta_resamples` called with **this cell's own
+    ``seed_entropy`` and ``n_resamples``** — i.e. the identical resample matrix
+    that produced the CI right beside it, as §5(e) requires ("from the same
+    1,000 paired resampled deltas, same seed, same resample matrix"). It is a
+    second *draw* of the same deterministic stream, not a second look at TEST:
+    ``resample_matrix`` is a pure function of ``(n, n_resamples, entropy)``.
     """
     arm_keys = list(arm_values)
     lengths = {k: len(next(iter(v.values()))) for k, v in arm_values.items()}
@@ -94,8 +112,9 @@ def cell_block(
             )
             for m in metrics
         }
-    delta_out = {
-        m: _with_width(
+    delta_out: dict[str, dict] = {}
+    for m in metrics:
+        block = _with_width(
             paired_delta_ci(
                 arm_values[a_key][m],
                 arm_values[b_key][m],
@@ -103,8 +122,16 @@ def cell_block(
                 seed=seed_entropy,
             )
         )
-        for m in metrics
-    }
+        if asl_p_values:
+            block["p_value"] = asl_p_value(
+                paired_delta_resamples(
+                    arm_values[a_key][m],
+                    arm_values[b_key][m],
+                    n_resamples=n_resamples,
+                    seed=seed_entropy,
+                )
+            )
+        delta_out[m] = block
     return {
         "n_users": n_users,
         "arms": arms_out,

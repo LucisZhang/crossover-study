@@ -1,0 +1,96 @@
+# T9-3c CONFIRMATORY analysis of the ML-32M TEST ladder (Phase 9, UPGRADE_PLAN §8c).
+#
+# Applies the committed T9-3b preregistration (EXPERIMENT_LOG.md 2026-08-20, §5
+# multiplicity policy + §7 decision rules D1-D5) to per-user artifacts that
+# already exist. Nothing here is a tunable: the FDR level (0.05), the resample
+# count (1000), the base seed (20260805) and the confirmatory metric (ndcg@10)
+# are preregistered constants and the driver ABORTS if this file disagrees with
+# them. Pure post-processing — no model is re-evaluated, and
+# results/runs.jsonl is read but never written.
+kind: confirmatory_ml32m
+split: test
+
+# --- arms (frozen 2026-08-21, "T9-3b VAL ladder complete") --------------------
+#
+# M* = A4 item-kNN-t12m (top_n 50, train_window_days 365) — Rule S4.
+# P* = A2 pop-t12m — Rule S6.
+# Fill in the TEST run_ids from results/runs.jsonl once the remote TEST runs
+# land. Every id must be the SEED-20260805 record: §6 makes seed 20260805 the
+# sole per-user artifact for every paired delta, p-value and BH family, and
+# seeds 20260806/20260807 stability evidence that never enters an inference.
+arms:
+  m_star: "PLACEHOLDER_A4_KNN_T12M_TEST"   # M* — the primary confirmatory arm
+  p_star: "PLACEHOLDER_A2_POP_T12M_TEST"   # P* — the confirmatory comparator
+
+# Family S1 (§5c): "Every other arm (including A8 the blend, and the
+# non-selected popularity variant) vs P*". Family S2 (§5d) covers M* plus every
+# arm listed here. Delete an entry only if that arm produced no TEST record
+# (e.g. A9 exists only because the VAL-fitted n* = 100 is finite, Rule S5); a
+# deletion is a disclosure, not a silent omission.
+secondary_arms:
+  random: "PLACEHOLDER_A0_RANDOM_TEST"
+  pop_alltime: "PLACEHOLDER_A1_POP_ALLTIME_TEST"
+  itemknn: "PLACEHOLDER_A3_ITEMKNN_N50_TEST"
+  als: "PLACEHOLDER_A5_ALS_TEST_SEED20260805"
+  als_decay: "PLACEHOLDER_A6_ALSDECAY_HL90_TEST_SEED20260805"
+  content: "PLACEHOLDER_A7_CONTENT_TEST"
+  blend: "PLACEHOLDER_A8_BLEND_A01_TEST"
+  hybrid: "PLACEHOLDER_A9_HYBRID_NSTAR100_TEST"
+
+# §6 seed discipline is enforced against the records, not trusted from this
+# file: every run_id above is resolved in results/runs.jsonl and its
+# seeds.model must be null (deterministic arm) or 20260805. The ALS stability
+# seeds 20260806/20260807 are rejected outright and CANNOT be exempted — that
+# is the whole point of the guard. Any other seed aborts unless declared here
+# with its exact value. One real case: the A0 random floor records
+# seeds.model: 13 on both datasets (Amazon TEST and the ML-32M VAL ladder). It
+# has a single TEST record, so there is no second-seed ambiguity to guard
+# against; the declaration makes the exception explicit and auditable instead
+# of widening the rule. Delete this block if the ML-32M random TEST record
+# turns out to carry a different seed — a mismatch aborts, by design.
+model_seed_exemptions:
+  random: 13
+
+# --- inference protocol (preregistered; validated, not configurable) ---------
+# metrics[0] is the confirmatory metric; recall@20 is the §5(g) metric-robustness
+# LABEL, corrected in its own separate BH family and never confirmatory.
+metrics: ["ndcg@10", "recall@20"]
+fdr_alpha: 0.05
+bootstrap:
+  n_resamples: 1000
+  seed: 20260805
+
+# §5(b) fixes Family P as "one test per populated deep bucket + one global test".
+# §5(c) says only "across the same deep buckets" for S1 and does not restate the
+# global test — an ambiguity in the prereg. Default true mirrors Family P's
+# structure; set false to run S1 on the seven buckets alone. Either way the
+# choice is recorded in the output under protocol.s1_include_global_test.
+s1_include_global_test: true
+
+# Family S2 recomposes the top-50 lists per arm through the T8-1 machinery, which
+# is the expensive half of this driver. Set false to publish P + S1 alone (a
+# disclosure, since §5d is part of the preregistered reporting obligation).
+run_family_s2: true
+k_list: [10, 20, 50]
+
+# --- ML-32M lineage. Every path is the ML-32M lane's, never the Amazon lane's --
+cache_dir: data/eval/cache_ml32m
+five_core_table: local.gold_ml32m.interactions_5core
+item_stats_dir: data/eval/item_train_stats_ml32m
+splits_path: configs/splits_ml32m.yaml
+
+# The ML-32M manifest, NOT data/MANIFEST.md: dataset_manifest_hash hashes the
+# whole file and eval/reproduce.py compares that field for the pinned Amazon
+# headline's byte_exact verdict. One manifest per dataset (T9-3a).
+dataset_manifest_path: data/MANIFEST_ML32M.md
+
+# Set once TEST user count is known; a mismatch aborts before any output.
+expected_n_users: null
+
+self_check:
+  tolerance: 1.0e-9
+identity_check:
+  tolerance: 1.0e-12
+
+results_path: results/runs.jsonl
+out_path: results/confirmatory_ml32m_test.json

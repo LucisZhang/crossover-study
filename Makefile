@@ -24,7 +24,7 @@ export SPARK_LOCAL_IP := 127.0.0.1
 # caffeinate is absent (e.g. Linux CI), so recipes degrade gracefully.
 CAFFEINATE := $(if $(shell command -v caffeinate 2>/dev/null),caffeinate -dims,)
 
-.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m eval-extract-ml32m gold-ml32m-item-text item-text-export-ml32m embed-items-ml32m eval-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
+.PHONY: java-check disk-gate test smoke download manifest ingest-reviews ingest-items bronze-verify fixture silver-items silver-interactions silver gold-core gold-features gold gold-uncored gold-item-text item-text-export contracts-audit waterfall data data-hash data-verify eval-extract extract-age eval-extract-uncored eval eval-baselines als-train eval-als item-train-stats regime-map deep-buckets download-ml32m extract-ml32m manifest-ml32m ingest-ml32m-ratings ingest-ml32m-movies ingest-ml32m-tags ingest-ml32m bronze-verify-ml32m silver-ml32m-items silver-ml32m-interactions silver-ml32m-tags silver-ml32m gold-ml32m-core gold-ml32m-features gold-ml32m contracts-audit-ml32m item-train-stats-ml32m data-ml32m churn-ml32m eval-extract-ml32m gold-ml32m-item-text item-text-export-ml32m embed-items-ml32m eval-ml32m confirmatory-ml32m compare embed-items crossover-chart ann-index bench-duckdb reproduce-headline ops-backfill ops-append ops-upsert ops-fragment ops-compact ops-expire ops-all clean-ops lineage lineage-check demo-export demo-export-phase8 demo-verify demo-verify-record demo-serve demo-grid demo-shoppers demo-dq demo-assets demo-offline-check
 
 java-check:
 	@v=$$(java -version 2>&1); echo "$$v" | grep -q '"21\.' || (echo "ERROR: java -version does not report 21.x under project env (JAVA_HOME=$(JAVA_HOME)). Spark 4.x requires Java 17/21." && exit 1); echo "$$v"
@@ -403,6 +403,21 @@ eval-ml32m: export RECSYS_RUN_ID := $(if $(RECSYS_RUN_ID),$(RECSYS_RUN_ID),$(she
 eval-ml32m:
 	@test -n "$(CONFIG)" || { echo "ERROR: set CONFIG=configs/eval_*_ml32m_*.yaml"; exit 1; }
 	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.run_eval --config $(CONFIG)
+
+# T9-3c: the CONFIRMATORY analysis of the ML-32M TEST ladder (§8c). JVM-free,
+# like regime-map/deep-buckets: it only regroups per-user artifacts already
+# committed by the TEST eval runs (deep buckets + regime-map cells) and applies
+# the committed T9-3b preregistration — §5 BH families at FDR 0.05, §5(e) ASL
+# p-values off the same resample matrices, §7 D1-D5 classifier. Writes ONE JSON
+# evidence file (results/confirmatory_ml32m_test.json) and NEVER appends to
+# results/runs.jsonl. Aborts on unreplaced PLACEHOLDER run_ids, on any §6
+# stability-seed artifact, and on any lineage/cache mismatch.
+#   make confirmatory-ml32m
+#   make confirmatory-ml32m CONFIRM_FLAGS=--no-write
+#   make confirmatory-ml32m CONFIG=configs/confirmatory_ml32m_test.yaml
+confirmatory-ml32m:
+	$(CAFFEINATE) uv run python -m batch_recsys_lab.eval.confirmatory_ml32m \
+		--config $(if $(CONFIG),$(CONFIG),configs/confirmatory_ml32m_test.yaml) $(CONFIRM_FLAGS)
 
 # Paired-bootstrap delta between two eval runs (Phase 2, T5). Pure numpy.
 #   make compare CONFIG=configs/compare_als_vs_itemknn_val.yaml
