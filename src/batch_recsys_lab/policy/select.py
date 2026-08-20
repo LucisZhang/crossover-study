@@ -21,6 +21,24 @@ Winner rule (pre-declared, see EXPERIMENT_LOG.md T13 entry): argmax objective
 over the 2 variants x 5 n_star grid; ties -> prefer variant B (pop-t12m as the
 warm/high component) and, among remaining ties, the n_star closest to
 infinity (more blend coverage / simpler policy).
+
+T9-3b (ML-32M, EXPERIMENT_LOG.md Rule S5) extends this module with two
+opt-in, default-preserving config keys so the Amazon config's output stays
+byte-identical:
+
+- ``route_by: n_train`` — instead of reading the coarse five-segment
+  bucket column off the per-user artifact (exact only because the Amazon
+  n_star grid was chosen to align with the segment edges), route each user
+  directly by ``n_train[user_idx] < n_star`` where ``n_train`` is loaded
+  from the eval cache named by the config's ``cache_dir`` key, joined on
+  the per-user artifact's own ``user_idx`` column. This supports arbitrary
+  n_star edges (e.g. 50, 100) that do not align with any segment bucket.
+- ``objective: global_ndcg10_mean`` — the plain mean of the composed
+  per-user metric over all users (the Rule S5 "maximizes global VAL
+  NDCG@10"), computed alongside (not instead of) the default segment
+  objective so both are available on every cell.
+
+Tie rule and output shape are unchanged.
 """
 
 from __future__ import annotations
@@ -34,6 +52,8 @@ from pathlib import Path
 import numpy as np
 import pyarrow.parquet as pq
 import yaml
+
+from batch_recsys_lab.eval.harness import _resolve_cache_dir
 
 # Segment -> minimum n_train value in that bucket (frozen boundaries; see
 # eval/protocol.py SEGMENT_LABELS / _SEGMENT_EDGES). Used only to decide, for
@@ -75,7 +95,16 @@ def _load_artifact(path: str, metric: str) -> dict:
     user_ids = [str(u) for u in table.column("user_id").to_pylist()]
     segments = np.asarray([str(s) for s in table.column("segment").to_pylist()])
     values = np.asarray(table.column(metric).to_pylist(), dtype=np.float64)
-    return {"user_ids": user_ids, "segments": segments, "values": values}
+    user_idx = np.asarray(table.column("user_idx").to_pylist(), dtype=np.int64)
+    return {"user_ids": user_ids, "segments": segments, "values": values, "user_idx": user_idx}
+
+
+def _load_n_train(cache_dir: str) -> np.ndarray:
+    """Load ``n_train.npy`` from the eval cache named by the config's
+    ``cache_dir`` key (T9-3b ``route_by: n_train``), resolving the single
+    snapshot subdir exactly as ``eval.harness`` does."""
+    resolved = _resolve_cache_dir(cache_dir)
+    return np.load(resolved / "n_train.npy", allow_pickle=False)
 
 
 def _align(arms: dict[str, dict]) -> dict[str, dict]:
@@ -99,6 +128,7 @@ def _align(arms: dict[str, dict]) -> dict[str, dict]:
         aligned[n] = {
             "segments": arms[n]["segments"][idx],
             "values": arms[n]["values"][idx],
+            "user_idx": arms[n]["user_idx"][idx],
         }
     aligned["_order"] = order
     return aligned
@@ -129,11 +159,35 @@ def _compose_hybrid(
     return np.where(low_mask, low_values, high_values)
 
 
+def _compose_hybrid_n_train(
+    low_values: np.ndarray,
+    high_values: np.ndarray,
+    user_n_train: np.ndarray,
+    n_star,
+) -> np.ndarray:
+    """T9-3b ``route_by: n_train``: route each user directly by
+    ``n_train[user_idx] < n_star`` (no segment-bucket approximation), so
+    n_star grid values that do not align with a segment edge (e.g. 50, 100)
+    are exact."""
+    n_star_f = _resolve_n_star(n_star)
+    low_mask = user_n_train.astype(np.float64) < n_star_f
+    return np.where(low_mask, low_values, high_values)
+
+
+def _global_objective(values: np.ndarray) -> float:
+    """T9-3b ``objective: global_ndcg10_mean``: the plain mean of the
+    composed per-user metric over all users (Rule S5's "maximizes global
+    VAL NDCG@10"), with no segment weighting."""
+    return float(np.mean(values))
+
+
 def select(config: dict, results_path: Path) -> dict:
     run_ids = config["run_ids"]
     metric = config.get("metric", "ndcg@10")
     n_star_grid = config["n_star_grid"]
     variants = config["variants"]
+    route_by = config.get("route_by", "segment")
+    objective_name = config.get("objective", "segment_weighted_ndcg10_unweighted_mean")
 
     raw_arms = {}
     model_names = {}
@@ -145,6 +199,17 @@ def select(config: dict, results_path: Path) -> dict:
     aligned = _align(raw_arms)
     segments = aligned[next(iter(run_ids))]["segments"]  # identical across arms post-align
 
+    n_train_by_user_idx = None
+    user_n_train = None
+    if route_by == "n_train":
+        if "cache_dir" not in config:
+            raise ValueError("route_by: n_train requires a 'cache_dir' config key")
+        n_train_by_user_idx = _load_n_train(config["cache_dir"])
+        user_idx = aligned[next(iter(run_ids))]["user_idx"]  # identical across arms post-align
+        user_n_train = n_train_by_user_idx[user_idx]
+    elif route_by != "segment":
+        raise ValueError(f"unsupported route_by: {route_by!r}")
+
     grid = []
     best = None
     for variant_name, spec in variants.items():
@@ -152,9 +217,15 @@ def select(config: dict, results_path: Path) -> dict:
         low_values = aligned[low_key]["values"]
         high_values = aligned[high_key]["values"]
         for n_star in n_star_grid:
-            composed = _compose_hybrid(low_values, high_values, segments, n_star)
+            if route_by == "n_train":
+                composed = _compose_hybrid_n_train(low_values, high_values, user_n_train, n_star)
+            else:
+                composed = _compose_hybrid(low_values, high_values, segments, n_star)
             seg_means = _segment_means(composed, segments)
-            obj = _objective(seg_means)
+            if objective_name == "global_ndcg10_mean":
+                obj = _global_objective(composed)
+            else:
+                obj = _objective(seg_means)
             cell = {
                 "variant": variant_name,
                 "low": low_key,

@@ -1,0 +1,28 @@
+# T9-3b preregistered VAL-only policy fit (Rule S5). No TEST artifact
+# referenced. Inputs: M* = kNN-t12m (primary confirmatory arm, ML-32M),
+# P* = pop-t12m (confirmatory popularity comparator, ML-32M) — see
+# EXPERIMENT_LOG.md Rule S4/S6/S5.
+run_ids:
+  knn_t12m: "20260820T172245Z-7ae2396"
+  pop_t12m: "20260820T162859Z-c6b4195"
+
+# n_star grid per Rule S5: {none/inf} union the deep-bucket lower edges
+# {1, 5, 10, 20, 50, 100}.
+n_star_grid: [1, 5, 10, 20, 50, 100, null]
+
+variants:
+  A: {low: knn_t12m, high: pop_t12m}
+
+# Route each user directly by n_train[user_idx] < n_star (exact at every
+# grid edge, including 50/100 which do not align with the Amazon-side
+# five-segment bucket edges) rather than the coarse segment column.
+route_by: n_train
+cache_dir: data/eval/cache_ml32m
+
+# Rule S5: the fitted cell maximizes global VAL NDCG@10 (plain per-user
+# mean, no segment weighting).
+objective: global_ndcg10_mean
+metric: "ndcg@10"
+
+results_path: results/runs.jsonl
+output_path: results/policy_select_ml32m_val.json
