@@ -49,6 +49,7 @@ from pathlib import Path
 import yaml
 
 from batch_recsys_lab.eval import reproduce as reproduce_mod
+from batch_recsys_lab.eval import runlog
 from batch_recsys_lab.eval.confirmatory_ml32m import run_confirmatory
 
 REPO_ROOT = reproduce_mod.REPO_ROOT
@@ -78,6 +79,72 @@ def compare_verdict(committed: dict, candidate: dict) -> list[dict]:
     return out
 
 
+def _ensure_train_age(
+    headline_path: str | Path,
+    root: Path,
+    master: str,
+    driver_memory: str,
+) -> None:
+    """Build ``train_age_days.npy`` in the M* scratch cache before reproducing it.
+
+    M* (item-kNN-t12m, ``train_window_days``) needs the per-TRAIN-pair age
+    column that ``eval/extract.py``'s pinned extract does not produce (Phase
+    8, T8-2). Runs the same pinned extract ``reproduce()`` would run
+    (idempotent, reused if already valid) and then calls
+    :func:`batch_recsys_lab.eval.extract_age.extract_age` against the
+    resulting scratch cache dir, using ``five_core_table``/``splits_path``
+    read from the M* eval config rather than hardcoded. Idempotent via
+    ``extract_age``'s own manifest check -- safe to call unconditionally.
+    """
+    headline = reproduce_mod.load_headline(headline_path)
+    results_path = root / headline["results_path"]
+    cache_repro_root = root / headline["cache_repro_root"]
+    record = reproduce_mod.find_record(
+        results_path,
+        headline["headline_run_id"],
+        config_path=headline.get("expected_config_path"),
+    )
+    config_path = root / record["config_path"]
+    config = yaml.safe_load(config_path.read_text())
+    tables = reproduce_mod._tables_from_config(config)
+    splits_path = reproduce_mod._resolve_splits_path(config)
+    snapshots = record["iceberg_snapshots"]
+    cache_dir = reproduce_mod._pinned_cache_dir(cache_repro_root, snapshots, tables["five_core"])
+    warehouse = root / config.get("warehouse", "data/warehouse")
+
+    manifest_path = cache_dir / "cache_manifest.json"
+    valid = False
+    if manifest_path.exists():
+        try:
+            runlog.check_pinned_cache(
+                json.loads(manifest_path.read_text()).get("snapshot_ids", {}), snapshots
+            )
+            valid = True
+        except RuntimeError:
+            valid = False
+    if not valid:
+        reproduce_mod._run_pinned_extract(record, config, cache_dir, warehouse, master, driver_memory)
+
+    from batch_recsys_lab.eval.extract_age import extract_age
+    from batch_recsys_lab.spark_session import get_spark
+
+    spark = get_spark(
+        app_name="reproduce-ml32m-age",
+        warehouse=warehouse,
+        master=master,
+        driver_memory=driver_memory,
+    )
+    try:
+        extract_age(
+            spark,
+            cache_dir,
+            five_core_table=tables["five_core"],
+            splits_path=splits_path,
+        )
+    finally:
+        spark.stop()
+
+
 def reproduce_ml32m(
     m_star_headline: str | Path = DEFAULT_M_STAR,
     p_star_headline: str | Path = DEFAULT_P_STAR,
@@ -89,6 +156,9 @@ def reproduce_ml32m(
 ) -> dict:
     """Full reproduce-ml32m flow. Returns a summary dict (never appended anywhere)."""
     root = Path(root)
+
+    print("[reproduce-ml32m] ensuring train_age_days.npy in the M* scratch cache ...")
+    _ensure_train_age(m_star_headline, root, master, driver_memory)
 
     print("[reproduce-ml32m] reproducing M* (item-kNN-t12m) ...")
     m_star_rec = reproduce_mod.reproduce(

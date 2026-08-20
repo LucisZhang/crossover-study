@@ -18,6 +18,9 @@ import pytest
 from batch_recsys_lab.eval import runlog
 from batch_recsys_lab.eval.reproduce import (
     FIELDS_COMPARED,
+    _resolve_manifest_path,
+    _resolve_splits_path,
+    _run_pinned_extract,
     compare_cache_dirs,
     compare_per_user,
     diff_records,
@@ -440,3 +443,75 @@ def test_artifact_hashes_skip_when_absent_or_not_carried(tmp_path):
     assert verify_artifact_hashes(_blend_model("deadbeef"), tmp_path)["match"] is None
     pop = {"name": "popularity", "params": {"as_of": "train_end", "window_days": 365}}
     assert verify_artifact_hashes(pop, tmp_path)["match"] is None
+
+
+# --- splits_path / manifest_path precedence -----------------------------------
+
+
+def test_resolve_splits_path_uses_config_carried_key():
+    assert _resolve_splits_path({"splits_path": "configs/splits_ml32m.yaml"}) == (
+        "configs/splits_ml32m.yaml"
+    )
+
+
+def test_resolve_splits_path_defaults_when_key_absent():
+    assert _resolve_splits_path({}) == str(runlog.DEFAULT_SPLITS_PATH)
+
+
+def test_resolve_manifest_path_uses_config_carried_key():
+    assert _resolve_manifest_path({"manifest_path": "data/MANIFEST_ML32M.md"}) == (
+        "data/MANIFEST_ML32M.md"
+    )
+
+
+def test_resolve_manifest_path_defaults_when_key_absent():
+    assert _resolve_manifest_path({}) == str(runlog.DEFAULT_MANIFEST_PATH)
+
+
+def test_run_pinned_extract_passes_config_carried_splits_path(monkeypatch, tmp_path):
+    """The pinned scratch extract must resolve splits_path with the same
+    precedence run_eval.py uses (config-carried key, else default), not
+    silently fall back to the Amazon splits.yaml regardless of the config."""
+    captured = {}
+
+    def fake_extract(spark, **kwargs):
+        captured.update(kwargs)
+        return {}
+
+    def fake_get_spark(**kwargs):
+        class _FakeSpark:
+            def stop(self):
+                pass
+
+        return _FakeSpark()
+
+    monkeypatch.setattr("batch_recsys_lab.eval.extract.extract", fake_extract)
+    monkeypatch.setattr("batch_recsys_lab.spark_session.get_spark", fake_get_spark)
+
+    record = {"iceberg_snapshots": {"local.gold_ml32m.interactions_5core": 1}, "contracts": {}}
+    config = {"splits_path": "configs/splits_ml32m.yaml"}
+    _run_pinned_extract(record, config, tmp_path / "1", tmp_path / "wh", "local[1]", "1g")
+    assert captured["splits_path"] == "configs/splits_ml32m.yaml"
+
+
+def test_run_pinned_extract_defaults_splits_path_when_absent(monkeypatch, tmp_path):
+    captured = {}
+
+    def fake_extract(spark, **kwargs):
+        captured.update(kwargs)
+        return {}
+
+    def fake_get_spark(**kwargs):
+        class _FakeSpark:
+            def stop(self):
+                pass
+
+        return _FakeSpark()
+
+    monkeypatch.setattr("batch_recsys_lab.eval.extract.extract", fake_extract)
+    monkeypatch.setattr("batch_recsys_lab.spark_session.get_spark", fake_get_spark)
+
+    record = {"iceberg_snapshots": {"local.gold.interactions_5core": 1}, "contracts": {}}
+    config = {}
+    _run_pinned_extract(record, config, tmp_path / "1", tmp_path / "wh", "local[1]", "1g")
+    assert captured["splits_path"] == str(runlog.DEFAULT_SPLITS_PATH)

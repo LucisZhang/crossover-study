@@ -420,6 +420,18 @@ def _tables_from_config(config: dict) -> dict:
     }
 
 
+def _resolve_splits_path(config: dict) -> str:
+    """Same precedence as ``run_eval.py``'s CLI: the config's own ``splits_path``
+    key, else the repo default (Amazon ``configs/splits.yaml``)."""
+    return config.get("splits_path") or str(runlog.DEFAULT_SPLITS_PATH)
+
+
+def _resolve_manifest_path(config: dict) -> str:
+    """Same precedence as ``run_eval.py``'s CLI: the config's own ``manifest_path``
+    key, else the repo default (``data/MANIFEST.md``)."""
+    return config.get("manifest_path") or str(runlog.DEFAULT_MANIFEST_PATH)
+
+
 def _run_pinned_extract(
     record: dict,
     config: dict,
@@ -433,6 +445,7 @@ def _run_pinned_extract(
     from batch_recsys_lab.spark_session import get_spark
 
     tables = _tables_from_config(config)
+    splits_path = _resolve_splits_path(config)
     spark = get_spark(
         app_name="reproduce-headline",
         warehouse=warehouse,
@@ -449,6 +462,7 @@ def _run_pinned_extract(
             popularity_table=tables["popularity"],
             pinned_snapshot_ids=record["iceberg_snapshots"],
             pinned_contracts=record["contracts"],
+            splits_path=splits_path,
         )
     finally:
         spark.stop()
@@ -558,6 +572,8 @@ def reproduce(
         results_path=results_path,
         append=False,
         expected_snapshot_ids=snapshots,
+        splits_path=_resolve_splits_path(config),
+        manifest_path=_resolve_manifest_path(config),
     )
     eval_wall_clock_s = round(time.monotonic() - t1, 3)
 
