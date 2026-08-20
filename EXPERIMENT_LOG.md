@@ -2884,3 +2884,124 @@ study and demo updated only where existing numbers are directly superseded.
   exact-alignment assertion against the cached pair arrays (mismatch aborts).
 - No ML-32M model artifact, eval cache, or embedding exists as of this
   entry. The first VAL run may not start until this entry is committed.
+
+## Phase 9 T9-3b VAL ladder complete — selections under the preregistered rules; M*, P*, n* frozen (2026-08-21)
+
+All 24 preregistered VAL runs are recorded in `results/runs.jsonl` (run IDs
+below), executed on the machine of record, each carrying the ML-32M manifest
+hash, the frozen-splits file hash, and the four pinned Iceberg snapshot IDs
+(5-core 3433604384732745693). VAL has 6,464 users. Every selection below is
+the mechanical application of the committed preregistration's rules to these
+numbers — no rule was adjusted after any number was seen.
+
+### VAL results (global NDCG@10, 95% bootstrap CI, seed 20260805)
+
+| arm / config | run_id | NDCG@10 [95% CI] |
+|---|---|---|
+| A0 random | 20260820T162740Z-c6b4195 | 0.001538 [0.001188, 0.001920] |
+| A1 pop-alltime | 20260820T162820Z-c6b4195 | 0.165616 [0.159084, 0.172225] |
+| A2 pop-t12m | 20260820T162859Z-c6b4195 | 0.212916 [0.206401, 0.219909] |
+| A3 kNN n50 | 20260820T162939Z-c6b4195 | 0.071212 [0.067791, 0.074657] |
+| A3 kNN n100 | 20260820T163422Z-c6b4195 | 0.071998 [0.068363, 0.075751] |
+| A3 kNN n200 | 20260820T163903Z-c6b4195 | 0.072349 [0.068851, 0.076082] |
+| A4 kNN-t12m n50/365d | 20260820T172245Z-7ae2396 | 0.079977 [0.076256, 0.083693] |
+| A5 anchor r64/0.01/α10/15/bin | 20260820T164811Z-fba92d0 | 0.074795 [0.071388, 0.078358] |
+| A5 rank32 | 20260820T170241Z-fba92d0 | 0.071106 [0.067472, 0.074743] |
+| A5 rank128 | 20260820T171654Z-fba92d0 | 0.073781 [0.070515, 0.077358] |
+| A5 reg0.001 | 20260820T175544Z-414da2c | 0.074714 [0.071318, 0.078313] |
+| A5 reg0.1 | 20260820T181436Z-414da2c | 0.075437 [0.071857, 0.079203] |
+| A5 alpha1 | 20260820T185409Z-a5fa9cd | 0.083661 [0.080017, 0.087672] |
+| A5 alpha40 | 20260820T190912Z-a5fa9cd | 0.059971 [0.056909, 0.063035] |
+| A5 iter8 | 20260820T193549Z-a0bb406 | 0.083117 [0.079468, 0.087160] |
+| A5 iter25 | 20260820T194848Z-a0bb406 | 0.083419 [0.079655, 0.087403] |
+| A5 rating | 20260820T201649Z-7e70f2c | 0.081366 [0.077813, 0.085259] |
+| A6 hl90 | 20260820T204324Z-d89b3b3 | 0.084262 [0.080625, 0.088261] |
+| A6 hl365 | 20260820T205745Z-d89b3b3 | 0.084841 [0.081076, 0.088768] |
+| A6 hl1460 | 20260820T211139Z-d89b3b3 | 0.084369 [0.080681, 0.088282] |
+| A7 content | 20260820T172358Z-7ae2396 | 0.021129 [0.019439, 0.022788] |
+| A8 blend α0.1 | 20260820T172449Z-7ae2396 | 0.215801 [0.209313, 0.222756] |
+| A8 blend α0.3 | 20260820T172544Z-7ae2396 | 0.214668 [0.208233, 0.221687] |
+| A8 blend α0.5 | 20260820T172644Z-7ae2396 | 0.204401 [0.197637, 0.211096] |
+| A8 blend α0.7 | 20260820T172744Z-7ae2396 | 0.185652 [0.179347, 0.192428] |
+| A8 blend α0.9 | 20260820T172855Z-7ae2396 | 0.162221 [0.155722, 0.169266] |
+
+### Rule S1 applications (axis by axis, argmax with CI tie-break)
+
+- **A3 kNN top_n**: argmax n200 (0.072349); n50 and n100 CIs both overlap the
+  argmax's → tie → cheapest → **top_n = 50**.
+- **A5 rank**: argmax = anchor rank 64 itself → **64** (no tie question).
+- **A5 reg**: argmax reg 0.1 (0.075437); CI overlaps incumbent 0.01's → tie →
+  cost-neutral axis, tie retains the incumbent (also the independent peer
+  draft's rule, recorded in the prereg's rejected-alternatives note) → **0.01**.
+- **A5 alpha**: argmax alpha 1 (0.083661); its CI lower bound 0.080017 clears
+  the incumbent alpha 10's upper bound 0.078358 → **CI-clear win → alpha 1.0**.
+- **A5 iter**: argmax = incumbent 15 → **15**.
+- **A5 weighting**: argmax = incumbent binary (0.083661 vs rating 0.081366) →
+  **binary**.
+- **A5 selected: rank 64, reg 0.01, alpha 1.0, max_iter 15, binary** —
+  VAL 0.083661 [0.080017, 0.087672].
+- **A6 half-life**: argmax hl365 (0.084841); hl90's CI overlaps → tie →
+  smaller half-life (stronger recency, per the preregistered tie-break) →
+  **half_life_days = 90**, VAL 0.084262 [0.080625, 0.088261]. Rule S3
+  regression clause does not fire (no decay run fell below selected static A5).
+- **A8 blend alpha**: argmax α0.1 (0.215801) → **α = 0.1** (also the smallest
+  α in its overlap set — argmax and tie-break agree).
+
+### Rule S4 — M* (primary confirmatory arm)
+
+Argmax among M*-eligible arms {A3, A4, A5, A6, A7} at selected configs is
+A6 ALS-decay hl90 (0.084262). Its 95% CI overlaps both A5 (0.083661
+[0.080017, 0.087672]) and A4 (0.079977 [0.076256, 0.083693]; 0.083693 >
+0.080625) → tie set {A4, A5, A6} → tie breaks to the simplest arm in the
+preregistered order A3 < A4 < A5 < A6 < A7 →
+
+**M* = A4, item-kNN-t12m (top_n 50, train_window_days 365), VAL NDCG@10
+0.079977 [0.076256, 0.083693], run 20260820T172245Z-7ae2396.**
+
+Noted for honesty: the marginal-CI overlap rule (as preregistered) drove this
+tie; paired-bootstrap deltas between the tied arms were not computed and may
+well have separated them, but the preregistration fixed marginal-CI overlap
+as the criterion and it is applied as written.
+
+### Rule S6 — P* (confirmatory popularity comparator)
+
+pop-t12m 0.212916 [0.206401, 0.219909] vs pop-alltime 0.165616 [0.159084,
+0.172225]: argmax pop-t12m, CIs disjoint → **P* = pop-t12m** — the same
+reference as the Amazon side, so no comparator asymmetry needs disclosing.
+(Encoding note: the code expresses all-time as `window_days: 0`, the
+prereg's `window_days: null`; semantics identical, param-hash convention
+follows the code as on the Amazon side.)
+
+### Rule S5 — routing policy fit (VAL-only)
+
+Fit per the committed grid (`n_star ∈ {1,5,10,20,50,100,∞}`, low = M*
+kNN-t12m, high = P* pop-t12m, objective = global VAL NDCG@10), by exact
+n_train routing over the per-user artifacts (results/policy_select_ml32m_val.json,
+module extension committed before the fit; Amazon default path regression-
+tested unchanged): **fitted n* = 100, objective 0.089686**. Per the committed
+rule, a finite n* spends exactly one hybrid TEST run.
+
+Disclosures fixed before TEST: (a) the preregistered grid mirrors T13's shape
+and therefore contains **no pure-P\* cell**; the fitted cell's 0.089686 is far
+below P* alone (0.212916), so the policy-level story on VAL is already
+"routing away from popularity hurts" — the hybrid TEST run reports the fitted
+cell because the rule says so, not because it is expected to win. (b) A
+data-stage fact surfaced by the fit: **1,859 of 6,464 VAL users (28.8%) have
+n_train = 0**, and P*'s NDCG@10 on that cold bucket is **0.487783** — the
+largest cell mean anywhere on VAL — vs M*'s 0.055590. Popularity's dominance
+on ML-32M VAL is concentrated exactly where personalization is impossible.
+
+### Clarification (reporting only, fixed before TEST)
+
+The prereg §5(e) two-sided ASL floor is 2/1001 ≈ 0.001998, not 1/1001 as its
+"report as < 0.001" clause implies; floor-attaining p-values will be reported
+as "p = 2/1001 (resolution floor)". Affects reporting format only, not BH at
+0.05. (Documented in `asl_p_value`'s docstring and pinned by test.)
+
+### Frozen for TEST
+
+M* = kNN-t12m (n50, 365d) · P* = pop-t12m · A5 = r64/0.01/α1.0/15/binary ·
+A6 = A5 + hl90 · A7 = content recipe 9fa4d7d913f1 · A8 = blend α0.1 ·
+A9 = hybrid n*=100 (one run) · TEST seeds: ALS-family 20260805/20260806/
+20260807; seed 20260805 is the sole paired-inference artifact. One TEST
+evaluation per arm; no VAL revisiting.
