@@ -414,3 +414,74 @@ def test_extract_idempotent(spark, toy_gold, tmp_path, capsys):
     assert summary2["status"] == "up_to_date"
     captured = capsys.readouterr()
     assert "cache up to date" in captured.out
+
+
+# --- schema-aware item-feature projection (no main_category, e.g. ML-32M) ------
+
+ITEM_FEATURES_NO_MAIN_CATEGORY_DDL = "parent_asin string, title string, genres string"
+ITEM_FEATURES_NO_MAIN_CATEGORY = "local.gold.item_features_extract_no_category"
+
+
+def test_build_item_categories_tolerates_missing_main_category(spark, toy_gold, tmp_path, capsys):
+    """A table without ``main_category`` (the ML-32M ``item_features`` shape)
+    must not raise an AnalysisException: the projection should select only the
+    columns that exist, fall back every item to '__unknown__' (code 0), and
+    report the missing column."""
+    rows = [
+        ("P1", "t1", "g1"),
+        ("P2", "t2", "g2"),
+        ("P3", "t3", "g3"),
+        ("P4", "t4", "g4"),
+    ]
+    _write(spark, rows, ITEM_FEATURES_NO_MAIN_CATEGORY_DDL, ITEM_FEATURES_NO_MAIN_CATEGORY)
+    _stamp_contract(spark, ITEM_FEATURES_NO_MAIN_CATEGORY, "gold_item_features_ml32m", "1")
+
+    out_dir = tmp_path / "cache_direct"
+    out_dir.mkdir()
+    item_ids = ["P1", "P2", "P3", "P4"]
+    capsys.readouterr()
+    missing = extract_mod._build_item_categories(
+        spark, ITEM_FEATURES_NO_MAIN_CATEGORY, item_ids, out_dir
+    )
+    captured = capsys.readouterr()
+
+    assert missing == ["main_category"]
+    assert "main_category" in captured.out
+
+    codes = np.load(out_dir / "item_category_codes.npy")
+    names = json.loads((out_dir / "item_category_names.json").read_text())
+    assert names == ["__unknown__"]
+    assert list(codes) == [0, 0, 0, 0]
+
+
+def test_extract_end_to_end_with_missing_item_feature_column(spark, toy_gold, tmp_path):
+    """Full ``extract()`` run against a table without ``main_category`` must
+    succeed and stamp the missing-column list on the cache manifest, while
+    leaving the manifest schema Amazon-compatible otherwise."""
+    rows = [
+        ("P1", "t1", "g1"),
+        ("P2", "t2", "g2"),
+        ("P3", "t3", "g3"),
+        ("P4", "t4", "g4"),
+    ]
+    _write(spark, rows, ITEM_FEATURES_NO_MAIN_CATEGORY_DDL, ITEM_FEATURES_NO_MAIN_CATEGORY)
+    _stamp_contract(spark, ITEM_FEATURES_NO_MAIN_CATEGORY, "gold_item_features_ml32m", "1")
+
+    out_dir = tmp_path / "cache"
+    summary = extract(
+        spark,
+        out=out_dir,
+        five_core_table=FIVE_CORE,
+        user_stats_table=USER_STATS,
+        item_features_table=ITEM_FEATURES_NO_MAIN_CATEGORY,
+        popularity_table=POPULARITY,
+    )
+    assert summary["status"] == "built"
+
+    manifest = json.loads((Path(summary["cache_dir"]) / "cache_manifest.json").read_text())
+    assert manifest["item_features_missing_columns"] == ["main_category"]
+
+    codes = np.load(Path(summary["cache_dir"]) / "item_category_codes.npy")
+    names = json.loads((Path(summary["cache_dir"]) / "item_category_names.json").read_text())
+    assert names == ["__unknown__"]
+    assert list(codes) == [0, 0, 0, 0]

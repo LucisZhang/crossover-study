@@ -359,43 +359,59 @@ def _build_item_categories(
     item_ids: list[str],
     out_dir: Path,
     snapshot_ids: dict[str, int] | None = None,
-) -> None:
+) -> list[str]:
+    """Build item_category_codes/names from ``main_category``. Returns the list
+    of requested item-feature columns that were absent from the table's schema
+    (e.g. ML-32M's ``item_features`` has no ``main_category``) — empty for the
+    Amazon default, which is byte-identical to the pre-schema-aware behavior.
+    """
     n_items = len(item_ids)
-    pdf = (
-        _read_table(spark, item_features_table, snapshot_ids)
-        .select("parent_asin", "main_category")
-        .toPandas()
-    )
+    table_df = _read_table(spark, item_features_table, snapshot_ids)
+    available = set(table_df.columns)
+    requested = ["main_category"]
+    missing = [c for c in requested if c not in available]
+    present = [c for c in requested if c in available]
 
-    # "__unknown__" is always code 0, deterministic regardless of row order, so a
-    # NULL/missing main_category never depends on collect() ordering.
     names: list[str] = ["__unknown__"]
     name_to_code: dict[str, int] = {"__unknown__": 0}
     codes = np.zeros(n_items, dtype=np.int32)
 
-    def _code_for(name: str | None) -> int:
-        key = name if name is not None else "__unknown__"
-        if key not in name_to_code:
-            name_to_code[key] = len(names)
-            names.append(key)
-        return name_to_code[key]
+    if missing:
+        print(
+            f"eval.extract: item_features_table {item_features_table!r} is missing "
+            f"requested column(s) {missing}; item_category_codes will be all "
+            f"'__unknown__' (code 0)."
+        )
 
-    # Deterministic: process rows in a stable (sorted-by-parent_asin) order so
-    # new-category code assignment does not depend on Spark's row ordering. The
-    # sort is the same Python string comparison the previous ``sorted(rows,
-    # key=...)`` used, and it is stable, so the emitted code order is unchanged.
-    pdf = pdf.sort_values("parent_asin", kind="stable")
-    positions = pd.Index(item_ids).get_indexer(pdf["parent_asin"].to_numpy())
-    # Arrow hands NULL strings back as None; guard NaN too so a missing
-    # main_category can never become a category NAME (it is always code 0).
-    categories = [None if pd.isna(v) else v for v in pdf["main_category"].tolist()]
-    for pos, category in zip(positions, categories):
-        if pos < 0:
-            continue
-        codes[pos] = _code_for(category)
+    if present:
+        pdf = table_df.select("parent_asin", *present).toPandas()
+
+        # "__unknown__" is always code 0, deterministic regardless of row order, so
+        # a NULL/missing main_category never depends on collect() ordering.
+        def _code_for(name: str | None) -> int:
+            key = name if name is not None else "__unknown__"
+            if key not in name_to_code:
+                name_to_code[key] = len(names)
+                names.append(key)
+            return name_to_code[key]
+
+        # Deterministic: process rows in a stable (sorted-by-parent_asin) order so
+        # new-category code assignment does not depend on Spark's row ordering. The
+        # sort is the same Python string comparison the previous ``sorted(rows,
+        # key=...)`` used, and it is stable, so the emitted code order is unchanged.
+        pdf = pdf.sort_values("parent_asin", kind="stable")
+        positions = pd.Index(item_ids).get_indexer(pdf["parent_asin"].to_numpy())
+        # Arrow hands NULL strings back as None; guard NaN too so a missing
+        # main_category can never become a category NAME (it is always code 0).
+        categories = [None if pd.isna(v) else v for v in pdf["main_category"].tolist()]
+        for pos, category in zip(positions, categories):
+            if pos < 0:
+                continue
+            codes[pos] = _code_for(category)
 
     _save_npy(codes, out_dir, "item_category_codes")
     (out_dir / "item_category_names.json").write_text(json.dumps(names))
+    return missing
 
 
 # --- orchestration -----------------------------------------------------------
@@ -475,7 +491,9 @@ def extract(
     _build_popularity_vectors(
         spark, popularity_table, splits, item_ids, cache_dir, read_snapshots
     )
-    _build_item_categories(spark, item_features_table, item_ids, cache_dir, read_snapshots)
+    missing_item_feature_columns = _build_item_categories(
+        spark, item_features_table, item_ids, cache_dir, read_snapshots
+    )
 
     if pinned:
         contract_identities = {t: dict(pinned_contracts[t]) for t in tables}
@@ -494,6 +512,11 @@ def extract(
         "split_pair_counts": split_counts,
         "splits_file_sha256": hashlib.sha256(splits_bytes).hexdigest(),
     }
+    # Only stamped when non-empty, so the Amazon default manifest (which has no
+    # missing item-feature columns) stays byte-identical to the pre-schema-aware
+    # cache.
+    if missing_item_feature_columns:
+        manifest["item_features_missing_columns"] = missing_item_feature_columns
     (cache_dir / "cache_manifest.json").write_text(json.dumps(manifest, indent=2))
 
     summary = {
