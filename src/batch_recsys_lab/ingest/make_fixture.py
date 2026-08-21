@@ -1,6 +1,6 @@
 """Build the bundled CI fixture: a deterministic ~50k-row sample of
 ``local.bronze.reviews`` plus the matching items slice from
-``local.bronze.items`` (UPGRADE_PLAN.md §8, repo map: ``tests/fixtures/``).
+``local.bronze.items`` (docs/engineering-log/UPGRADE_PLAN.md §8, repo map: ``tests/fixtures/``).
 
 Usage:
     python -m batch_recsys_lab.ingest.make_fixture
@@ -153,7 +153,7 @@ def _write_readme(summary: dict) -> None:
         "",
         "Deterministic ~50k-row sample of `local.bronze.reviews` plus the "
         "matching items slice from `local.bronze.items`, used as the CI "
-        "substrate (UPGRADE_PLAN.md repo map, `tests/fixtures/`).",
+        "substrate (docs/engineering-log/UPGRADE_PLAN.md repo map, `tests/fixtures/`).",
         "",
         "## Provenance",
         "",

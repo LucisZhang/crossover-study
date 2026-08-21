@@ -1,4 +1,4 @@
-"""User-bootstrap confidence intervals (Phase 2, T3; UPGRADE_PLAN.md §8 "Bootstrap").
+"""User-bootstrap confidence intervals (Phase 2, T3; docs/engineering-log/UPGRADE_PLAN.md §8 "Bootstrap").
 
 1,000 user-index resamples with replacement, drawn via
 ``np.random.default_rng(seed).integers``, percentile (2.5th/97.5th, linear

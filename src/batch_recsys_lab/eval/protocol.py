@@ -2,7 +2,7 @@
 
 ``segment_of`` buckets a user's TRAIN-interaction count (``gold.user_stats.n_train``)
 into the five frozen segments used throughout the eval harness and the routing
-policy (UPGRADE_PLAN.md §8, owner decision "All five segments reported").
+policy (docs/engineering-log/UPGRADE_PLAN.md §8, owner decision "All five segments reported").
 """
 
 from __future__ import annotations
@@ -38,8 +38,8 @@ def segment_of(n_train: np.ndarray) -> np.ndarray:
 # The frozen five segments above are the CONFIRMATORY axis: every eval record,
 # the crossover chart and the routing policy are reported on them. The seven
 # buckets below split the open-ended "20+" segment into 20-49 / 50-99 / 100+ and
-# are labelled EXPLORATORY/DERIVED (UPGRADE_PLAN §8b T8-1/T8-3 preregistration,
-# 2026-08-17): the boundaries were fixed in EXPERIMENT_LOG.md *before* any
+# are labelled EXPLORATORY/DERIVED (docs/engineering-log/UPGRADE_PLAN.md §8b T8-1/T8-3 preregistration,
+# 2026-08-17): the boundaries were fixed in docs/engineering-log/EXPERIMENT_LOG.md *before* any
 # per-bucket outcome was computed, but they were motivated by an observed
 # pattern (the monotonically narrowing ALS deficit), so they carry no
 # confirmatory weight. The first four labels are identical to SEGMENT_LABELS by
@@ -66,7 +66,7 @@ def deep_bucket_of(n_train: np.ndarray) -> np.ndarray:
 
 @dataclass(frozen=True)
 class EvalProtocol:
-    """The evaluation protocol knobs (UPGRADE_PLAN.md §8 "Config YAML" block)."""
+    """The evaluation protocol knobs (docs/engineering-log/UPGRADE_PLAN.md §8 "Config YAML" block)."""
 
     eval_split: str  # "val" | "test"
     knowledge_cutoff: str  # "train_end"

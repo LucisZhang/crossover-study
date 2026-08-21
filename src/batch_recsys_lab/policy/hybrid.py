@@ -1,5 +1,5 @@
 """``HybridRecommender`` — history-depth routing policy (Phase 4, T13;
-UPGRADE_PLAN.md §6.4 "routing policy").
+docs/engineering-log/UPGRADE_PLAN.md §6.4 "routing policy").
 
 Routes each eval user to one of two component ``Recommender``s based on their
 TRAIN interaction count (``ds.n_train``), then assembles a single (B, I) score

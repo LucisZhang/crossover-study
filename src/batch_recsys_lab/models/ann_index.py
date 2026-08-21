@@ -1,4 +1,4 @@
-"""ANN index artifact + latency/overlap receipt (Phase 4, T16; UPGRADE_PLAN.md §8).
+"""ANN index artifact + latency/overlap receipt (Phase 4, T16; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Demo-facing artifact ONLY. hnswlib is an approximate-nearest-neighbor index
 built over the T10 MiniLM item embeddings for the pick-a-shopper demo's

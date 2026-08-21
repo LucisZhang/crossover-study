@@ -1,4 +1,4 @@
-"""ML-32M silver builds (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+"""ML-32M silver builds (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md §8c).
 
 The regime-contrast dataset goes through the SAME trusted-layer discipline as the
 Amazon lane — typed projection, contract gate → ``quarantine_ml32m.*``, every count

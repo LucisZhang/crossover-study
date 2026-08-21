@@ -1,4 +1,4 @@
-"""Lakehouse ops exhibits (Phase 5, T20; UPGRADE_PLAN.md §8 Phase 5).
+"""Lakehouse ops exhibits (Phase 5, T20; docs/engineering-log/UPGRADE_PLAN.md §8 Phase 5).
 
 Monthly-partition incremental append, late-data MERGE upsert, compaction and
 snapshot expiry — every one of them against a **new, disposable**

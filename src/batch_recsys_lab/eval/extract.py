@@ -1,4 +1,4 @@
-"""Spark -> numpy/scipy cache extract (Phase 2, T1; UPGRADE_PLAN.md §8 "Architecture").
+"""Spark -> numpy/scipy cache extract (Phase 2, T1; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture").
 
 Two-process design: this module is Step A, run once via Spark to compact the four
 ``gold`` Iceberg tables (``interactions_5core``, ``user_stats``, ``item_features``,

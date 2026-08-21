@@ -1,4 +1,4 @@
-# Contract for local.gold.popularity (Phase 1, T7; UPGRADE_PLAN.md §8).
+# Contract for local.gold.popularity (Phase 1, T7; docs/engineering-log/UPGRADE_PLAN.md §8).
 # as_of x window_days popularity grid; leak-free by construction (ts <= as_of).
 name: gold_popularity
 version: 1

@@ -1,4 +1,4 @@
-"""Reconciliation waterfall (Phase 1, T4b; UPGRADE_PLAN.md §8, acceptance #2).
+"""Reconciliation waterfall (Phase 1, T4b; docs/engineering-log/UPGRADE_PLAN.md §8, acceptance #2).
 
 The waterfall is the *proof* that no row is silently lost between layers. For
 each dataset chain we assemble one edge per stage transition, attach a reason to

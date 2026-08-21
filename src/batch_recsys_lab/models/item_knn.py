@@ -1,5 +1,5 @@
 """Memory-blocked item-kNN recommender — cosine co-occurrence with shrinkage
-(Phase 2, T6; UPGRADE_PLAN.md §8 "Key specs" → item-kNN).
+(Phase 2, T6; docs/engineering-log/UPGRADE_PLAN.md §8 "Key specs" → item-kNN).
 
 The similarity matrix ``S`` (I×I) is the item-item cosine co-occurrence matrix
 

@@ -1,4 +1,4 @@
-"""Check kind → PySpark expression builders (Phase 1, T1; UPGRADE_PLAN.md §8).
+"""Check kind → PySpark expression builders (Phase 1, T1; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Two families:
 

@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A6 (ALS-decay) — M* eligible. Half-life axis (§2 A6): all params held at
 # the A5 VAL-selected config (rank=64, reg=0.01, alpha=1.0, iter=15, selected

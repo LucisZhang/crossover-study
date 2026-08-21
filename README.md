@@ -38,7 +38,7 @@ A five-cell pocket where a recency-matched item-kNN edges popularity (record
 trailing window under-serves stale items — not as a crossover finding: it comes
 from ~80 uncorrected tests, of which ~4 would be expected significant at α=0.05
 by chance. See `docs/case_study.md` §6 for the full disclosure and
-`EXPERIMENT_LOG.md` (2026-08-19) for the superseding verdict.
+`docs/engineering-log/EXPERIMENT_LOG.md` (2026-08-19) for the superseding verdict.
 
 **Phase 9 — regime contrast, not a repeal.** The null above is a property of a
 high-churn catalog, not of personalization in general: on ML-32M, measured
@@ -52,20 +52,23 @@ regime contrast, not causal proof — MovieLens's explicit ratings change severa
 variables at once, its timestamps are rating-entry times on a backfilled
 catalog, the Recall@20 guard does not corroborate the win, and the same run
 shows a significant cold-user loss. See `docs/case_study.md` §8c and
-`EXPERIMENT_LOG.md` (2026-08-20/21) for the full disclosure.
+`docs/engineering-log/EXPERIMENT_LOG.md` (2026-08-20/21) for the full disclosure.
 
 ## Where the details live
+
+Engineering decisions and phase logs live in [docs/engineering-log/](docs/engineering-log/).
+> 工程决策与阶段日志在 docs/engineering-log/。
 
 - `docs/case_study.md` — the full case study, every claim labeled with its
   evidence class and its `results/runs.jsonl` run_id.
 - `demo/` — static, offline exhibit site (crossover explorer, regime map,
   data-quality dashboard, receipts drawer); every displayed number opens the
   results-log record it came from.
-- `EXPERIMENT_LOG.md` — dated hypothesis → result → verdict entries, failures
+- `docs/engineering-log/EXPERIMENT_LOG.md` — dated hypothesis → result → verdict entries, failures
   and supersessions included, append-only.
 - `results/runs.jsonl` — the append-only results log; each record carries config
   hash, git SHA, dataset manifest hash, Iceberg snapshot IDs, and seeds.
-- `UPGRADE_PLAN.md` — the single source of truth for scope and phase order.
+- `docs/engineering-log/UPGRADE_PLAN.md` — the single source of truth for scope and phase order.
 
 ## Reproducing
 

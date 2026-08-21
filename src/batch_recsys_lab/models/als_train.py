@@ -1,5 +1,5 @@
 """Implicit-ALS training — Step A: train Spark MLlib ALS once, persist factors
-(Phase 2, T2/T3; UPGRADE_PLAN.md §8 "Architecture", two-process eval design).
+(Phase 2, T2/T3; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture", two-process eval design).
 
 This is the ONLY ALS module that imports ``pyspark``. It reads the SAME eval
 config yaml the harness consumes (``model.name == "als"``,

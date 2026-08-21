@@ -1,5 +1,5 @@
 """ML-32M bronze ingestion: csv → Iceberg ``local.bronze_ml32m.*`` (Phase 9, T9-3a;
-UPGRADE_PLAN.md §8c).
+docs/engineering-log/UPGRADE_PLAN.md §8c).
 
 The regime-contrast dataset (MovieLens 32M; Harper & Konstan 2015) enters the
 lakehouse through the SAME bronze discipline as the Amazon lane — explicit

@@ -1,5 +1,5 @@
 """Implicit-ALS recommender — Step B: pure-numpy rescoring of persisted factors
-(Phase 2, T2/T3; UPGRADE_PLAN.md §8 "Architecture", two-process eval design).
+(Phase 2, T2/T3; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture", two-process eval design).
 
 This module contains NO ``pyspark`` import. It is the eval-time half of a
 two-step design:

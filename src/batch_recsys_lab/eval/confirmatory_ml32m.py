@@ -4,7 +4,7 @@
         --config configs/confirmatory_ml32m_test.yaml
 
 This module decides nothing on its own. Every rule it applies is quoted from the
-committed T9-3b preregistration in ``EXPERIMENT_LOG.md`` (2026-08-20, §5
+committed T9-3b preregistration in ``docs/engineering-log/EXPERIMENT_LOG.md`` (2026-08-20, §5
 "Multiplicity policy" and §7 "Decision rules"), plus the 2026-08-21 "VAL ladder
 complete" entry that froze M\\* / P\\* and fixed the ASL floor's reporting format.
 Its whole job is to apply those rules **mechanically** to per-user artifacts that
@@ -50,7 +50,7 @@ Append-only
 -----------
 The driver writes exactly one JSON file (default
 ``results/confirmatory_ml32m_test.json``) and **never** touches
-``results/runs.jsonl``, ``EXPERIMENT_LOG.md`` or any manifest. It reads the
+``results/runs.jsonl``, ``docs/engineering-log/EXPERIMENT_LOG.md`` or any manifest. It reads the
 results log; it does not open it for writing.
 """
 
@@ -116,11 +116,11 @@ D4_FLAG_TOKEN = "D4_SIGNIFICANT_NEGATIVES"
 
 PREREG_REFS = {
     "preregistration": (
-        "EXPERIMENT_LOG.md - 'Phase 9 T9-3b preregistration' (2026-08-20): "
+        "docs/engineering-log/EXPERIMENT_LOG.md - 'Phase 9 T9-3b preregistration' (2026-08-20): "
         "§5 multiplicity policy, §7 decision rules D1-D5"
     ),
     "selections": (
-        "EXPERIMENT_LOG.md - 'Phase 9 T9-3b VAL ladder complete' (2026-08-21): "
+        "docs/engineering-log/EXPERIMENT_LOG.md - 'Phase 9 T9-3b VAL ladder complete' (2026-08-21): "
         "M* = item-kNN-t12m (n50/365d), P* = pop-t12m, ASL floor reported as 2/1001"
     ),
     "confirmatory_metric": CONFIRMATORY_METRIC,

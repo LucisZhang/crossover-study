@@ -1,4 +1,4 @@
-"""Contract audit CLI (Phase 1, T8; UPGRADE_PLAN.md §8, acceptance #1).
+"""Contract audit CLI (Phase 1, T8; docs/engineering-log/UPGRADE_PLAN.md §8, acceptance #1).
 
 Runs every ``contracts/*.yaml`` contract against its published Iceberg table via
 :func:`batch_recsys_lab.contracts.engine.audit`, appends all :class:`DqResult`

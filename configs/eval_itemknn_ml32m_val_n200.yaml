@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A3 (item-kNN, static) — M* eligible. top_n=200 grid point (§2 A3:
 # top_n in {50, 100, 200}, shrinkage 0.0, block_size 8192). Mirrors

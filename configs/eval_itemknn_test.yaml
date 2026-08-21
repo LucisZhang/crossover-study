@@ -1,7 +1,7 @@
 # item-kNN on the frozen TEST split — the SINGLE TEST run (Phase 2, T7).
-# top_n finalized from the VAL selection (2026-08-06): grid {50,100,200} tied within CI; 50 chosen by VAL NDCG@10 — see EXPERIMENT_LOG.md
+# top_n finalized from the VAL selection (2026-08-06): grid {50,100,200} tied within CI; 50 chosen by VAL NDCG@10 — see docs/engineering-log/EXPERIMENT_LOG.md
 # (eval_itemknn_val_n{50,100,200} -> pick by VAL NDCG@10, logged to
-# EXPERIMENT_LOG.md) BEFORE running this config. TEST is touched exactly once
+# docs/engineering-log/EXPERIMENT_LOG.md) BEFORE running this config. TEST is touched exactly once
 # (invariant #1): do not iterate this file against TEST.
 kind: eval
 model:

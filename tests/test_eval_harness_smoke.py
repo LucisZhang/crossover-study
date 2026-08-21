@@ -199,14 +199,14 @@ def _run(cfg, tmp_path, name, results, run_id, allow_stale=False):
 
 
 def test_dirty_from_porcelain_excludes_run_outputs():
-    """A tree whose ONLY changes are results/runs.jsonl / EXPERIMENT_LOG.md is
+    """A tree whose ONLY changes are results/runs.jsonl / docs/engineering-log/EXPERIMENT_LOG.md is
     treated as clean; any other change still counts as dirty."""
     assert runlog._dirty_from_porcelain([]) is False
     assert runlog._dirty_from_porcelain(["?? results/runs.jsonl"]) is False
-    assert runlog._dirty_from_porcelain([" M EXPERIMENT_LOG.md"]) is False
+    assert runlog._dirty_from_porcelain([" M docs/engineering-log/EXPERIMENT_LOG.md"]) is False
     assert (
         runlog._dirty_from_porcelain(
-            ["?? results/runs.jsonl", " M EXPERIMENT_LOG.md"]
+            ["?? results/runs.jsonl", " M docs/engineering-log/EXPERIMENT_LOG.md"]
         )
         is False
     )

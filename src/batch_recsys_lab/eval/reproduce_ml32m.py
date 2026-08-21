@@ -36,7 +36,7 @@ What it does
 
 This module writes no file (besides the scratch reproduce cache under
 `cache_repro_root`) and never touches `results/runs.jsonl`,
-`data/MANIFEST.md`/`data/MANIFEST_ML32M.md`, or `EXPERIMENT_LOG.md`.
+`data/MANIFEST.md`/`data/MANIFEST_ML32M.md`, or `docs/engineering-log/EXPERIMENT_LOG.md`.
 """
 
 from __future__ import annotations

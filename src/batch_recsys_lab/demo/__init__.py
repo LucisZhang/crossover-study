@@ -1,4 +1,4 @@
-"""Static-demo data export (Phase 6; UPGRADE_PLAN.md §9).
+"""Static-demo data export (Phase 6; docs/engineering-log/UPGRADE_PLAN.md §9).
 
 ``demo/data/`` is a pure projection of committed evidence: a number may appear
 in a demo JSON only if it is byte-identical (full precision — display rounding

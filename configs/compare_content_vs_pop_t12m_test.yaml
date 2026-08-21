@@ -1,5 +1,5 @@
 # Paired-bootstrap delta: pure content (MiniLM, recipe_hash 1f7878ff82bf) vs
-# trailing-12m popularity, TEST. Arms pre-declared in EXPERIMENT_LOG T15
+# trailing-12m popularity, TEST. Arms pre-declared in docs/engineering-log/EXPERIMENT_LOG.md T15
 # pre-declaration before any TEST number was seen.
 kind: paired_delta
 a:

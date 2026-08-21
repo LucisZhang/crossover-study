@@ -1,5 +1,5 @@
 """Brute-force reference tests for the T8-1 restricted-metric recomposition
-(Phase 8; UPGRADE_PLAN.md §8b).
+(Phase 8; docs/engineering-log/UPGRADE_PLAN.md §8b).
 
 The regime map's whole claim to exactness rests on one vectorized kernel:
 ``regime_map.recompose_restricted`` recomposes recall@K (K <= 50) and NDCG@10

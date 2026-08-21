@@ -1,5 +1,5 @@
 """CLI: n* routing grid on TEST, by recomposition of recorded per-user outputs
-(Phase 6, T27; UPGRADE_PLAN.md §9 exhibit 1 "n* slider").
+(Phase 6, T27; docs/engineering-log/UPGRADE_PLAN.md §9 exhibit 1 "n* slider").
 
     uv run python -m batch_recsys_lab.policy.grid_test \
         --config configs/policy_grid_test.yaml [--dry-run]

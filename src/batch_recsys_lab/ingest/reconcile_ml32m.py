@@ -1,5 +1,5 @@
 """Bronze reconciliation for ML-32M: live ``local.bronze_ml32m.*`` counts vs the
-row counts recorded in ``data/MANIFEST_ML32M.md`` (Phase 9, T9-3a; UPGRADE_PLAN.md
+row counts recorded in ``data/MANIFEST_ML32M.md`` (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md
 §8c).
 
     python -m batch_recsys_lab.ingest.reconcile_ml32m [--manifest PATH]

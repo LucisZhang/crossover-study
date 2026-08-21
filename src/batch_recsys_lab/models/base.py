@@ -1,4 +1,4 @@
-"""``Recommender`` protocol (Phase 2, T4; UPGRADE_PLAN.md §8 "Architecture").
+"""``Recommender`` protocol (Phase 2, T4; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture").
 
 Every model in this package is scored by ``eval.harness`` the same way: fit
 once against an ``EvalDataset``, then produce raw (unmasked) scores for a

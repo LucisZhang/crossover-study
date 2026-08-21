@@ -1,4 +1,4 @@
-"""Tests for eval/bootstrap.py (Phase 2, T3; UPGRADE_PLAN.md §8)."""
+"""Tests for eval/bootstrap.py (Phase 2, T3; docs/engineering-log/UPGRADE_PLAN.md §8)."""
 
 from __future__ import annotations
 

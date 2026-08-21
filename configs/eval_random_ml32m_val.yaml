@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A0 (random) — seeded floor, no VAL grid. Mirrors eval_random_test.yaml's
 # model block, scored on VAL instead of TEST (ML-32M gold_ml32m namespace).

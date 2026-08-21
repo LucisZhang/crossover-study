@@ -1,4 +1,4 @@
-"""Tests for the ALS time-decay arm (Phase 8, T8-2; EXPERIMENT_LOG.md 2026-08-17).
+"""Tests for the ALS time-decay arm (Phase 8, T8-2; docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17).
 
 No Spark: the decay weighting is pure numpy (``models.als.time_decay_confidence``
 + ``models.als_train.training_ratings``) and the identity rules are pure hashing.

@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A5 (ALS, binary) — M* eligible. Stage 2 (reg axis) of the coordinate
 # sweep: rank-axis winner was the anchor rank=64 (argmax = anchor; Rule S1),

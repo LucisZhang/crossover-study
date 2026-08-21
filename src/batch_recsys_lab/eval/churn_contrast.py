@@ -1,5 +1,5 @@
 """CLI: pre-model catalog-churn statistic for the regime contrast (Phase 9, T9-3a;
-UPGRADE_PLAN.md §8c).
+docs/engineering-log/UPGRADE_PLAN.md §8c).
 
     uv run python -m batch_recsys_lab.eval.churn_contrast \
         --config configs/churn_contrast_ml32m.yaml [--dry-run]
@@ -27,7 +27,7 @@ The item axis is not merely "the same idea" — it is the SAME CODE: the per-ite
 aggregate comes from ``features/item_train_stats.compute_item_train_stats`` and the
 bucket edges from ``eval/regime_map`` (:func:`~batch_recsys_lab.eval.regime_map.support_codes`,
 ``recency_codes``, ``first_seen_codes``, ``gate_verdict``), imported, not re-derived.
-The preregistered bands (<0.10 / 0.10-0.25 / >=0.25, EXPERIMENT_LOG.md 2026-08-17)
+The preregistered bands (<0.10 / 0.10-0.25 / >=0.25, docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17)
 are therefore evaluated by the identical function that produced the Amazon 0.4111.
 
 **The one difference, stated explicitly:** T8-1 additionally asserted that the
@@ -87,7 +87,7 @@ PROVENANCE_NOTE = (
     "dataset, BEFORE any model is trained or scored. The item axis is the same leak-free "
     "aggregate (features/item_train_stats.compute_item_train_stats: TRAIN columns use "
     "ts <= train_end only) and the same preregistered bucket edges and gate bands "
-    "(eval/regime_map, EXPERIMENT_LOG.md 2026-08-17), imported rather than re-derived. "
+    "(eval/regime_map, docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17), imported rather than re-derived. "
     "Ground truth is the TEST-window 5-core interaction set joined to the item catalog — "
     "identical to the eval cache's TEST pairs that T8-1 consumed; the catalog-join edge is "
     "reported both ways. No model artifact, eval cache or threshold is involved, and "
@@ -396,7 +396,7 @@ def verify_dataset_manifest(
             "dataset are not recorded yet, so the record's dataset_manifest_hash would "
             "attest to a manifest that never saw it. Run `make manifest-ml32m` first "
             "(it writes data/MANIFEST_ML32M.md; data/MANIFEST.md is the Amazon lane's "
-            "file and must not be edited — UPGRADE_PLAN.md §8c T9-3a)."
+            "file and must not be edited — docs/engineering-log/UPGRADE_PLAN.md §8c T9-3a)."
         )
 
     entries = parse_manifest_text(text)

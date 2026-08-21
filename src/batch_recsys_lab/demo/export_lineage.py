@@ -149,7 +149,7 @@ def build_timetravel(cfg: dict, runs: dict[str, dict]) -> TracedWriter:
 
     w.put_descriptive(
         "/notes/ops_table_dropped",
-        "Phase 5's clean-ops step (accepted, see EXPERIMENT_LOG.md) dropped "
+        "Phase 5's clean-ops step (accepted, see docs/engineering-log/EXPERIMENT_LOG.md) dropped "
         "local.ops.interactions_monthly after the reproduce-headline acceptance check ran a "
         "second time post-churn. The ops_chain above is the recorded evidence for the snapshot "
         "history — the 11 kind=ops records — not a live, re-queryable table.",

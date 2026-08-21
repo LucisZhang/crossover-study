@@ -3,7 +3,7 @@
 # whatever is live. Changing headline_run_id re-points the claim the site makes;
 # it is a deliberate, reviewed edit, not a routine one.
 #
-# Repointed 2026-08-19 (machine-of-record migration, EXPERIMENT_LOG d4605c4):
+# Repointed 2026-08-19 (machine-of-record migration, docs/engineering-log/EXPERIMENT_LOG.md d4605c4):
 # the remote Linux box (crossover-gpu) is now the machine of record after a
 # verified exact-match bronze->silver->gold rebuild (row counts identical,
 # waterfall + all 17 k-core funnel iterations reproduce count-for-count,
@@ -19,7 +19,7 @@
 # matched the old record bit-for-bit; ndcg@10/20 and mrr differed by
 # ~2.7e-8/8.2e-8 respectively (float summation order under CPU vs the
 # original Apple MPS backend — expected, and far inside the recorded
-# bootstrap CIs, e.g. ndcg@10 CI width ~4.2e-4). See EXPERIMENT_LOG.md for
+# bootstrap CIs, e.g. ndcg@10 CI width ~4.2e-4). See docs/engineering-log/EXPERIMENT_LOG.md for
 # the full side-by-side table.
 #
 # superseded_headline_run_id: "20260807T055333Z-c320c79"  # Mac warehouse, pre-migration; kept as history, never edited

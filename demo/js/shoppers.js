@@ -165,7 +165,7 @@ function curationPanelHtml(data) {
         hits by about 50&times;.</p>
       ${curationTableHtml(data)}
       <p class="muted">Curation rule <code>${fmt.esc(rule.rule_id || '--')}</code>, pre-declared in
-        <code>${fmt.esc(rule.declared_in || 'EXPERIMENT_LOG.md')}</code>. Seed
+        <code>${fmt.esc(rule.declared_in || 'docs/engineering-log/EXPERIMENT_LOG.md')}</code>. Seed
         <code>${fmt.esc(String(data.seed))}</code>.</p>
     </div>`;
 }

@@ -1,4 +1,4 @@
-"""Download + manifest tooling for MovieLens 32M (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+"""Download + manifest tooling for MovieLens 32M (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md §8c).
 
     python -m batch_recsys_lab.ingest.download_ml32m fetch
     python -m batch_recsys_lab.ingest.download_ml32m manifest
@@ -262,7 +262,7 @@ def _document(entries: list[dict], row_counts: dict[str, int], download_date: st
     lines.append("# MovieLens 32M (ML-32M) — Data Manifest")
     lines.append("")
     lines.append(
-        "Regime-contrast dataset for UPGRADE_PLAN.md §8c (Phase 9, T9-3a/T9-3b). "
+        "Regime-contrast dataset for docs/engineering-log/UPGRADE_PLAN.md §8c (Phase 9, T9-3a/T9-3b). "
         "Separate from `data/MANIFEST.md` on purpose: run records hash their whole "
         "dataset manifest, and `make reproduce-headline` compares that hash for the "
         "pinned Amazon headline. One manifest per dataset keeps the two independent."
@@ -320,7 +320,7 @@ def _document(entries: list[dict], row_counts: dict[str, int], download_date: st
         "`make bronze-verify-ml32m`."
     )
     lines.append("")
-    lines.append("## Timestamp caveat (UPGRADE_PLAN.md §8b)")
+    lines.append("## Timestamp caveat (docs/engineering-log/UPGRADE_PLAN.md §8b)")
     lines.append("")
     lines.append(
         "MovieLens timestamps are rating-ENTRY times, not consumption times, and the "

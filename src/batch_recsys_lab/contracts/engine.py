@@ -1,4 +1,4 @@
-"""Contract engine: gate + audit + dq_results sink (Phase 1, T1; UPGRADE_PLAN.md §8).
+"""Contract engine: gate + audit + dq_results sink (Phase 1, T1; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Two entry points:
 

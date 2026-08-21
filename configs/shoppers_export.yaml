@@ -5,7 +5,7 @@
 #   uv run python -m batch_recsys_lab.demo.export_shoppers   --config configs/shoppers_export.yaml
 #
 # The curation rule below is NOT configurable in spirit: it was pre-declared in
-# EXPERIMENT_LOG.md ("Phase 6 T28 — shopper curation rule (pre-declared)")
+# docs/engineering-log/EXPERIMENT_LOG.md ("Phase 6 T28 — shopper curation rule (pre-declared)")
 # before any selection ran. The knobs are here so the rule is stated once, in
 # machine-readable form, next to the code that executes it — changing one is a
 # rule change and needs a superseding log entry, not a config edit.

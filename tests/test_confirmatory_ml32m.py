@@ -1,4 +1,4 @@
-"""Tests for the T9-3c confirmatory driver (Phase 9; UPGRADE_PLAN.md §8c).
+"""Tests for the T9-3c confirmatory driver (Phase 9; docs/engineering-log/UPGRADE_PLAN.md §8c).
 
 The driver's whole value is that the verdict is a *mechanical* function of the
 committed T9-3b preregistration applied to recorded artifacts. So the things

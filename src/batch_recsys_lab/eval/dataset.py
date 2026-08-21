@@ -1,5 +1,5 @@
 """``EvalDataset`` loader — reads the cache built by ``eval/extract.py`` into
-numpy/scipy structures for Step B (scoring; UPGRADE_PLAN.md §8 "Architecture").
+numpy/scipy structures for Step B (scoring; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture").
 
 This module never starts Spark. Load order and attribute names are a pinned
 interface consumed by ``eval/harness.py`` and the model modules built in

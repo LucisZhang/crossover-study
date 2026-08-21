@@ -1,6 +1,6 @@
 # Deep history-depth buckets on the frozen TEST split (Phase 8, T8-3;
-# UPGRADE_PLAN.md §8b). EXPLORATORY/DERIVED: boundaries 20-49 / 50-99 / 100+
-# preregistered in EXPERIMENT_LOG.md 2026-08-17 before any per-bucket outcome
+# docs/engineering-log/UPGRADE_PLAN.md §8b). EXPLORATORY/DERIVED: boundaries 20-49 / 50-99 / 100+
+# preregistered in docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17 before any per-bucket outcome
 # was computed, but motivated by the observed narrowing — no confirmatory weight.
 #
 # Pure regrouping of the per-user metric values already committed by the two

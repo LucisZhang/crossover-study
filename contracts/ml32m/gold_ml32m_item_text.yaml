@@ -1,5 +1,5 @@
-# Contract for local.gold_ml32m.item_text (Phase 9, T9-3b; UPGRADE_PLAN.md §8c,
-# EXPERIMENT_LOG "Phase 9 T9-3b preregistration" §3).
+# Contract for local.gold_ml32m.item_text (Phase 9, T9-3b; docs/engineering-log/UPGRADE_PLAN.md §8c,
+# docs/engineering-log/EXPERIMENT_LOG.md "Phase 9 T9-3b preregistration" §3).
 #
 # Mirrors contracts/gold_item_text.yaml on the ML-32M lane: the distinct 5-core
 # catalog LEFT JOINed to gold_ml32m.item_features (title/genres) and to the

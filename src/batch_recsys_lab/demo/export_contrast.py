@@ -78,7 +78,7 @@ from batch_recsys_lab.demo.export_core import (
 FILE_NAME = "contrast.json"
 
 # --- churn gate: the measured statistic on each dataset -----------------------
-# T8-1's measured churn on Amazon Electronics (the record the EXPERIMENT_LOG
+# T8-1's measured churn on Amazon Electronics (the record the docs/engineering-log/EXPERIMENT_LOG.md
 # cites as primary; a field-identical duplicate exists and is not used) and
 # T9-3a's re-run of the same methodology on ML-32M, which also re-states the
 # Amazon reference — cross-checked below so the two records cannot drift apart

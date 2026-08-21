@@ -1,10 +1,10 @@
-# Semantic-search demo assets (Phase 6, T35; plan §9 exhibit 3, UPGRADE_PLAN §9 item 3).
+# Semantic-search demo assets (Phase 6, T35; plan §9 exhibit 3, docs/engineering-log/UPGRADE_PLAN.md §9 item 3).
 #
 #   uv run python -m batch_recsys_lab.demo.export_search        --config configs/search_export.yaml
 #   uv run python -m batch_recsys_lab.demo.fetch_search_assets  --config configs/search_export.yaml
 #
 # Both are run together by `make demo-assets`. Neither output is committed
-# (~50MB): cut-order item #2 in UPGRADE_PLAN §12 — deleting demo/data/search/
+# (~50MB): cut-order item #2 in docs/engineering-log/UPGRADE_PLAN.md §12 — deleting demo/data/search/
 # and demo/vendor/ must leave every other exhibit green.
 #
 # EVIDENCE CLASS. Nothing this config produces is evaluation evidence. The

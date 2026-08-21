@@ -1,4 +1,4 @@
-# Contract for local.silver.interactions (Phase 1; UPGRADE_PLAN.md §8, D5/D6/D8).
+# Contract for local.silver.interactions (Phase 1; docs/engineering-log/UPGRADE_PLAN.md §8, D5/D6/D8).
 # Check order is the fixed priority for primary_reason — DO NOT reorder.
 name: silver_interactions
 version: 1

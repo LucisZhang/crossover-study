@@ -1,4 +1,4 @@
-"""Frozen temporal split boundaries (Phase 1, T5; UPGRADE_PLAN.md §6.1, invariant #1).
+"""Frozen temporal split boundaries (Phase 1, T5; docs/engineering-log/UPGRADE_PLAN.md §6.1, invariant #1).
 
 The split boundaries are OWNER-FROZEN in ``configs/splits.yaml`` and must never be
 recomputed or altered at runtime — this module only *loads* them into a frozen

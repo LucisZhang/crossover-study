@@ -1,4 +1,4 @@
-"""ML-32M gold builds (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+"""ML-32M gold builds (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md §8c).
 
 Mirror of the Amazon gold stage, reusing the shared code wherever the shared code
 is already generic over ``(user_id, parent_asin, ts)``:

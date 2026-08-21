@@ -1,4 +1,4 @@
-# Contract for local.silver_ml32m.items (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+# Contract for local.silver_ml32m.items (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md §8c).
 # Mirrors contracts/silver_items.yaml, minus the Amazon-only price/brand rules
 # (movies.csv has no price and no brand): the ML-32M item record is
 # movieId + title + genres and nothing else.

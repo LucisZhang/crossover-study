@@ -1,6 +1,6 @@
 # `demo/` — the static exhibit site
 
-Six exhibits (UPGRADE_PLAN §9) over the evidence in `results/runs.jsonl`. No build
+Six exhibits (docs/engineering-log/UPGRADE_PLAN.md §9) over the evidence in `results/runs.jsonl`. No build
 step, no bundler, no framework, no CDN: `index.html` plus vanilla ES modules plus
 hand-rolled SVG. Everything it loads is a relative path inside this directory.
 
@@ -181,7 +181,7 @@ prints the URL the bytes actually arrived from, and the hash gate makes the
 delivery path irrelevant.
 
 Deleting `demo/data/search/` and `demo/vendor/` must leave every other exhibit
-green. This is cut-order item #2 in UPGRADE_PLAN §12 and it is kept genuinely
+green. This is cut-order item #2 in docs/engineering-log/UPGRADE_PLAN.md §12 and it is kept genuinely
 decoupled — the search exhibit itself degrades in two steps:
 
 | present | exhibit 3 shows |

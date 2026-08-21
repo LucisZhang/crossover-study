@@ -1,9 +1,9 @@
-# HALF-LIFE SET AFTER VAL SELECTION — do not run before EXPERIMENT_LOG selection note
+# HALF-LIFE SET AFTER VAL SELECTION — do not run before docs/engineering-log/EXPERIMENT_LOG.md selection note
 # ALS-decay on the frozen TEST split (Phase 8, T8-2): seed 20260807.
-# half_life_days below is the VAL-SELECTED value (EXPERIMENT_LOG.md 2026-08-18 T8-2 VAL selection)
+# half_life_days below is the VAL-SELECTED value (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-18 T8-2 VAL selection)
 # {90, 365, 1460}. The owner replaces it with the VAL-selected half-life (argmax
 # global VAL NDCG@10, ties -> smaller half-life) AFTER the selection note is
-# written to EXPERIMENT_LOG.md. TEST is touched exactly once per seed
+# written to docs/engineering-log/EXPERIMENT_LOG.md. TEST is touched exactly once per seed
 # (invariant #1): never iterate this file against TEST.
 # Requires train_age_days.npy in the cache:  make extract-age  first.
 kind: eval

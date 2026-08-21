@@ -1,9 +1,9 @@
 # Catalog-learnability regime map on the frozen TEST split (Phase 8, T8-1;
-# UPGRADE_PLAN.md §8b). Pure recomposition of the per-user top-50 lists already
+# docs/engineering-log/UPGRADE_PLAN.md §8b). Pure recomposition of the per-user top-50 lists already
 # recorded by the one-shot TEST eval runs below, crossed with the leak-free
 # per-item TRAIN aggregate from `make item-train-stats` — no re-scoring, no
 # refitting, no threshold tuning (every bucket edge is preregistered in
-# EXPERIMENT_LOG.md 2026-08-17).
+# docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17).
 kind: regime_map
 
 # Canonical TEST run_ids. pop_t12m is the headline baseline (identical to

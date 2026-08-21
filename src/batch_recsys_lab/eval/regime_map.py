@@ -1,4 +1,4 @@
-"""CLI: catalog-learnability regime map (Phase 8, T8-1; UPGRADE_PLAN.md §8b).
+"""CLI: catalog-learnability regime map (Phase 8, T8-1; docs/engineering-log/UPGRADE_PLAN.md §8b).
 
     uv run python -m batch_recsys_lab.eval.regime_map \
         --config configs/regime_map_test.yaml [--dry-run]
@@ -14,7 +14,7 @@ This module measures it, on two axes crossed:
   (<=90d / 91-365d / >365d before ``train_end``, plus absent-in-TRAIN), and
   first-seen year (<=2019 / 2020 / 2021 / 2022-H1 / post-cutoff).
 
-Every threshold is preregistered in ``EXPERIMENT_LOG.md`` (2026-08-17), fixed
+Every threshold is preregistered in ``docs/engineering-log/EXPERIMENT_LOG.md`` (2026-08-17), fixed
 before any per-cell outcome was computed, and anchored to constants already
 frozen elsewhere (k=5 of the 5-core; the trailing popularity windows; the frozen
 segment edges).
@@ -74,7 +74,7 @@ from batch_recsys_lab.features import item_train_stats
 from batch_recsys_lab.features.splits import load_splits
 from batch_recsys_lab.policy.select import _resolve_artifact_path
 
-# --- preregistered item axes (EXPERIMENT_LOG.md 2026-08-17; do not tune) ------
+# --- preregistered item axes (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17; do not tune) ------
 
 SUPPORT_LABELS = ("zero", "low", "high")
 SUPPORT_SPEC = {
@@ -147,12 +147,12 @@ PROVENANCE_NOTE = (
     "in source_run_ids, crossed with a leak-free Spark aggregate over the SAME gold "
     "5-core snapshot (features/item_train_stats.py: TRAIN columns use ts <= train_end "
     "only). No model is fitted or scored, no new ground truth is consulted, and no "
-    "threshold is tuned — every bucket edge was preregistered in EXPERIMENT_LOG.md on "
+    "threshold is tuned — every bucket edge was preregistered in docs/engineering-log/EXPERIMENT_LOG.md on "
     "2026-08-17 before any per-cell outcome existed. Restricted recall@K (K<=50) and "
     "NDCG@10 are EXACT under top-50 recomposition, not approximations."
 )
 
-# Preregistered gate on the zero+low GT share (EXPERIMENT_LOG.md 2026-08-17).
+# Preregistered gate on the zero+low GT share (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17).
 GATE_SPEC = {
     "statistic": "share of eval-split GT interactions on items with n_train_support <= 4",
     "wrong_below": 0.10,
@@ -458,7 +458,7 @@ def _shares(counts: np.ndarray, labels: tuple[str, ...], total: int) -> dict:
 # source eval record to have been scored on the SAME ``gold.interactions_5core``
 # snapshot the eval cache carries — the cheapest available proof that the arms,
 # the ground truth and the item axis all describe one universe. On the machine of
-# record (the Linux box the warehouse was rebuilt on, EXPERIMENT_LOG.md
+# record (the Linux box the warehouse was rebuilt on, docs/engineering-log/EXPERIMENT_LOG.md
 # 2026-08-17) that guard fires for one record and one only: the preregistered
 # popularity comparator was scored ONCE on the Mac, on a frozen TEST split that
 # must never be re-scored, and the rebuilt warehouse produces byte-identical data

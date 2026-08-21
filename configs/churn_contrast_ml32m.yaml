@@ -1,8 +1,8 @@
 # ML-32M catalog-churn statistic — the regime-contrast hinge (Phase 9, T9-3a;
-# UPGRADE_PLAN.md §8c). Re-runs the T8-1 churn methodology on the second dataset
+# docs/engineering-log/UPGRADE_PLAN.md §8c). Re-runs the T8-1 churn methodology on the second dataset
 # BEFORE any model evaluation: share of TEST ground-truth interactions landing on
 # items with TRAIN support zero / low (1-4), against the preregistered bands
-# (<0.10 / 0.10-0.25 / >=0.25, EXPERIMENT_LOG.md 2026-08-17).
+# (<0.10 / 0.10-0.25 / >=0.25, docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17).
 #
 # Requires only the gold tables — no model artifacts, no eval cache.
 kind: churn_contrast

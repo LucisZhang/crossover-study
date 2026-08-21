@@ -1,4 +1,4 @@
-# Contract for local.gold.item_features (Phase 1, T7; UPGRADE_PLAN.md §8).
+# Contract for local.gold.item_features (Phase 1, T7; docs/engineering-log/UPGRADE_PLAN.md §8).
 # silver.items inner-joined to the distinct 5-core parent_asin catalog.
 name: gold_item_features
 version: 1

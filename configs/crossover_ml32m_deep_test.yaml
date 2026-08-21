@@ -11,7 +11,7 @@
 # n* concepts exist and must not be conflated: (a) the D1 CROSSOVER depth from
 # the confirmatory Family P verdict (results/confirmatory_ml32m_test.json:
 # verdict.n_star = 20, crossover bucket 20-49) -- this is what this chart
-# annotates; (b) the Rule S5 fitted ROUTING depth (n* = 100, EXPERIMENT_LOG.md
+# annotates; (b) the Rule S5 fitted ROUTING depth (n* = 100, docs/engineering-log/EXPERIMENT_LOG.md
 # "T9-3b VAL ladder complete": "fitted n* = 100, objective 0.089686"), which
 # belongs to the hybrid arm A9, not to this exhibit.
 confirmatory_json: results/confirmatory_ml32m_test.json

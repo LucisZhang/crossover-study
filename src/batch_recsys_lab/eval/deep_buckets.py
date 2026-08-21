@@ -1,4 +1,4 @@
-"""CLI: deep history-depth buckets (Phase 8, T8-3; UPGRADE_PLAN.md §8b).
+"""CLI: deep history-depth buckets (Phase 8, T8-3; docs/engineering-log/UPGRADE_PLAN.md §8b).
 
     uv run python -m batch_recsys_lab.eval.deep_buckets \
         --config configs/deep_buckets_test.yaml [--dry-run]
@@ -12,7 +12,7 @@ This module splits it into 20-49 / 50-99 / 100+ (:data:`eval.protocol
 values.
 
 **Exploratory, not confirmatory.** The boundaries were fixed in
-``EXPERIMENT_LOG.md`` (2026-08-17) before any per-bucket outcome was computed,
+``docs/engineering-log/EXPERIMENT_LOG.md`` (2026-08-17) before any per-bucket outcome was computed,
 but they were *motivated* by the observed narrowing, so the record carries
 ``exploratory_derived: true`` and every bucket reports its user count and CI
 widths. Thin buckets are expected; they are disclosed, not smoothed.
@@ -75,7 +75,7 @@ PROVENANCE_NOTE = (
     "committed by the one-shot eval runs named in source_run_ids, regrouped by "
     "gold.user_stats.n_train into seven depth buckets. No re-scoring, no refitting, no "
     "new ground-truth consultation, no threshold tuning (boundaries preregistered in "
-    "EXPERIMENT_LOG.md 2026-08-17). The four buckets that coincide with frozen segments "
+    "docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17). The four buckets that coincide with frozen segments "
     "are asserted equal to the recorded per-segment means before anything is emitted."
 )
 
@@ -297,7 +297,7 @@ def build_record(config: dict, config_path: Path, out: dict) -> dict:
         "buckets_spec": {
             "labels": list(DEEP_BUCKET_LABELS),
             "frozen_segments": list(SEGMENT_LABELS),
-            "preregistered": "EXPERIMENT_LOG.md 2026-08-17 (before any per-bucket outcome)",
+            "preregistered": "docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17 (before any per-bucket outcome)",
         },
         "seeds": {"bootstrap": out["seed"]},
         "bootstrap": {

@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A8 (content_pop_blend) alpha=0.7 — M* INELIGIBLE (§4 S4). Mirrors
 # eval_blend_val_a70.yaml, ML-32M gold_ml32m namespace and ML-32M MiniLM

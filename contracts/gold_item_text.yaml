@@ -1,4 +1,4 @@
-# Contract for local.gold.item_text (Phase 4, T9; UPGRADE_PLAN.md §8).
+# Contract for local.gold.item_text (Phase 4, T9; docs/engineering-log/UPGRADE_PLAN.md §8).
 # 5-core catalog left-joined to item_features (title/brand_norm/main_category/
 # categories) and bronze.items (features/description arrays); text sanitized.
 #

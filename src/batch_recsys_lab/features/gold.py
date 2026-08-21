@@ -1,4 +1,4 @@
-"""Gold feature builds (Phase 1, T7; UPGRADE_PLAN.md §8).
+"""Gold feature builds (Phase 1, T7; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Three projections off the frozen 5-core interaction table
 (``local.gold.interactions_5core``, produced by ``features.kcore``):

@@ -1,7 +1,7 @@
 """Bronze reconciliation: compare observed bronze table counts against the
 published (rounded) Amazon Reviews 2023 Electronics counts, and idempotently
 write the result into the ``## Bronze reconciliation`` section of
-``data/MANIFEST.md`` (UPGRADE_PLAN.md §8, Phase 0 T3+).
+``data/MANIFEST.md`` (docs/engineering-log/UPGRADE_PLAN.md §8, Phase 0 T3+).
 
 Usage:
     python -m batch_recsys_lab.ingest.reconcile [--wall-clock reviews=NNNs,items=NNNs]

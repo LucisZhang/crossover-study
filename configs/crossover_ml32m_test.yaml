@@ -7,7 +7,7 @@
 #   make crossover-chart CONFIG=configs/crossover_ml32m_test.yaml
 #
 # Line selection (all ML-32M TEST, seed 20260805 -- T9-3b VAL ladder complete,
-# EXPERIMENT_LOG.md 2026-08-21):
+# docs/engineering-log/EXPERIMENT_LOG.md 2026-08-21):
 #   blend a=0.1     20260820T221933Z-20d8ff9  VAL-selected alpha, eval_blend_ml32m_test.yaml
 #   pop-t12m        20260820T221055Z-20d8ff9  P* -- Rule S6, eval_pop_t12m_ml32m_test.yaml
 #   ALS (seed 20260805) 20260820T222202Z-20d8ff9  eval_als_ml32m_test_seed1.yaml
@@ -23,7 +23,7 @@
 #     See configs/confirmatory_ml32m_test.yaml's identical note.
 #   content         20260820T221831Z-20d8ff9  eval_content_ml32m_test.yaml
 #
-# Regime contrast (T9-3a, EXPERIMENT_LOG.md 2026-08-20): ML-32M's zero/low-support
+# Regime contrast (T9-3a, docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20): ML-32M's zero/low-support
 # churn is 6.4% vs Amazon Electronics' 41.1% -- the mechanism this exhibit is
 # comparing against, not a claim of a crossover on this axis.
 
@@ -37,7 +37,7 @@ title: "How much history before personalization beats popularity? (ML-32M TEST, 
 subtitle: "NDCG@10 by user history depth - full-catalog ranking, 43,884 items; bands are 95% bootstrap CIs; ML-32M, TEST = 2023-01-01 -> 2023-11-01. Regime contrast: 6.4% zero/low-support churn vs Amazon's 41.1%."
 xlabel: "User history depth (TRAIN interactions per TEST user)"
 
-annotation: "Comparability-only 5-segment exhibit (T9-3b prereg §5a): NO BH\ncorrection, not a confirmatory claim. The primary confirmatory result (M* =\nitem-kNN-t12m vs P* = pop-t12m, BH FDR 0.05 over 7 deep buckets + global) is\nconfigs/crossover_ml32m_deep_test.yaml / results/confirmatory_ml32m_test.json.\nSee EXPERIMENT_LOG.md T9-3b/T9-3c."
+annotation: "Comparability-only 5-segment exhibit (T9-3b prereg §5a): NO BH\ncorrection, not a confirmatory claim. The primary confirmatory result (M* =\nitem-kNN-t12m vs P* = pop-t12m, BH FDR 0.05 over 7 deep buckets + global) is\nconfigs/crossover_ml32m_deep_test.yaml / results/confirmatory_ml32m_test.json.\nSee docs/engineering-log/EXPERIMENT_LOG.md T9-3b/T9-3c."
 
 lines:
   - label: "blend α=0.1 (content+pop)"

@@ -1,7 +1,7 @@
 # Paired-bootstrap delta: hybrid (variant B, n_star=null, T13 winner) vs
 # trailing-12m popularity, TEST. Expected to reproduce the blend-vs-pop delta
 # exactly (T13: hybrid == blend by construction under n_star=null). Arms
-# pre-declared in EXPERIMENT_LOG T15 pre-declaration before any TEST number
+# pre-declared in docs/engineering-log/EXPERIMENT_LOG.md T15 pre-declaration before any TEST number
 # was seen.
 kind: paired_delta
 a:

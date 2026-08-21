@@ -1,4 +1,4 @@
-# Contract for local.silver.items (Phase 1; UPGRADE_PLAN.md §8, D7).
+# Contract for local.silver.items (Phase 1; docs/engineering-log/UPGRADE_PLAN.md §8, D7).
 # Check order is the fixed priority for primary_reason — DO NOT reorder.
 name: silver_items
 version: 1

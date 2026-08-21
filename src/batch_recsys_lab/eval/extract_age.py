@@ -1,8 +1,8 @@
-"""Per-TRAIN-pair age extension for the eval cache (Phase 8, T8-2; UPGRADE_PLAN.md §8b).
+"""Per-TRAIN-pair age extension for the eval cache (Phase 8, T8-2; docs/engineering-log/UPGRADE_PLAN.md §8b).
 
 ``eval/extract.py`` deliberately drops timestamps: the eval cache keeps only
 ``(train_user_idx, train_item_idx, train_rating)``. The recency-matched arms
-preregistered for T8-2 (EXPERIMENT_LOG.md 2026-08-17T11:44Z) need one more
+preregistered for T8-2 (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17T11:44Z) need one more
 column — how stale each TRAIN pair is at the train cutoff — so this module is a
 ONE-SHOT, additive extension of an existing cache directory::
 

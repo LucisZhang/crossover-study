@@ -1,6 +1,6 @@
-# T9-3c CONFIRMATORY analysis of the ML-32M TEST ladder (Phase 9, UPGRADE_PLAN §8c).
+# T9-3c CONFIRMATORY analysis of the ML-32M TEST ladder (Phase 9, docs/engineering-log/UPGRADE_PLAN.md §8c).
 #
-# Applies the committed T9-3b preregistration (EXPERIMENT_LOG.md 2026-08-20, §5
+# Applies the committed T9-3b preregistration (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20, §5
 # multiplicity policy + §7 decision rules D1-D5) to per-user artifacts that
 # already exist. Nothing here is a tunable: the FDR level (0.05), the resample
 # count (1000), the base seed (20260805) and the confirmatory metric (ndcg@10)

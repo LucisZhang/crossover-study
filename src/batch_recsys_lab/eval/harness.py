@@ -1,5 +1,5 @@
 """Eval harness — config -> dataset -> model -> batched scoring loop -> metrics
--> bootstrap -> append-only record (Phase 2, T5; UPGRADE_PLAN.md §8 "Architecture",
+-> bootstrap -> append-only record (Phase 2, T5; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture",
 Step B).
 
 Pure numpy/scipy: no Spark. Loads the snapshot-keyed cache built by

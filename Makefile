@@ -31,7 +31,7 @@ java-check:
 
 disk-gate:
 	@uv run python -c "import shutil, sys; free = shutil.disk_usage('.').free / (1024**3); \
-	sys.exit(0) if free >= 35 else (_ for _ in ()).throw(SystemExit('ERROR: only %.1fGB free; need >=35GB. Relocate data/ to external storage per UPGRADE_PLAN.md §5.' % free))"
+	sys.exit(0) if free >= 35 else (_ for _ in ()).throw(SystemExit('ERROR: only %.1fGB free; need >=35GB. Relocate data/ to external storage per docs/engineering-log/UPGRADE_PLAN.md §5.' % free))"
 
 test:
 	uv run pytest
@@ -310,7 +310,7 @@ gold-ml32m: gold-ml32m-core gold-ml32m-features
 # Contract audit for the ML-32M tables ONLY: --contracts-dir keeps the glob off
 # contracts/*.yaml (the Amazon set), and the results land in a separate ledger so
 # the published DQ dashboard's totals are untouched. GOTCHA (same shape as the
-# fresh-warehouse wrinkle in EXPERIMENT_LOG 2026-08-17): every contract in the
+# fresh-warehouse wrinkle in docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17): every contract in the
 # directory is graded, so all six ML-32M tables must exist before this runs — a
 # missing table is a hard AuditError, not a skip — including
 # local.silver_ml32m.tags, whose contract lives in the same directory.
@@ -648,7 +648,7 @@ demo-grid:
 
 # Search-exhibit assets (T35): int8 payload from the pinned embeddings artifact,
 # then the SHA-256-verified model download. 79.5MB total, never committed
-# (UPGRADE_PLAN §12 cut order #2) — this one command rebuilds both from scratch.
+# (docs/engineering-log/UPGRADE_PLAN.md §12 cut order #2) — this one command rebuilds both from scratch.
 # JVM-free like demo-export; the Spark-produced slice it consumes
 # (data/demo_export/search_items_raw.parquet) comes from demo-shoppers.
 # The download verifies every byte against the SHA-256s recorded in

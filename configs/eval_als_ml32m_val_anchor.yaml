@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A5 (ALS, binary) — M* eligible. Anchor config of the coordinate-descent
 # sweep (§2 A5): rank=64, reg_param=0.01, alpha=10.0, max_iter=15,

@@ -1,5 +1,5 @@
 """MiniLM content-similarity recommender — Step B: pure-numpy rescoring of a
-persisted embedding artifact (Phase 4, T11; UPGRADE_PLAN.md §8 "Architecture").
+persisted embedding artifact (Phase 4, T11; docs/engineering-log/UPGRADE_PLAN.md §8 "Architecture").
 
 This module contains NO ``torch``/``sentence_transformers`` import. It is the
 eval-time half of the T10 two-step design mirrored from ALS:

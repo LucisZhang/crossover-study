@@ -1,6 +1,6 @@
 # Bundled bronze fixtures
 
-Deterministic ~50k-row sample of `local.bronze.reviews` plus the matching items slice from `local.bronze.items`, used as the CI substrate (UPGRADE_PLAN.md repo map, `tests/fixtures/`).
+Deterministic ~50k-row sample of `local.bronze.reviews` plus the matching items slice from `local.bronze.items`, used as the CI substrate (docs/engineering-log/UPGRADE_PLAN.md repo map, `tests/fixtures/`).
 
 ## Provenance
 

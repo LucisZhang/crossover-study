@@ -1,6 +1,6 @@
 # Paired-bootstrap delta: hybrid (variant B, n_star=null, T13 winner) vs its
 # best component on TEST. Best-component resolution rule (pre-declared in
-# EXPERIMENT_LOG T15 pre-declaration): the higher global TEST NDCG@10 among
+# docs/engineering-log/EXPERIMENT_LOG.md T15 pre-declaration): the higher global TEST NDCG@10 among
 # {blend, pop-t12m}. Resolved after the TEST arms completed: blend
 # (20260807T055333Z-c320c79, global ndcg@10 0.005726) beats pop-t12m
 # (20260805T172047Z-035042b, global ndcg@10 0.005404), so best component =

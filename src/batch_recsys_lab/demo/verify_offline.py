@@ -4,7 +4,7 @@
     uv run python -m batch_recsys_lab.demo.verify_offline --json
 
 What it checks (see demo/README.md "What offline means here" and
-UPGRADE_PLAN.md Phase 6 acceptance item 1):
+docs/engineering-log/UPGRADE_PLAN.md Phase 6 acceptance item 1):
 
 1. Every file under ``demo/`` EXCEPT ``demo/vendor/`` is scanned for external
    URLs (``https?://`` or protocol-relative ``//host``, not localhost /
@@ -25,7 +25,7 @@ UPGRADE_PLAN.md Phase 6 acceptance item 1):
 4. ``demo/vendor/`` (present locally, never committed) gets a documented
    EXEMPTION: if present, it is scanned too, but URL literals inside it are
    only ever REPORTED, never failed on — the authoritative offline proof for
-   vendor code is the DNS-black-holed runtime run (EXPERIMENT_LOG Phase 6
+   vendor code is the DNS-black-holed runtime run (docs/engineering-log/EXPERIMENT_LOG.md Phase 6
    T36), not static scanning of a third-party bundle. What DOES fail is any
    NON-vendor file (in practice, ``demo/js/*.js``) that mis-wires the vendor
    capability: a literal ``allowRemoteModels = true``, or a remote
@@ -124,7 +124,7 @@ class Report:
 VENDOR_JUSTIFICATION = (
     "vendor library contains {n} URL literals; never fetched at runtime "
     "(allowRemoteModels=false, local wasmPaths); authoritative proof is the "
-    "DNS-black-holed runtime run (see EXPERIMENT_LOG Phase 6 T36)."
+    "DNS-black-holed runtime run (see docs/engineering-log/EXPERIMENT_LOG.md Phase 6 T36)."
 )
 
 # Binary/opaque assets: not meaningfully scannable as text, and not a source

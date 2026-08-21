@@ -1,5 +1,5 @@
 """Per-item TRAIN-support / recency / first-seen stats (Phase 8, T8-1;
-UPGRADE_PLAN.md §8b).
+docs/engineering-log/UPGRADE_PLAN.md §8b).
 
 ONE Spark aggregation over ``local.gold.interactions_5core`` producing, per
 ``parent_asin``:

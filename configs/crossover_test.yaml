@@ -24,7 +24,7 @@ title: "How much history before personalization beats popularity? (TEST)"
 subtitle: "NDCG@10 by user history depth - full-catalog ranking, 368,228 items; bands are 95% bootstrap CIs; Amazon Electronics, TEST = 2023-01-01 -> snapshot end"
 xlabel: "User history depth (TRAIN interactions per TEST user)"
 
-annotation: "One-shot TEST confirmation of the VAL-selected policy: blend\nalpha=0.3 beats pop-t12m globally and in every non-cold segment (delta CI\nexcludes zero, n_resamples=1000, seed=20260805; cold segment: identical to\npop by construction, delta exactly zero). Hybrid run 20260807T082125Z-c320c79\nmatches the blend line exactly (n*=inf, T13). See EXPERIMENT_LOG.md T15."
+annotation: "One-shot TEST confirmation of the VAL-selected policy: blend\nalpha=0.3 beats pop-t12m globally and in every non-cold segment (delta CI\nexcludes zero, n_resamples=1000, seed=20260805; cold segment: identical to\npop by construction, delta exactly zero). Hybrid run 20260807T082125Z-c320c79\nmatches the blend line exactly (n*=inf, T13). See docs/engineering-log/EXPERIMENT_LOG.md T15."
 
 lines:
   - label: "blend α=0.3 (content+pop)"

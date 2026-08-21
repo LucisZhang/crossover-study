@@ -1,6 +1,6 @@
 # ALS-decay half-life sweep (Phase 8, T8-2): half_life_days=1460. VAL ONLY —
 # the half-life is the arm's single tuned parameter and the preregistered grid
-# is {90, 365, 1460} days (EXPERIMENT_LOG.md 2026-08-17T11:44Z); no other value
+# is {90, 365, 1460} days (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17T11:44Z); no other value
 # may be evaluated. Every other knob is held at the Phase 3 chosen ALS config
 # (rank=128, reg=0.01, alpha=10, max_iter=25, primary seed 20260805).
 # Requires train_age_days.npy in the cache:  make extract-age  first.

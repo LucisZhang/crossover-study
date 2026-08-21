@@ -2,7 +2,7 @@
 # variant B (low=blend alpha=0.3, high=pop-t12m), n_star=null (infinity) --
 # i.e. every user is routed to the blend, so this hybrid is expected to
 # reproduce content_pop_blend(alpha=0.3) run 20260806T124525Z-e056a2a
-# per-user exactly (assertion done post-run, see EXPERIMENT_LOG.md T13).
+# per-user exactly (assertion done post-run, see docs/engineering-log/EXPERIMENT_LOG.md T13).
 kind: eval
 model:
   name: hybrid

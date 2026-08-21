@@ -1,4 +1,4 @@
-"""Contract YAML → frozen dataclasses (Phase 1, T1; UPGRADE_PLAN.md §8).
+"""Contract YAML → frozen dataclasses (Phase 1, T1; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 A contract is a table's data-quality specification: its expected columns
 (name / dtype / nullability) and an ordered list of checks. The check order is

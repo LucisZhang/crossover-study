@@ -1,4 +1,4 @@
-"""Bronze ingestion: gz-jsonl → Iceberg bronze tables (Phase 0, UPGRADE_PLAN.md §8).
+"""Bronze ingestion: gz-jsonl → Iceberg bronze tables (Phase 0, docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Bronze is the *faithful* layer: explicit schemas, no schema inference, no type
 coercion beyond what the declared schema forces, and — critically — **no
@@ -6,7 +6,7 @@ sentinel fills**. NULL stays NULL. Any parsing, unit normalization, or key
 extraction is silver's job (Phase 1). The one deliberate projection at bronze is
 documented below.
 
-Review text / images projection (UPGRADE_PLAN.md §5)
+Review text / images projection (docs/engineering-log/UPGRADE_PLAN.md §5)
 ---------------------------------------------------
 ``bronze.reviews`` PROJECTS OUT the ``text`` and ``images`` columns before
 write: "the lab never uses review text; item text comes from metadata". This is

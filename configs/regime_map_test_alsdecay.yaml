@@ -1,11 +1,11 @@
 # RUN_ID SET AFTER THE TEST RUN — do not run before the TEST record exists
 # Catalog-learnability regime map on the frozen TEST split, recomposed for the
 # T8-2 recency-matched arm alsdecay (Phase 8, T8-2;
-# UPGRADE_PLAN.md §8b). Pure recomposition of the per-user top-50 lists already
+# docs/engineering-log/UPGRADE_PLAN.md §8b). Pure recomposition of the per-user top-50 lists already
 # recorded by the one-shot TEST eval runs below, crossed with the leak-free
 # per-item TRAIN aggregate from `make item-train-stats` — no re-scoring, no
 # refitting, no threshold tuning (every bucket edge is preregistered in
-# EXPERIMENT_LOG.md 2026-08-17).
+# docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17).
 kind: regime_map
 
 # Canonical TEST run_ids. pop_t12m is the headline baseline (identical to
@@ -45,7 +45,7 @@ five_core_table: local.gold.interactions_5core
 
 results_path: results/runs.jsonl
 
-# Single-use input-equivalence exception (EXPERIMENT_LOG.md 2026-08-17, "Phase 8
+# Single-use input-equivalence exception (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-17, "Phase 8
 # T8-2 substrate — migration: rented Linux box is the machine of record from T8-2
 # onward"). The pop_t12m comparator was scored ONCE on the Mac, on the frozen TEST
 # split, against gold 5-core snapshot 8184397443787800955; the byte-identical

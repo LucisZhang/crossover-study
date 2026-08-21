@@ -206,7 +206,7 @@ def build(ctx: Context, selection: dict, raw: dict) -> TracedWriter:
         subtree=True,
         note="display labels (configs/demo_export.yaml)",
     )
-    w.put_descriptive("/seed", selection["seed"], note="curation seed, pre-declared in EXPERIMENT_LOG.md T28")
+    w.put_descriptive("/seed", selection["seed"], note="curation seed, pre-declared in docs/engineering-log/EXPERIMENT_LOG.md T28")
     w.put_descriptive(
         "/curation_rule",
         {

@@ -1,4 +1,4 @@
-"""MiniLM item-embedding — Step A (Phase 4, T10; UPGRADE_PLAN.md §8).
+"""MiniLM item-embedding — Step A (Phase 4, T10; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 JVM-free job (no pyspark import) that reads the T9 export
 (``data/eval/text/<five_core_snapshot_id>/item_text.parquet`` +
@@ -20,7 +20,7 @@ Recipe v1 (``v1_title_brand_cat_features``): ``title + " " + brand_norm + " "
 ``description``/``categories`` are NOT part of this recipe. ``brand_norm``
 "unknown" is kept as-is (not treated as missing).
 
-Recipe ``v1_ml32m_title_genres_tags`` (Phase 9, T9-3b; EXPERIMENT_LOG "Phase 9
+Recipe ``v1_ml32m_title_genres_tags`` (Phase 9, T9-3b; docs/engineering-log/EXPERIMENT_LOG.md "Phase 9
 T9-3b preregistration" §3) mirrors it on the ML-32M lane: ``title + " " +
 " ".join(genres) + " " + " ".join(tags_top10)``, same joiner, same
 skip-empty rule, same model. Its tag-aggregation rule is a new degree of

@@ -1,4 +1,4 @@
-# Contract for local.silver_ml32m.tags (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+# Contract for local.silver_ml32m.tags (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md §8c).
 # tags.csv is landed because §8c T9-3b's content arm is "title+genres+tags"; this
 # is the trusted-layer gate for it. Quarantine policy mirrors
 # silver_ml32m_interactions (null keys / out-of-range ts are routed away, never

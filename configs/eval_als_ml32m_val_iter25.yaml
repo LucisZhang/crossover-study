@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A5 (ALS, binary) — M* eligible. Stage 4 (iter axis) of the coordinate
 # sweep. Incumbents: rank=64, reg=0.01, alpha=1.0 (alpha-axis argmax, CI clear

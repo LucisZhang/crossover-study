@@ -1,4 +1,4 @@
-"""Full-catalog ranking metrics (Phase 2, T2; UPGRADE_PLAN.md §8, "Key specs" → Metrics).
+"""Full-catalog ranking metrics (Phase 2, T2; docs/engineering-log/UPGRADE_PLAN.md §8, "Key specs" → Metrics).
 
 The eval harness scores users in batches, producing a dense ``float32`` score
 matrix ``S`` of shape ``(B, I)`` in which **TRAIN-seen items are already masked to

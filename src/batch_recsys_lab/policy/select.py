@@ -1,5 +1,5 @@
 """CLI: n*/variant selection for the history-depth routing policy, VAL-only
-(Phase 4, T13; UPGRADE_PLAN.md §6.4).
+(Phase 4, T13; docs/engineering-log/UPGRADE_PLAN.md §6.4).
 
     uv run python -m batch_recsys_lab.policy.select \
         --config configs/policy_select_val.yaml \
@@ -13,16 +13,16 @@ each segment bucket (no bucket straddles a grid edge), so a user's routing
 arm can be read off their ``segment`` column exactly, with no need to reload
 ``ds.n_train`` from the eval cache.
 
-Objective (owner-approved, pre-declared in EXPERIMENT_LOG.md T13 entry BEFORE
+Objective (owner-approved, pre-declared in docs/engineering-log/EXPERIMENT_LOG.md T13 entry BEFORE
 this script is run): unweighted mean of the five segment-mean NDCG@10 values
 ("segment_weighted_ndcg10_unweighted_mean" in the config).
 
-Winner rule (pre-declared, see EXPERIMENT_LOG.md T13 entry): argmax objective
+Winner rule (pre-declared, see docs/engineering-log/EXPERIMENT_LOG.md T13 entry): argmax objective
 over the 2 variants x 5 n_star grid; ties -> prefer variant B (pop-t12m as the
 warm/high component) and, among remaining ties, the n_star closest to
 infinity (more blend coverage / simpler policy).
 
-T9-3b (ML-32M, EXPERIMENT_LOG.md Rule S5) extends this module with two
+T9-3b (ML-32M, docs/engineering-log/EXPERIMENT_LOG.md Rule S5) extends this module with two
 opt-in, default-preserving config keys so the Amazon config's output stays
 byte-identical:
 
@@ -237,7 +237,7 @@ def select(config: dict, results_path: Path) -> dict:
             }
             grid.append(cell)
 
-    # Winner rule (pre-declared, see module docstring / EXPERIMENT_LOG.md):
+    # Winner rule (pre-declared, see module docstring / docs/engineering-log/EXPERIMENT_LOG.md):
     # argmax objective; ties -> prefer variant B, then n_star closest to inf.
     max_obj = max(c["objective"] for c in grid)
     tied = [c for c in grid if c["objective"] == max_obj]

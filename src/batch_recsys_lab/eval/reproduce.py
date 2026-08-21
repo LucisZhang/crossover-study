@@ -1,5 +1,5 @@
 """``make reproduce-headline`` — snapshot-pinned re-run of the recorded headline
-eval (Phase 5, T18; UPGRADE_PLAN.md §8 Phase 5, §12 "never cut").
+eval (Phase 5, T18; docs/engineering-log/UPGRADE_PLAN.md §8 Phase 5, §12 "never cut").
 
     uv run python -m batch_recsys_lab.eval.reproduce \
         [--headline configs/headline.yaml] [--skip-extract]

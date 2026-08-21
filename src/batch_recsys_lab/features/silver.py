@@ -1,4 +1,4 @@
-"""Silver builds (Phase 1, T3; UPGRADE_PLAN.md §8, D1/D2/D5/D6/D7/D8).
+"""Silver builds (Phase 1, T3; docs/engineering-log/UPGRADE_PLAN.md §8, D1/D2/D5/D6/D7/D8).
 
 Silver is the *trusted* layer. Each build reads a bronze table, applies the
 documented typed projection (§8 "Projections"), routes contract violators to

@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # item-kNN-t12m (A4): co-occurrence built ONLY from TRAIN pairs inside the
 # trailing 365-day window at train_end (mirrors the Amazon T8-2 arm); user

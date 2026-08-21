@@ -1,4 +1,4 @@
-# Contract for local.gold.interactions_5core (Phase 1, T7; UPGRADE_PLAN.md §8).
+# Contract for local.gold.interactions_5core (Phase 1, T7; docs/engineering-log/UPGRADE_PLAN.md §8).
 # The 5-core interaction table inherits silver's guarantees (it is a pure filter
 # of silver.interactions); these checks re-assert them post-prune. Not gated —
 # audited only (fail action => audit status fail if any violator survives).

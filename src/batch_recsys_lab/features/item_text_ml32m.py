@@ -1,6 +1,6 @@
 """``local.gold_ml32m.item_text`` build + JVM-free export (Phase 9, T9-3b).
 
-Implements the T9-3b preregistration §3(a)–(g) verbatim (EXPERIMENT_LOG.md,
+Implements the T9-3b preregistration §3(a)–(g) verbatim (docs/engineering-log/EXPERIMENT_LOG.md,
 "Phase 9 T9-3b preregistration"). Same two-step shape as the Amazon lane's
 ``features/item_text.py``, and wholly additive to it: separate namespaces
 (``gold_ml32m`` / ``dq_ml32m``), separate contract (``contracts/ml32m``),

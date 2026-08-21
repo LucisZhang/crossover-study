@@ -1,4 +1,4 @@
-"""``local.gold.item_text`` build + JVM-free export (Phase 4, T9; UPGRADE_PLAN.md §8).
+"""``local.gold.item_text`` build + JVM-free export (Phase 4, T9; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Two steps, mirroring the two-process design of ``eval/extract.py``:
 

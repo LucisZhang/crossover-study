@@ -1,4 +1,4 @@
-# Contract for local.gold.user_stats (Phase 1, T7; UPGRADE_PLAN.md §8).
+# Contract for local.gold.user_stats (Phase 1, T7; docs/engineering-log/UPGRADE_PLAN.md §8).
 name: gold_user_stats
 version: 1
 table: local.gold.user_stats

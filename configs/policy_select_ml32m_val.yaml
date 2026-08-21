@@ -1,7 +1,7 @@
 # T9-3b preregistered VAL-only policy fit (Rule S5). No TEST artifact
 # referenced. Inputs: M* = kNN-t12m (primary confirmatory arm, ML-32M),
 # P* = pop-t12m (confirmatory popularity comparator, ML-32M) — see
-# EXPERIMENT_LOG.md Rule S4/S6/S5.
+# docs/engineering-log/EXPERIMENT_LOG.md Rule S4/S6/S5.
 run_ids:
   knn_t12m: "20260820T172245Z-7ae2396"
   pop_t12m: "20260820T162859Z-c6b4195"

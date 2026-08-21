@@ -209,7 +209,7 @@ def manifest() -> int:
     lines.append("")
     lines.append(
         "bronze.reviews projects out the `text` and `images` columns per "
-        "UPGRADE_PLAN.md §5 (the lab never uses review text; item text comes from "
+        "docs/engineering-log/UPGRADE_PLAN.md §5 (the lab never uses review text; item text comes from "
         "metadata)."
     )
     lines.append("")

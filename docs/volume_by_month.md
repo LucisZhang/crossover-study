@@ -1,6 +1,6 @@
 # Volume by Month
 
-This document is the split-boundary inspection required by `UPGRADE_PLAN.md` §6.1 before freezing `configs/splits.yaml`. It summarizes interaction volume over time to inform the choice of TRAIN/VAL/TEST boundaries.
+This document is the split-boundary inspection required by `docs/engineering-log/UPGRADE_PLAN.md` §6.1 before freezing `configs/splits.yaml`. It summarizes interaction volume over time to inform the choice of TRAIN/VAL/TEST boundaries.
 
 - **Source table:** `local.silver.interactions` (43,365,424 rows, post-contract, post-dedup)
 - **Run date:** 2026-08-05

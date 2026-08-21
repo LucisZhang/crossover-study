@@ -72,7 +72,7 @@ DEEP_ARMS = ["pop_t12m", "als"]
 
 # --- T8-1 / T8-2: regime maps (kind="regime_map") -----------------------------
 # T8-1 appended an accidental duplicate (20260817T100112Z-633d454) whose
-# results compare equal field-for-field; the EXPERIMENT_LOG entry cites
+# results compare equal field-for-field; the docs/engineering-log/EXPERIMENT_LOG.md entry cites
 # 20260817T095926Z-633d454 as primary, so the demo does too.
 MAPS = [
     {
@@ -100,7 +100,7 @@ MAPS = [
 GATE_RUN = "20260817T095926Z-633d454"  # T8-1: the measured-churn receipt
 AXES = ("support", "recency")
 
-# Verbatim from EXPERIMENT_LOG.md, "Phase 8 T8-2 VERDICT" (2026-08-18),
+# Verbatim from docs/engineering-log/EXPERIMENT_LOG.md, "Phase 8 T8-2 VERDICT" (2026-08-18),
 # "Honest scope note for the routing narrative." (*...* = emphasis in source).
 CAVEAT = (
     "The winning cells are defined by properties of the *ground-truth item* "
@@ -111,7 +111,7 @@ CAVEAT = (
     "“this user shops the stale catalog”, which is out of T8-2 scope."
 )
 CAVEAT_SOURCE = (
-    "EXPERIMENT_LOG.md — “Phase 8 T8-2 VERDICT — recency-matched arms: "
+    "docs/engineering-log/EXPERIMENT_LOG.md — “Phase 8 T8-2 VERDICT — recency-matched arms: "
     "technical crossover, in the stale-item pocket, by the arm nobody "
     "favored” (2026-08-18), “Honest scope note for the routing "
     "narrative.” Quoted verbatim; source emphasis marked *…*."

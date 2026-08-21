@@ -1,5 +1,5 @@
 """Append-only run log: record schema, provenance hashing, integrity guards
-(Phase 2, T5; UPGRADE_PLAN.md §8 "runs.jsonl record").
+(Phase 2, T5; docs/engineering-log/UPGRADE_PLAN.md §8 "runs.jsonl record").
 
 ``results/runs.jsonl`` is append-only and committed (CLAUDE.md invariant #3): a
 wrong run is superseded by a new record, never rewritten. Every record carries
@@ -41,12 +41,12 @@ def sha256_file(path: str | Path) -> str:
 
 # Run-output paths excluded from the dirty determination: these are append-only
 # artifacts produced BY the eval/logging process itself (results/runs.jsonl,
-# EXPERIMENT_LOG.md), not code. The dirty guard exists to pin code reproducibility
+# docs/engineering-log/EXPERIMENT_LOG.md), not code. The dirty guard exists to pin code reproducibility
 # (CLAUDE.md invariant #1/#3: a TEST number must trace to a committed SHA) — it is
 # not meant to pin the outputs the runs themselves generate. Without this
 # exclusion, the very first eval run leaves results/runs.jsonl modified/untracked,
 # which would make every subsequent TEST run in the same session refuse.
-_DIRTY_EXCLUDE_PATHS = frozenset({"results/runs.jsonl", "EXPERIMENT_LOG.md"})
+_DIRTY_EXCLUDE_PATHS = frozenset({"results/runs.jsonl", "docs/engineering-log/EXPERIMENT_LOG.md"})
 
 
 def _dirty_from_porcelain(lines: list[str]) -> bool:
@@ -78,7 +78,7 @@ def git_info() -> dict:
     ``git_dirty`` is True when the working tree has any staged or unstaged
     change (``git status --porcelain`` non-empty) OUTSIDE of
     :data:`_DIRTY_EXCLUDE_PATHS`. Those two paths (``results/runs.jsonl``,
-    ``EXPERIMENT_LOG.md``) are append-only outputs the run itself writes, so
+    ``docs/engineering-log/EXPERIMENT_LOG.md``) are append-only outputs the run itself writes, so
     counting them would make every run after the first look dirty. Runs against
     the repo root so the result is independent of the process working directory.
     """
@@ -235,7 +235,7 @@ def build_record(
     hardware: str,
 ) -> dict:
     """Assemble the schema-version-1 ``kind="eval"`` run record (exact schema
-    from UPGRADE_PLAN.md §8 "runs.jsonl record")."""
+    from docs/engineering-log/UPGRADE_PLAN.md §8 "runs.jsonl record")."""
     return {
         "schema_version": record_schema_version,
         "kind": kind,

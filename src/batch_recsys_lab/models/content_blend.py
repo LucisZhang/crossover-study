@@ -1,4 +1,4 @@
-"""Content + popularity blend recommender (Phase 4, T11; UPGRADE_PLAN.md §8).
+"""Content + popularity blend recommender (Phase 4, T11; docs/engineering-log/UPGRADE_PLAN.md §8).
 
 Composes a :class:`~batch_recsys_lab.models.content.ContentRecommender`
 internally and blends its per-user cosine scores with a global popularity

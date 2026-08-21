@@ -1,4 +1,4 @@
-# T9-3b preregistered VAL run (EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
+# T9-3b preregistered VAL run (docs/engineering-log/EXPERIMENT_LOG.md 2026-08-20 preregistration §2).
 # VAL ONLY — TEST is untouched.
 # Arm A7 (content, MiniLM) — M* eligible. Mirrors eval_content_val.yaml,
 # ML-32M gold_ml32m namespace and ML-32M MiniLM artifact

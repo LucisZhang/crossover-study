@@ -1,5 +1,5 @@
 <!--
-  Portfolio-site case-study copy, Phase 9 T9-4 (UPGRADE_PLAN §8c).
+  Portfolio-site case-study copy, Phase 9 T9-4 (docs/engineering-log/UPGRADE_PLAN.md §8c).
   Draft for xiangguozhang.com — updating the site itself is out of repo scope.
   Null-first and decision-led by design: the hook is the build/don't-build
   decision, not the stack. Every figure quoted here carries its run_id; the

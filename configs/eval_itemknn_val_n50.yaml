@@ -1,6 +1,6 @@
 # item-kNN top_n=50 on VAL (Phase 2, T7 tuning arm — VAL only, never TEST).
 # top_n selection happens on VAL by NDCG@10, logged to runs.jsonl +
-# EXPERIMENT_LOG.md before the single TEST run.
+# docs/engineering-log/EXPERIMENT_LOG.md before the single TEST run.
 kind: eval
 model:
   name: item_knn

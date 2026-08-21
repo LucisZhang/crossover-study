@@ -135,7 +135,7 @@ function crossoverList(rm, map) {
   return `<h3>Cells meeting the preregistered crossover criterion</h3>
     <div class="scroll-x"><table class="num-table">
     <caption>Positive paired delta with the 95% CI excluding zero on BOTH NDCG@10 and the
-      Recall@20 guard — the criterion preregistered in EXPERIMENT_LOG.md (2026-08-17) before any
+      Recall@20 guard — the criterion preregistered in docs/engineering-log/EXPERIMENT_LOG.md (2026-08-17) before any
       T8-2 record existed. Record ${runIdChip(map.run_id)}.</caption>
     <thead><tr><th>cell (axis, depth, bucket)</th><th>Δ NDCG@10</th><th>Δ Recall@20</th>
       <th>GT share</th><th>users</th></tr></thead>

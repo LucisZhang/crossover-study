@@ -1,4 +1,4 @@
-# Contract for local.silver_ml32m.interactions (Phase 9, T9-3a; UPGRADE_PLAN.md §8c).
+# Contract for local.silver_ml32m.interactions (Phase 9, T9-3a; docs/engineering-log/UPGRADE_PLAN.md §8c).
 # Mirrors contracts/silver_interactions.yaml; the differences are the dataset's,
 # not the design's: half-star ratings, epoch-SECONDS source timestamps, and a
 # 1995 → Oct-2023 span. Check order is the fixed priority for primary_reason —

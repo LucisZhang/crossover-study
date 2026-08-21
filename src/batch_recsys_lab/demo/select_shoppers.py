@@ -1,7 +1,7 @@
 """Deterministic 30-user pick for the pick-a-shopper exhibit (Phase 6, T28).
 
 Implements — and nothing but — the curation rule pre-declared in
-``EXPERIMENT_LOG.md`` § "Phase 6 T28 — shopper curation rule (pre-declared)",
+``docs/engineering-log/EXPERIMENT_LOG.md`` § "Phase 6 T28 — shopper curation rule (pre-declared)",
 which was written before this module was run (select-then-look discipline):
 
 * universe = the TEST-eval users, i.e. the rows of the **blend** per-user
@@ -68,7 +68,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 FIVE_CORE_KEY = "local.gold.interactions_5core"
 SELECTION_SCHEMA_VERSION = 1
 # Bumped whenever the pre-declared rule changes (which needs a superseding
-# EXPERIMENT_LOG entry first). Recorded in the selection artifact.
+# docs/engineering-log/EXPERIMENT_LOG.md entry first). Recorded in the selection artifact.
 RULE_ID = "phase6-t28-v2-stratified"
 
 
@@ -278,7 +278,7 @@ def select_shoppers(ctx: Context) -> dict:
             raise RuntimeError(
                 f"segment {seg!r}: stratum too small — need {n_hit} of "
                 f"{len(hit_pool)} blend-hit and {n_miss} of {len(miss_pool)} blend-miss "
-                f"users. The rule is not relaxed — see EXPERIMENT_LOG.md T28 (v2)."
+                f"users. The rule is not relaxed — see docs/engineering-log/EXPERIMENT_LOG.md T28 (v2)."
             )
         if n_hit < min_hits or n_miss < min_misses:
             raise AssertionError(
@@ -337,7 +337,7 @@ def select_shoppers(ctx: Context) -> dict:
     return {
         "schema_version": SELECTION_SCHEMA_VERSION,
         "rule_id": RULE_ID,
-        "rule_declared_in": "EXPERIMENT_LOG.md#phase-6-t28--shopper-curation-rule-pre-declared",
+        "rule_declared_in": "docs/engineering-log/EXPERIMENT_LOG.md#phase-6-t28--shopper-curation-rule-pre-declared",
         "seed": seed,
         "per_segment": per_segment,
         "min_test_gt": min_gt,
