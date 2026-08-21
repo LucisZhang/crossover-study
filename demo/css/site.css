@@ -163,6 +163,18 @@ main { padding: 8px 0 40px; }
   margin: 4px 0 0; padding: 16px 18px 10px;
   border: 1px solid var(--grid); border-radius: 3px; background: var(--panel);
 }
+
+/* Exhibit 1c: the two committed ML-32M SVG figures (demo/img/), side by side
+   on wide viewports, stacked on narrow ones. */
+.fig-pair {
+  display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0;
+}
+.fig-pair figure {
+  flex: 1 1 320px; margin: 0; padding: 12px;
+  border: 1px solid var(--grid); border-radius: 3px; background: var(--panel);
+}
+.fig-pair img { display: block; width: 100%; height: auto; }
+.fig-pair figcaption { margin-top: 6px; }
 .chart-head { max-width: 92ch; }
 .chart-title { margin: 0; font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.005em; }
 .chart-subtitle {

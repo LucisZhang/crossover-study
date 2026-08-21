@@ -17,10 +17,12 @@ from batch_recsys_lab.demo.export_core import (
     TraceManifest,
     TracedWriter,
     index_runs,
+    index_runs_multi,
     iter_leaves,
     jp,
     parse_pointer,
     resolve_pointer,
+    select_record,
     sha256_file,
     write_document,
 )
@@ -863,3 +865,189 @@ def test_timetravel_export_requires_reproduce_record(evidence):
     cfg2 = dict(cfg, headline_run_id="R-pop")
     with pytest.raises(ValueError, match="reproduce"):
         build_timetravel(cfg2, runs)
+
+
+# --- collided run_ids: resolution is declared, never positional ---------------
+
+
+def _collide(evidence):
+    """Append a second record sharing R-pop's run_id (the real log has one such
+    pair: 20260820T221701Z-20d8ff9 names both an ALS-decay and an item-kNN run).
+    Returns the two config_paths, in log order."""
+    twin = _eval_record("R-pop", model="item_knn", base=0.05)
+    with open(evidence["runs_log"], "a") as fh:
+        fh.write(json.dumps(twin) + "\n")
+    return "configs/popularity.yaml", "configs/item_knn.yaml"
+
+
+def test_select_record_refuses_a_collided_run_id_without_a_selector(evidence):
+    first_cfg, second_cfg = _collide(evidence)
+    multi = index_runs_multi(evidence["runs_log"])
+    assert len(multi["R-pop"]) == 2
+
+    with pytest.raises(KeyError, match="COLLIDED"):
+        select_record(multi, "R-pop")
+    assert select_record(multi, "R-pop", {"/config_path": first_cfg})["model"]["name"] == "popularity"
+    assert select_record(multi, "R-pop", {"/config_path": second_cfg})["model"]["name"] == "item_knn"
+    with pytest.raises(KeyError, match="matched 0 of 2"):
+        select_record(multi, "R-pop", {"/config_path": "configs/nope.yaml"})
+
+    # The writer inherits the rule.
+    w = TracedWriter("x.json", {}, runs_multi=multi)
+    with pytest.raises(KeyError, match="COLLIDED"):
+        w.copy_from_record("/v", "R-pop", "/metrics/global/ndcg@10/value")
+
+
+def test_collided_citation_carries_its_selector_and_the_verifier_needs_it(evidence):
+    _first, second_cfg = _collide(evidence)
+    cfg = evidence["cfg"]
+    multi = index_runs_multi(evidence["runs_log"])
+    selector = {"/config_path": second_cfg}
+
+    manifest = TraceManifest(cfg["manifest"], cfg["runs_log"])
+    w = TracedWriter("x.json", {}, runs_multi=multi)
+    w.copy_from_record("/v", "R-pop", "/metrics/global/ndcg@10/value", selector=selector)
+    write_document(w, cfg["out_dir"], manifest)
+    manifest.write()
+
+    # The selector travels with the entry, and names the item-kNN twin.
+    manifest = TraceManifest(cfg["manifest"], cfg["runs_log"])
+    assert manifest.record_selectors() == {"R-pop": selector}
+    entry = next(e for e in manifest.entries if e["file"] == "x.json")
+    assert entry["source"]["record_selector"] == selector
+    assert entry["value"] == select_record(multi, "R-pop", selector)["metrics"]["global"]["ndcg@10"]["value"]
+
+    write_document(
+        build_receipts(cfg, multi, closure({"R-pop", "R-blend", "R-repro"}, multi, {"R-pop": selector}),
+                       {"R-pop": selector}),
+        cfg["out_dir"],
+        manifest,
+    )
+    manifest.write()
+    rep = _verify(evidence, mode="record")
+    assert rep.ok, rep.failures
+
+    # The card documents WHICH record, and discloses the collision.
+    card = json.loads((evidence["data_dir"] / "receipts.json").read_text())["runs"]["R-pop"]
+    assert card["config_path"] == second_cfg
+    assert card["run_id_collision"]["records_sharing_this_run_id"] == 2
+
+    # Strip the selector: the citation becomes ambiguous and the verifier says so.
+    manifest_path = evidence["data_dir"] / "trace_manifest.json"
+    doc = json.loads(manifest_path.read_text())
+    for e in doc["entries"]:
+        e["source"].pop("record_selector", None)
+    manifest_path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+    rep = _verify(evidence, mode="record")
+    assert "SOURCE_MISSING" in _classes(rep)
+    assert any("no record_selector" in m for _, m in rep.failures)
+
+
+def test_record_selectors_rejects_two_meanings_for_one_run_id(evidence):
+    first_cfg, second_cfg = _collide(evidence)
+    manifest = TraceManifest(evidence["cfg"]["manifest"], evidence["runs_log"])
+    manifest.entries = [
+        {"file": "a.json", "pointer": "/x", "value": 1,
+         "source": {"kind": "runs_record", "run_id": "R-pop", "source_pointer": "/x",
+                    "record_selector": {"/config_path": first_cfg}}},
+        {"file": "b.json", "pointer": "/x", "value": 1,
+         "source": {"kind": "runs_record", "run_id": "R-pop", "source_pointer": "/x",
+                    "record_selector": {"/config_path": second_cfg}}},
+    ]
+    with pytest.raises(ValueError, match="two different"):
+        manifest.record_selectors()
+
+
+# --- derived artifacts: hash-pinned, input-anchored ---------------------------
+
+
+def _derived_doc(evidence, **overrides):
+    rec = index_runs(evidence["runs_log"])["R-blend"]
+    doc = {
+        "kind": "confirmatory_x",
+        "git_sha": "5" * 40,
+        "config_hash": "sha256:" + "d" * 64,
+        "derived": True,
+        "appends_to_runs_jsonl": False,
+        "source_run_ids": {"m_star": "R-blend"},
+        "inputs": {"m_star": rec["per_user_artifact"]},
+        "result": {"delta": 0.0333170606729},
+    }
+    doc.update(overrides)
+    return doc
+
+
+DERIVED_ANCHORS = [
+    {"run_id": "R-blend", "artifact_pointer": "/inputs/m_star", "record_pointer": "/per_user_artifact"}
+]
+
+
+def test_derived_artifact_round_trip_and_drift(evidence, tmp_path):
+    cfg = evidence["cfg"]
+    path = tmp_path / "results" / "derived.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_derived_doc(evidence)))
+
+    runs = index_runs(evidence["runs_log"])
+    manifest = TraceManifest(cfg["manifest"], cfg["runs_log"])
+    w = TracedWriter("x.json", runs)
+    w.register_derived_artifact("d", path, input_anchors=DERIVED_ANCHORS)
+    w.copy_from_artifact("/delta", "d", "/result/delta")
+    write_document(w, cfg["out_dir"], manifest)
+    write_document(build_receipts(cfg, runs, closure({"R-blend", "R-repro"}, runs)), cfg["out_dir"], manifest)
+    manifest.write()
+
+    rep = _verify(evidence, mode="record")
+    assert rep.ok, rep.failures
+    assert rep.counts["src_derived_artifact"] == 1
+    # The input anchor pulls its record into the receipts closure.
+    assert "R-blend" in json.loads((evidence["data_dir"] / "receipts.json").read_text())["runs"]
+
+    # Same number, different bytes -> the pin refuses it.
+    path.write_text(json.dumps({**_derived_doc(evidence), "padding": 1}))
+    assert "SOURCE_HASH" in _classes(_verify(evidence, mode="record"))
+
+
+def test_derived_artifact_requires_a_non_appending_self_declaration(evidence, tmp_path):
+    path = tmp_path / "results" / "d2.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_derived_doc(evidence, appends_to_runs_jsonl=True)))
+    w = TracedWriter("x.json", index_runs(evidence["runs_log"]))
+    with pytest.raises(ValueError, match="register_artifact"):
+        w.register_derived_artifact("d", path, input_anchors=DERIVED_ANCHORS)
+
+
+def test_derived_artifact_input_anchor_must_match_the_record(evidence, tmp_path):
+    path = tmp_path / "results" / "d3.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_derived_doc(evidence, inputs={"m_star": "data/eval/per_user/other.parquet"})))
+    w = TracedWriter("x.json", index_runs(evidence["runs_log"]))
+    with pytest.raises(ValueError, match="does not name the record's artifact"):
+        w.register_derived_artifact("d", path, input_anchors=DERIVED_ANCHORS)
+
+
+def test_derived_artifact_input_anchor_drift_is_caught_by_the_verifier(evidence, tmp_path):
+    cfg = evidence["cfg"]
+    path = tmp_path / "results" / "d4.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_derived_doc(evidence)))
+    runs = index_runs(evidence["runs_log"])
+    manifest = TraceManifest(cfg["manifest"], cfg["runs_log"])
+    w = TracedWriter("x.json", runs)
+    w.register_derived_artifact("d", path, input_anchors=DERIVED_ANCHORS)
+    w.copy_from_artifact("/delta", "d", "/result/delta")
+    write_document(w, cfg["out_dir"], manifest)
+    write_document(build_receipts(cfg, runs, closure({"R-blend", "R-repro"}, runs)), cfg["out_dir"], manifest)
+    manifest.write()
+
+    # Repoint the manifest's anchor at a record whose artifact path differs:
+    # the file still hashes right, but it is no longer anchored to the log.
+    manifest_path = evidence["data_dir"] / "trace_manifest.json"
+    doc = json.loads(manifest_path.read_text())
+    for e in doc["entries"]:
+        for anchor in e["source"].get("input_anchors", []):
+            anchor["run_id"] = "R-pop"
+    manifest_path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+    rep = _verify(evidence, mode="record")
+    assert "SOURCE_ANCHOR" in _classes(rep)
+    assert any("inputs are not the ones the log published" in m for _, m in rep.failures)

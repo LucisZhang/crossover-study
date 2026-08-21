@@ -28,9 +28,10 @@ from pathlib import Path
 from batch_recsys_lab.demo.export_core import (
     TraceManifest,
     TracedWriter,
-    index_runs,
+    index_runs_multi,
     jp,
     load_export_config,
+    select_record,
     write_document,
 )
 
@@ -60,7 +61,21 @@ RECEIPT_FIELDS: tuple[tuple[str, str], ...] = (
 REQUIRED_FOR_EVAL = tuple(name for name, _ in RECEIPT_FIELDS)
 
 
-def closure(seed_run_ids: set[str], runs: dict[str, dict]) -> list[str]:
+def one_record(runs: dict, run_id: str, selectors: dict[str, dict] | None = None) -> dict:
+    """Resolve a run_id against either index shape.
+
+    ``runs`` may be the flat ``run_id -> record`` index (unique ids) or the
+    ``run_id -> [record, ...]`` index; in the latter case a collided id is
+    resolved through its manifest-declared ``record_selector``, never
+    positionally.
+    """
+    value = runs[run_id]
+    if isinstance(value, list):
+        return select_record(runs, run_id, (selectors or {}).get(run_id))
+    return value
+
+
+def closure(seed_run_ids: set[str], runs: dict, selectors: dict[str, dict] | None = None) -> list[str]:
     """Expand run_ids through the records that reference other records."""
     seen: set[str] = set()
     frontier = set(seed_run_ids)
@@ -71,7 +86,7 @@ def closure(seed_run_ids: set[str], runs: dict[str, dict]) -> list[str]:
         if rid not in runs:
             raise ValueError(f"run_id {rid!r} referenced by the trace manifest is not in the runs log")
         seen.add(rid)
-        rec = runs[rid]
+        rec = one_record(runs, rid, selectors)
         for nxt in (
             rec.get("a", {}).get("run_id"),
             rec.get("b", {}).get("run_id"),
@@ -82,18 +97,31 @@ def closure(seed_run_ids: set[str], runs: dict[str, dict]) -> list[str]:
     return sorted(seen)
 
 
-def reproduce_records(headline_run_id: str, runs: dict[str, dict]) -> list[dict]:
+def reproduce_records(headline_run_id: str, runs: dict) -> list[dict]:
     """Every ``kind="reproduce"`` record that targets the headline run, in log order."""
+    flat: list[dict] = []
+    for value in runs.values():
+        flat.extend(value if isinstance(value, list) else [value])
     return [
         rec
-        for rec in runs.values()
+        for rec in flat
         if rec.get("kind") == "reproduce" and rec.get("reproduces_run_id") == headline_run_id
     ]
 
 
-def build(cfg: dict, runs: dict[str, dict], run_ids: list[str]) -> TracedWriter:
+def build(
+    cfg: dict, runs: dict, run_ids: list[str], selectors: dict[str, dict] | None = None
+) -> TracedWriter:
     headline = cfg["headline_run_id"]
-    w = TracedWriter(FILE_NAME, runs, generated_by="batch_recsys_lab.demo.export_receipts")
+    selectors = dict(selectors or {})
+    multi = runs if any(isinstance(v, list) for v in runs.values()) else None
+    w = TracedWriter(
+        FILE_NAME,
+        runs if multi is None else {},
+        generated_by="batch_recsys_lab.demo.export_receipts",
+        runs_multi=multi,
+        record_selectors=selectors,
+    )
     w.put_descriptive("/headline_run_id", headline, note="run the demo headlines")
     w.put_descriptive("/run_order", list(run_ids), subtree=True, note="receipt display order")
     w.put_descriptive(
@@ -104,9 +132,28 @@ def build(cfg: dict, runs: dict[str, dict], run_ids: list[str]) -> TracedWriter:
     )
 
     for rid in run_ids:
-        rec = runs[rid]
+        rec = one_record(runs, rid, selectors)
         base = jp("runs", rid)
         w.copy_from_record(base + "/run_id", rid, "/run_id")
+        # A run_id several records share cannot be silently narrowed: the card
+        # is keyed by run_id, so it says which record it documents and how the
+        # tie was broken. (The log is append-only — the fix is in resolution.)
+        if isinstance(runs.get(rid), list) and len(runs[rid]) > 1:
+            w.put_descriptive(
+                base + "/run_id_collision",
+                {
+                    "records_sharing_this_run_id": len(runs[rid]),
+                    "config_paths": [r.get("config_path") for r in runs[rid]],
+                    "record_selector": selectors.get(rid),
+                    "note": (
+                        "results/runs.jsonl is append-only and two records were minted with this "
+                        "run_id in the same second; this card documents the record the selector "
+                        "picks, and every trace entry citing it carries the same selector."
+                    ),
+                },
+                subtree=True,
+                note="collided run_id disclosure",
+            )
         missing = []
         for name, ptr in RECEIPT_FIELDS:
             if ptr.strip("/") in rec:
@@ -144,7 +191,7 @@ def main(argv: list[str] | None = None) -> None:
     args = ap.parse_args(argv)
 
     cfg = load_export_config(args.config)
-    runs = index_runs(cfg["runs_log"])
+    runs = index_runs_multi(cfg["runs_log"])
     manifest_path = Path(cfg["manifest"])
     if not manifest_path.exists():
         raise SystemExit(
@@ -152,6 +199,8 @@ def main(argv: list[str] | None = None) -> None:
             "(e.g. export_crossover) before export_receipts."
         )
     manifest = TraceManifest(manifest_path, cfg["runs_log"])
+    # Which record each cited run_id means, as the citing entries declared it.
+    selectors = manifest.record_selectors()
     seeds = {r for r in manifest.run_ids() if r} | {cfg["headline_run_id"]}
     # The reproduce verdicts this exporter is about to attach are themselves
     # traced to their own records, so the closure has to contain them — else
@@ -162,9 +211,9 @@ def main(argv: list[str] | None = None) -> None:
     # cite a record as provenance without tracing numbers to it (the search
     # exhibit's ann_receipt chip). Config-pinned so the citation set stays explicit.
     seeds |= set(cfg.get("extra_run_ids", []))
-    run_ids = closure(seeds, runs)
+    run_ids = closure(seeds, runs, selectors)
 
-    writer = build(cfg, runs, run_ids)
+    writer = build(cfg, runs, run_ids, selectors)
     out = write_document(writer, cfg["out_dir"], manifest)
     manifest.drop_missing_files(cfg["out_dir"])
     manifest.write()

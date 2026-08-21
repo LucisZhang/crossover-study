@@ -47,6 +47,7 @@ __all__ = [
     "TraceManifest",
     "TracedWriter",
     "index_runs",
+    "index_runs_multi",
     "is_numeric",
     "iter_leaves",
     "jp",
@@ -54,6 +55,7 @@ __all__ = [
     "manifest_schema_version",
     "parse_pointer",
     "resolve_pointer",
+    "select_record",
     "sha256_file",
     "write_document",
 ]
@@ -125,12 +127,84 @@ def iter_leaves(node: Any, prefix: str = "") -> list[tuple[str, Any]]:
     return out
 
 
+# --- run index: run_id collisions are resolved, never guessed -----------------
+
+
+def index_runs_multi(runs_log: str | Path) -> dict[str, list[dict]]:
+    """``run_id -> [record, ...]`` in log order.
+
+    ``index_runs`` (shared with the figures) collapses to last-occurrence-wins.
+    That is fine while run_ids are unique, but the append-only log has at least
+    one COLLIDED id (two ML-32M TEST evals whose run_ids were minted in the same
+    second: ``20260820T221701Z-20d8ff9`` names both an ALS-decay run and an
+    item-kNN-t12m run). "Whichever the dict happened to keep" is not evidence,
+    so the demo path keeps every candidate and forces the citation to say which
+    record it means — see :func:`select_record`.
+    """
+    out: dict[str, list[dict]] = {}
+    with open(runs_log) as fh:
+        for lineno, raw in enumerate(fh, 1):
+            raw = raw.strip()
+            if not raw:
+                continue
+            rec = json.loads(raw)
+            rid = rec.get("run_id")
+            if rid is None:
+                raise ValueError(f"{runs_log}:{lineno}: record without run_id")
+            out.setdefault(rid, []).append(rec)
+    return out
+
+
+def select_record(
+    runs_multi: dict[str, list[dict]], run_id: str, selector: dict[str, Any] | None = None
+) -> dict:
+    """Resolve ``run_id`` to EXACTLY ONE record.
+
+    ``selector`` is a mapping of JSON pointer -> expected value (e.g.
+    ``{"/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"}``). A
+    collided run_id with no selector is a hard error, not a coin flip; a
+    selector that matches zero or several records is a hard error too. The
+    selector travels with the manifest entry, so the independent verifier
+    re-resolves the same record without re-deriving the tie-break.
+    """
+    candidates = runs_multi.get(run_id)
+    if not candidates:
+        raise KeyError(f"run_id {run_id!r} not found in the runs log")
+    if selector:
+        matched = []
+        for rec in candidates:
+            try:
+                if all(resolve_pointer(rec, ptr) == val for ptr, val in selector.items()):
+                    matched.append(rec)
+            except KeyError:
+                continue
+    else:
+        matched = list(candidates)
+    if len(matched) == 1:
+        return matched[0]
+    if not selector:
+        raise KeyError(
+            f"run_id {run_id!r} is COLLIDED: {len(candidates)} records in the append-only log "
+            f"share it ({[r.get('config_path') for r in candidates]}). Cite it with a "
+            "record_selector (e.g. {'/config_path': ...}); positional resolution is not evidence."
+        )
+    raise KeyError(
+        f"run_id {run_id!r} with record_selector {selector!r} matched {len(matched)} of "
+        f"{len(candidates)} record(s); expected exactly 1"
+    )
+
+
 # --- source descriptors -------------------------------------------------------
 
 
-def source_runs_record(run_id: str, source_pointer: str) -> dict:
+def source_runs_record(
+    run_id: str, source_pointer: str, record_selector: dict[str, Any] | None = None
+) -> dict:
     """A value copied out of one ``results/runs.jsonl`` record."""
-    return {"kind": "runs_record", "run_id": run_id, "source_pointer": source_pointer}
+    src = {"kind": "runs_record", "run_id": run_id, "source_pointer": source_pointer}
+    if record_selector:
+        src["record_selector"] = dict(record_selector)
+    return src
 
 
 def source_results_artifact(
@@ -146,6 +220,44 @@ def source_results_artifact(
         "pointer": pointer,
         "run_id": run_id,
         "anchor_pointer": anchor_pointer,
+    }
+
+
+def source_derived_artifact(
+    *,
+    source_file: str,
+    sha256: str,
+    pointer: str,
+    artifact_kind: str,
+    git_sha: str,
+    config_hash: str,
+    input_anchors: list[dict],
+) -> dict:
+    """A value read from a committed DERIVED analysis artifact that, by design,
+    appends nothing to ``results/runs.jsonl`` — so no append-only record can
+    carry its SHA-256 and the stronger ``results_artifact`` kind is unavailable.
+
+    Anchoring instead (see ``export_contrast`` for the full rationale):
+
+    * the file must still hash to the digest pinned here (drift is caught),
+    * it must self-declare ``derived=true`` / ``appends_to_runs_jsonl=false``
+      — this weaker kind may never stand in for a record-anchored artifact,
+    * its ``git_sha`` / ``config_hash`` must be the ones pinned here, and
+    * ``input_anchors`` ties its INPUTS to the append-only log: each anchor
+      names a run_id (with a ``record_selector`` where the id is collided) plus
+      a pointer in the artifact and a pointer in the record that must agree —
+      e.g. the artifact's per-user parquet path == the path the eval record
+      published at ``/per_user_artifact``.
+    """
+    return {
+        "kind": "derived_artifact",
+        "source_file": source_file,
+        "sha256": sha256,
+        "pointer": pointer,
+        "artifact_kind": artifact_kind,
+        "git_sha": git_sha,
+        "config_hash": config_hash,
+        "input_anchors": copy.deepcopy(input_anchors),
     }
 
 
@@ -183,9 +295,17 @@ class TracedWriter:
         *,
         doc_schema_version: int = 1,
         generated_by: str | None = None,
+        runs_multi: dict[str, list[dict]] | None = None,
+        record_selectors: dict[str, dict] | None = None,
     ) -> None:
         self.file_name = file_name
         self.runs = runs
+        # Opt-in strict resolution. Exporters that pass ``runs_multi`` get
+        # "a collided run_id must be disambiguated"; exporters that do not keep
+        # the historical last-occurrence-wins dict (no citation of a collided id
+        # exists in their documents, and the verifier now rejects one anyway).
+        self.runs_multi = runs_multi
+        self.record_selectors = dict(record_selectors or {})
         self._doc: dict = {}
         self._entries: list[dict] = []
         self._descriptive: list[dict] = []
@@ -220,7 +340,16 @@ class TracedWriter:
                 raise KeyError(f"{pointer}: already written (documents are write-once)")
             node[last] = value
 
-    def _record(self, run_id: str) -> dict:
+    def _selector(self, run_id: str, selector: dict | None) -> dict | None:
+        return selector if selector is not None else self.record_selectors.get(run_id)
+
+    def record(self, run_id: str, selector: dict | None = None) -> dict:
+        """The single record ``run_id`` (+ selector) resolves to. Read-only."""
+        return self._record(run_id, selector)
+
+    def _record(self, run_id: str, selector: dict | None = None) -> dict:
+        if self.runs_multi is not None:
+            return select_record(self.runs_multi, run_id, self._selector(run_id, selector))
         if run_id not in self.runs:
             raise KeyError(f"run_id {run_id!r} not found in the runs log")
         return self.runs[run_id]
@@ -258,14 +387,21 @@ class TracedWriter:
         trace (``_set`` refuses to auto-create list indices, on purpose)."""
         self._set(pointer, [{} for _ in range(length)])
 
-    def copy_from_record(self, pointer: str, run_id: str, source_pointer: str) -> Any:
+    def copy_from_record(
+        self, pointer: str, run_id: str, source_pointer: str, *, selector: dict | None = None
+    ) -> Any:
         """Copy a value (scalar OR subtree) verbatim out of a runs.jsonl record.
 
         Every leaf of the copied subtree gets its own trace entry pointing at
         the matching leaf of the record, so the whole subtree is re-resolvable
         leaf by leaf. Returns the copied value.
+
+        ``selector`` (JSON pointer -> expected value) disambiguates a collided
+        run_id and is written into every entry it produces, so the verifier
+        resolves the same record from the manifest alone.
         """
-        record = self._record(run_id)
+        record = self._record(run_id, selector)
+        effective = self._selector(run_id, selector)
         value = copy.deepcopy(resolve_pointer(record, source_pointer))
         self._set(pointer, value)
         for leaf_ptr, leaf_val in iter_leaves(value):
@@ -274,7 +410,7 @@ class TracedWriter:
                     "file": self.file_name,
                     "pointer": pointer + leaf_ptr,
                     "value": leaf_val,
-                    "source": source_runs_record(run_id, source_pointer + leaf_ptr),
+                    "source": source_runs_record(run_id, source_pointer + leaf_ptr, effective),
                 }
             )
         return value
@@ -307,26 +443,80 @@ class TracedWriter:
         self._artifacts[key] = art
         return art
 
+    def register_derived_artifact(self, key: str, path: str | Path, *, input_anchors: list[dict]) -> dict:
+        """Bind a committed DERIVED artifact that appends nothing to the log.
+
+        Refuses the binding unless the file self-declares ``derived=true`` and
+        ``appends_to_runs_jsonl=false`` (anything that DOES append must be
+        anchored the strong way, via :meth:`register_artifact`), and unless
+        every input anchor holds: the pointer the artifact names as an input
+        equals the pointer the append-only record publishes.
+        """
+        doc = json.loads(Path(path).read_text())
+        if doc.get("derived") is not True or doc.get("appends_to_runs_jsonl") is not False:
+            raise ValueError(
+                f"derived artifact {path}: expected derived=true and appends_to_runs_jsonl=false "
+                f"(got {doc.get('derived')!r}/{doc.get('appends_to_runs_jsonl')!r}). An artifact a "
+                "runs.jsonl record attests to must use register_artifact() instead."
+            )
+        for anchor in input_anchors:
+            rec = self._record(anchor["run_id"], anchor.get("record_selector"))
+            in_artifact = resolve_pointer(doc, anchor["artifact_pointer"])
+            in_record = resolve_pointer(rec, anchor["record_pointer"])
+            if in_artifact != in_record:
+                raise ValueError(
+                    f"derived artifact {path}: input anchor {anchor['artifact_pointer']} is "
+                    f"{in_artifact!r} but run {anchor['run_id']}{anchor['record_pointer']} is "
+                    f"{in_record!r}. The derived file does not name the record's artifact."
+                )
+        art = {
+            "key": key,
+            "path": str(path),
+            "sha256": sha256_file(path),
+            "artifact_kind": doc.get("kind"),
+            "git_sha": doc.get("git_sha"),
+            "config_hash": doc.get("config_hash"),
+            "input_anchors": copy.deepcopy(input_anchors),
+            "derived": True,
+            "doc": doc,
+        }
+        self._artifacts[key] = art
+        return art
+
     def copy_from_artifact(self, pointer: str, artifact_key: str, artifact_pointer: str) -> Any:
-        """Copy a value (scalar or subtree) out of a registered results artifact."""
+        """Copy a value (scalar or subtree) out of a registered results artifact
+        (record-anchored or derived — the source descriptor follows the kind the
+        artifact was registered under)."""
         if artifact_key not in self._artifacts:
             raise KeyError(f"artifact {artifact_key!r} not registered")
         art = self._artifacts[artifact_key]
         value = copy.deepcopy(resolve_pointer(art["doc"], artifact_pointer))
         self._set(pointer, value)
         for leaf_ptr, leaf_val in iter_leaves(value):
+            if art.get("derived"):
+                source = source_derived_artifact(
+                    source_file=art["path"],
+                    sha256=art["sha256"],
+                    pointer=artifact_pointer + leaf_ptr,
+                    artifact_kind=art["artifact_kind"],
+                    git_sha=art["git_sha"],
+                    config_hash=art["config_hash"],
+                    input_anchors=art["input_anchors"],
+                )
+            else:
+                source = source_results_artifact(
+                    source_file=art["path"],
+                    sha256=art["sha256"],
+                    pointer=artifact_pointer + leaf_ptr,
+                    run_id=art["run_id"],
+                    anchor_pointer=art["anchor_pointer"],
+                )
             self._entries.append(
                 {
                     "file": self.file_name,
                     "pointer": pointer + leaf_ptr,
                     "value": leaf_val,
-                    "source": source_results_artifact(
-                        source_file=art["path"],
-                        sha256=art["sha256"],
-                        pointer=artifact_pointer + leaf_ptr,
-                        run_id=art["run_id"],
-                        anchor_pointer=art["anchor_pointer"],
-                    ),
+                    "source": source,
                 }
             )
         return value
@@ -403,9 +593,41 @@ class TraceManifest:
             self.descriptive = [d for d in self.descriptive if d["file"] != n]
         return gone
 
+    @staticmethod
+    def _cited(source: dict) -> list[tuple[str, dict | None]]:
+        """``(run_id, record_selector)`` pairs one source descriptor depends on."""
+        out: list[tuple[str, dict | None]] = []
+        if "run_id" in source:
+            out.append((source["run_id"], source.get("record_selector")))
+        for anchor in source.get("input_anchors", []):
+            out.append((anchor["run_id"], anchor.get("record_selector")))
+        return out
+
     def run_ids(self) -> set[str]:
-        """Every run_id any entry depends on (direct or as an artifact anchor)."""
-        return {e["source"]["run_id"] for e in self.entries if "run_id" in e["source"]}
+        """Every run_id any entry depends on (direct, as a record-anchored
+        artifact's anchor, or as a derived artifact's input anchor)."""
+        return {rid for e in self.entries for rid, _ in self._cited(e["source"])}
+
+    def record_selectors(self) -> dict[str, dict]:
+        """``run_id -> record_selector`` for every cited, collided run_id.
+
+        Two entries citing one run_id with DIFFERENT selectors would mean the
+        demo shows two different records under one id — receipts.json is keyed
+        by run_id and could not represent that, so it is an error here rather
+        than a silently wrong card.
+        """
+        out: dict[str, dict] = {}
+        for e in self.entries:
+            for rid, sel in self._cited(e["source"]):
+                if not sel:
+                    continue
+                if rid in out and out[rid] != sel:
+                    raise ValueError(
+                        f"trace manifest cites run_id {rid!r} under two different "
+                        f"record_selectors: {out[rid]!r} and {sel!r}"
+                    )
+                out[rid] = sel
+        return out
 
     def write(self) -> Path:
         doc = {

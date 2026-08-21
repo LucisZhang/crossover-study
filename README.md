@@ -38,6 +38,20 @@ from ~80 uncorrected tests, of which ~4 would be expected significant at α=0.05
 by chance. See `docs/case_study.md` §6 for the full disclosure and
 `EXPERIMENT_LOG.md` (2026-08-19) for the superseding verdict.
 
+**Phase 9 — regime contrast, not a repeal.** The null above is a property of a
+high-churn catalog, not of personalization in general: on ML-32M, measured
+catalog churn is 6.40% against Amazon Electronics' measured 41.11% (records
+`20260820T134403Z-e2263d2`, `20260817T095926Z-633d454`), and in that low-churn
+regime the same preregistered test finds a crossover — item-kNN-t12m beats
+trailing popularity, 95% CI excluding zero and BH-significant, at n\*=20 and
+above (D1_CROSSOVER, confirmatory record `results/confirmatory_ml32m_test.json`,
+source runs `20260820T221701Z-20d8ff9` / `20260820T221055Z-20d8ff9`). It is a
+regime contrast, not causal proof — MovieLens's explicit ratings change several
+variables at once, its timestamps are rating-entry times on a backfilled
+catalog, the Recall@20 guard does not corroborate the win, and the same run
+shows a significant cold-user loss. See `docs/case_study.md` §8c and
+`EXPERIMENT_LOG.md` (2026-08-20/21) for the full disclosure.
+
 ## Where the details live
 
 - `docs/case_study.md` — the full case study, every claim labeled with its

@@ -30,6 +30,7 @@
     <nav class="site-nav" aria-label="Exhibits">
       <a href="#sec-crossover">1 · Crossover</a>
       <a href="#sec-regime">1b · Regime map</a>
+      <a href="#sec-contrast">1c · Regime contrast</a>
       <a href="#sec-shoppers">2 · Pick a shopper</a>
       <a href="#sec-search">3 · Semantic search</a>
       <a href="#sec-dq">4 · Data quality</a>
@@ -83,6 +84,26 @@
         number is clickable — it opens the results-log record it came from.</p>
     </div>
     <div class="exhibit-body" id="exhibit-regime">
+      <p class="muted">Loading…</p>
+    </div>
+  </section>
+
+  <section class="exhibit" id="sec-contrast" aria-labelledby="h-contrast">
+    <div class="exhibit-head">
+      <span class="exhibit-num">Exhibit 1c</span>
+      <h2 id="h-contrast">Regime contrast — Amazon Electronics vs ML-32M</h2>
+      <p class="lede">Phase 9 (T9-3) re-ran the churn gate and the same preregistered crossover
+        test on a second dataset. ML-32M's catalog churn is 6.40% (band &lt;0.10, "churn diagnosis
+        wrong" for that dataset's own gate) against Amazon Electronics' measured 41.11% — the two
+        datasets sit in different regimes on the mechanism this case study identified. In that
+        low-churn regime, item-kNN-t12m (M*) beats pop-t12m (P*) NDCG@10 with the 95% CI excluding
+        zero, BH-significant, in three coherent history-depth buckets (20-49, 50-99, 100+): a
+        preregistered D1 crossover at n*=20. It is a regime contrast, not a causal proof, and it
+        comes with real qualifications below — the Recall@20 guard does not agree, and the same
+        run shows a large, significant cold-user loss. Every number is clickable — it opens the
+        results-log record it came from.</p>
+    </div>
+    <div class="exhibit-body" id="exhibit-contrast">
       <p class="muted">Loading…</p>
     </div>
   </section>

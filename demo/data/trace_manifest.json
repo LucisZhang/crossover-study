@@ -1,9 +1,13 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-18T13:32:55.100579+00:00",
-  "runs_jsonl_sha256": "sha256:bce2fd1d53d9cb392a01749eef53150d24b0b4db7415046a5e42e42f705dbea7",
+  "generated_at": "2026-08-21T00:36:50.689568+00:00",
+  "runs_jsonl_sha256": "sha256:533668f0de242a9dde4f3b9fe71765d64b0354f09355d72cc7e8a4c265e151e6",
   "runs_log": "results/runs.jsonl",
   "files": [
+    {
+      "name": "contrast.json",
+      "sha256": "sha256:01f72f1a3abe2fd2b92c4507a94151ba0c94daa5ea493fabf81248761770e685"
+    },
     {
       "name": "crossover.json",
       "sha256": "sha256:66bbeb6b74f2ade9e7441ec4767a5e96394e09f97a99c358e05796c29cc0538e"
@@ -26,7 +30,7 @@
     },
     {
       "name": "receipts.json",
-      "sha256": "sha256:35a400ab3e1f41b001595a6d9dffc15f9d09535a05364a1019a8b8b782ba85f4"
+      "sha256": "sha256:cbabb48fdfd86f0cb6f2f9480908ade6edc71d57e85b35904b2d7332ab3fd34e"
     },
     {
       "name": "shoppers.json",
@@ -50686,6 +50690,1889 @@
       }
     },
     {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/statistic",
+      "value": "share of eval-split GT interactions on items with n_train_support <= 4",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/results/contrast/statistic"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/amazon_electronics/value",
+      "value": 0.4111295514585914,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260817T095926Z-633d454",
+        "source_pointer": "/results/gate/measured_share"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/amazon_electronics/run_id",
+      "value": "20260817T095926Z-633d454",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260817T095926Z-633d454",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/amazon_electronics/band",
+      "value": ">=0.25",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260817T095926Z-633d454",
+        "source_pointer": "/results/gate/band"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/amazon_electronics/verdict",
+      "value": "MEASURED AND SUPPORTED — churn diagnosis converts from derived to measured",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260817T095926Z-633d454",
+        "source_pointer": "/results/gate/verdict"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/ml32m/value",
+      "value": 0.06403017747252186,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/results/gate/measured_share"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/ml32m/run_id",
+      "value": "20260820T134403Z-e2263d2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/ml32m/band",
+      "value": "<0.10",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/results/gate/band"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/ml32m/verdict",
+      "value": "CHURN DIAGNOSIS WRONG — near-total TRAIN/TEST catalog overlap; STOP, revisit T8-2 design",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/results/gate/verdict"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/difference",
+      "value": -0.34709937398606955,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/results/contrast/difference_vs_reference"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/pop_t12m/value",
+      "value": 0.2475101546393383,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/metrics/global/ndcg@10/value"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/pop_t12m/run_id",
+      "value": "20260820T221055Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/pop_t12m/model_name",
+      "value": "popularity",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/pop_t12m/model_seed",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/itemknn_t12m/value",
+      "value": 0.08561856278434565,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/metrics/global/ndcg@10/value",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/itemknn_t12m/run_id",
+      "value": "20260820T221701Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/run_id",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/itemknn_t12m/model_name",
+      "value": "item_knn",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/model/name",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/itemknn_t12m/model_seed",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/seeds/model",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/als/value",
+      "value": 0.09040525177627338,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/metrics/global/ndcg@10/value"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/als/run_id",
+      "value": "20260820T222202Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/als/model_name",
+      "value": "als",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/als/model_seed",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/blend_alpha0_1/value",
+      "value": 0.25087466115408347,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/metrics/global/ndcg@10/value"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/blend_alpha0_1/run_id",
+      "value": "20260820T221933Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/blend_alpha0_1/model_name",
+      "value": "content_pop_blend",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/ml32m_global_ndcg10/blend_alpha0_1/model_seed",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/verdict",
+      "value": "D1_CROSSOVER",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/verdict",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/verdict_code",
+      "value": "D1",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/verdict_code",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/headline",
+      "value": "CROSSOVER at n* = 20 — personalization wins from a definable history depth onward and keeps winning",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/headline",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/n_star",
+      "value": 20,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/n_star",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/crossover_bucket",
+      "value": "20-49",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/crossover_bucket",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/d4_flag",
+      "value": true,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/d4_flag",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/d4_token",
+      "value": "D4_SIGNIFICANT_NEGATIVES",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/d4_token",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/verdict/bh_significant_negative_buckets/0",
+      "value": "0",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/bh_significant_negative_buckets/0",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/label",
+      "value": "20-49",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/label",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/n_users",
+      "value": 242,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/n_users",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/delta",
+      "value": 0.03331706067297835,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/delta",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/ci_lo",
+      "value": 0.010695782804417651,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/ci_lo",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/ci_hi",
+      "value": 0.05517465473104838,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/ci_hi",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/p_value_uncorrected",
+      "value": 0.005994005994005994,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/p_value_uncorrected",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/q_value",
+      "value": 0.011988011988011988,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/q_value",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/bh_significant",
+      "value": true,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/bh_significant",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/0/user_share",
+      "value": 0.02736627841230352,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/4/user_share",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/label",
+      "value": "50-99",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/label",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/n_users",
+      "value": 431,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/n_users",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/delta",
+      "value": 0.01980916723878097,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/delta",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/ci_lo",
+      "value": 0.003372089979447112,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/ci_lo",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/ci_hi",
+      "value": 0.038052283198016935,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/ci_hi",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/p_value_uncorrected",
+      "value": 0.015984015984015984,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/p_value_uncorrected",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/q_value",
+      "value": 0.025574425574425574,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/q_value",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/bh_significant",
+      "value": true,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/bh_significant",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/1/user_share",
+      "value": 0.04873911568472238,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/5/user_share",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/label",
+      "value": "100+",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/label",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/n_users",
+      "value": 4191,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/n_users",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/delta",
+      "value": 0.011180539577156215,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/delta",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/ci_lo",
+      "value": 0.007070239237351424,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/ci_lo",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/ci_hi",
+      "value": 0.014887620046157757,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/ci_hi",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/p_value_uncorrected",
+      "value": 0.001998001998001998,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/p_value_uncorrected",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/q_value",
+      "value": 0.005328005328005328,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/q_value",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/bh_significant",
+      "value": true,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/bh_significant",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/winning_deep_buckets/2/user_share",
+      "value": 0.47393418523125636,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/6/user_share",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/label",
+      "value": "0",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/label",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/n_users",
+      "value": 3882,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/n_users",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/delta",
+      "value": -0.38441919421593973,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/delta",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/ci_lo",
+      "value": -0.3925536913043543,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/ci_lo",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/ci_hi",
+      "value": -0.37504946428358243,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/ci_hi",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/p_value_uncorrected",
+      "value": 0.001998001998001998,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/p_value_uncorrected",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/q_value",
+      "value": 0.005328005328005328,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/q_value",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/bh_significant",
+      "value": true,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/bh_significant",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/d4_depth0/user_share",
+      "value": 0.4389912925477779,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/families/P/metrics/ndcg@10/rows/0/user_share",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/recall_guard/definition",
+      "value": "§5(g) label only, never confirmatory: recall@20 must agree in sign and BH-significance (its own BH family) with ndcg@10",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/metric_robustness/definition",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/recall_guard/claim_labels/0",
+      "value": "20-49",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/metric_robustness/claim_labels/0",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/recall_guard/claim_labels/1",
+      "value": "50-99",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/metric_robustness/claim_labels/1",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/recall_guard/claim_labels/2",
+      "value": "100+",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/metric_robustness/claim_labels/2",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/recall_guard/metric_robust",
+      "value": false,
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/verdict/metric_robustness/metric_robust",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/m_star",
+      "value": "20260820T221701Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/run_id",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/p_star",
+      "value": "20260820T221055Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/random",
+      "value": "20260820T220854Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/pop_alltime",
+      "value": "20260820T220955Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/itemknn",
+      "value": "20260820T221155Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/als",
+      "value": "20260820T222202Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/als_decay",
+      "value": "20260820T222514Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/content",
+      "value": "20260820T221831Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/blend",
+      "value": "20260820T221933Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/source_run_ids/hybrid",
+      "value": "20260820T222041Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/confirmatory_source/generated_ts",
+      "value": "2026-08-20T22:57:57Z",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/generated_ts",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/confirmatory_source/git_sha",
+      "value": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/git_sha",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/confirmatory_source/config_hash",
+      "value": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+      "source": {
+        "kind": "derived_artifact",
+        "source_file": "results/confirmatory_ml32m_test.json",
+        "sha256": "sha256:024c970aaff07171e75036eb47a93f51c022f17280abb8f2f64c1e589c4786a5",
+        "pointer": "/config_hash",
+        "artifact_kind": "confirmatory_ml32m",
+        "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+        "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f",
+        "input_anchors": [
+          {
+            "run_id": "20260820T221701Z-20d8ff9",
+            "record_selector": {
+              "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+            },
+            "artifact_pointer": "/families/P/artifact_paths/m_star",
+            "record_pointer": "/per_user_artifact"
+          },
+          {
+            "run_id": "20260820T221055Z-20d8ff9",
+            "artifact_pointer": "/families/P/artifact_paths/p_star",
+            "record_pointer": "/per_user_artifact"
+          }
+        ]
+      }
+    },
+    {
       "file": "dq.json",
       "pointer": "/iceberg_snapshots/local.gold.interactions_5core",
       "value": 8184397443787800955,
@@ -88803,6 +90690,2808 @@
         "run_id": "20260818T072256Z-3f3530a",
         "source_pointer": "/hardware"
       }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/run_id",
+      "value": "20260820T134403Z-e2263d2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/kind",
+      "value": "churn_contrast",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/run_ts",
+      "value": "2026-08-20T13:44:03.648361+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/git_sha",
+      "value": "e2263d24e03a0a61d2743314f60cdd21c289dadb",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/config_path",
+      "value": "configs/churn_contrast_ml32m.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/config_hash",
+      "value": "sha256:682d2e89e2c86cd71d46c43b844b70fd54f5f6b3a92ec7cd1285a6599cf3505f",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/seeds/note",
+      "value": "no stochastic step: exact counts over the frozen TEST window, no bootstrap",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/seeds/note"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/wall_clock_s",
+      "value": 26.124,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T134403Z-e2263d2",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/run_id",
+      "value": "20260820T220854Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:09:55.135313+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/config_path",
+      "value": "configs/eval_random_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/config_hash",
+      "value": "sha256:1ad58d7b2a1854f61d3271b4881151b70fe594ed03784fb80049e6a43c06f8c0",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/seeds/model",
+      "value": 13,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/model/name",
+      "value": "random",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/model/params/seed",
+      "value": 13,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/model/params/seed"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/wall_clock_s",
+      "value": 60.041,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220854Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220854Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/run_id",
+      "value": "20260820T220955Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:10:55.703816+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/config_path",
+      "value": "configs/eval_pop_alltime_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/config_hash",
+      "value": "sha256:9ebd051b0d937643e02db9c91f816bd7c16c944925c13486ca06eb80587632a8",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/model/name",
+      "value": "popularity",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/model/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/model/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/model/params/window_days",
+      "value": 0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/model/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/wall_clock_s",
+      "value": 59.696,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T220955Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T220955Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/run_id",
+      "value": "20260820T221055Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:11:55.106578+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/config_path",
+      "value": "configs/eval_pop_t12m_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/config_hash",
+      "value": "sha256:0e8c7581986745417dfc534edfc0132a547303c80dbe8d90c9989002d31ee9b0",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/model/name",
+      "value": "popularity",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/model/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/model/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/model/params/window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/model/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/wall_clock_s",
+      "value": 58.601,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221055Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221055Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/run_id",
+      "value": "20260820T221155Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:17:01.423040+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/config_path",
+      "value": "configs/eval_itemknn_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/config_hash",
+      "value": "sha256:26fd5f3e1155033f6fbb4122c382b48bd52d4d5f799af1da8ea4ca2d38a0d832",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/model/name",
+      "value": "item_knn",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/model/params/top_n",
+      "value": 50,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/model/params/top_n"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/model/params/shrinkage",
+      "value": 0.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/model/params/shrinkage"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/model/params/block_size",
+      "value": 8192,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/model/params/block_size"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/wall_clock_s",
+      "value": 305.496,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221155Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221155Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/run_id",
+      "value": "20260820T221701Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/run_id",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/kind",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:18:30.876460+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/run_ts",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/git_sha",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/git_dirty",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/config_path",
+      "value": "configs/eval_itemknn_t12m_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/config_path",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/config_hash",
+      "value": "sha256:21212ee94a62fb72e684abc3a6d83355c96be6f257603996ca0e40c118d15d9a",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/config_hash",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/splits/version",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/splits/file_hash",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/seeds/model",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/model/name",
+      "value": "item_knn",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/model/name",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/model/params/top_n",
+      "value": 50,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/model/params/top_n",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/model/params/shrinkage",
+      "value": 0.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/model/params/shrinkage",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/model/params/block_size",
+      "value": 8192,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/model/params/block_size",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/model/params/train_window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/model/params/train_window_days",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/wall_clock_s",
+      "value": 88.445,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/wall_clock_s",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221701Z-20d8ff9",
+        "source_pointer": "/hardware",
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        }
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/run_id",
+      "value": "20260820T221831Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:19:33.228082+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/config_path",
+      "value": "configs/eval_content_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/config_hash",
+      "value": "sha256:b7f20158b6f42b1e34fa29e1e61bf3069c264397f024f3d1cc0e674f967da740",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/name",
+      "value": "content",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/params/recipe_hash",
+      "value": "9fa4d7d913f1",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/params/recipe_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/params/artifact_root",
+      "value": "data/eval/minilm_ml32m",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/params/artifact_root"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/params/five_core_snapshot_id",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/params/five_core_snapshot_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/params/embeddings_sha256",
+      "value": "7e61ce90f2fcfcb98bddf0d665649afc92327115b4c8a261d24b8225128b626b",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/params/embeddings_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/params/item_ids_sha256",
+      "value": "9e1eddc413e7421084bf7f42359800f5a8a650db03b5d66550807da95adb3752",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/params/item_ids_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/model/params/embedding_dim",
+      "value": 384,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/model/params/embedding_dim"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/wall_clock_s",
+      "value": 61.513,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221831Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221831Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/run_id",
+      "value": "20260820T221933Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:20:41.049297+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/config_path",
+      "value": "configs/eval_blend_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/config_hash",
+      "value": "sha256:f1106526df4be3b14d4f7bf6e0e5a2526fc9f2e4965b3d8c4db08696089d51d8",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/name",
+      "value": "content_pop_blend",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/alpha",
+      "value": 0.1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/alpha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/recipe_hash",
+      "value": "9fa4d7d913f1",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/recipe_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/artifact_root",
+      "value": "data/eval/minilm_ml32m",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/artifact_root"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/content_params/recipe_hash",
+      "value": "9fa4d7d913f1",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/content_params/recipe_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/content_params/artifact_root",
+      "value": "data/eval/minilm_ml32m",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/content_params/artifact_root"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/content_params/five_core_snapshot_id",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/content_params/five_core_snapshot_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/content_params/embeddings_sha256",
+      "value": "7e61ce90f2fcfcb98bddf0d665649afc92327115b4c8a261d24b8225128b626b",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/content_params/embeddings_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/content_params/item_ids_sha256",
+      "value": "9e1eddc413e7421084bf7f42359800f5a8a650db03b5d66550807da95adb3752",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/content_params/item_ids_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/model/params/content_params/embedding_dim",
+      "value": 384,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/model/params/content_params/embedding_dim"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/wall_clock_s",
+      "value": 67.034,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221933Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T221933Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/run_id",
+      "value": "20260820T222041Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:22:01.936515+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/config_path",
+      "value": "configs/eval_hybrid_ml32m_test.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/config_hash",
+      "value": "sha256:c79e9ac8d089faf0110cdb2d615e9e385d8ad687f91521d6da1e93344cbe7e36",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/seeds/model",
+      "value": null,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/name",
+      "value": "hybrid",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/n_star",
+      "value": 100.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/n_star"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/low/name",
+      "value": "item_knn",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/low/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/low/params/top_n",
+      "value": 50,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/low/params/top_n"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/low/params/shrinkage",
+      "value": 0.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/low/params/shrinkage"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/low/params/block_size",
+      "value": 8192,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/low/params/block_size"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/low/params/train_window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/low/params/train_window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/high/name",
+      "value": "popularity",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/high/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/high/params/as_of",
+      "value": "train_end",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/high/params/as_of"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/model/params/high/params/window_days",
+      "value": 365,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/model/params/high/params/window_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/wall_clock_s",
+      "value": 80.127,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222041Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222041Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/run_id",
+      "value": "20260820T222202Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:23:05.697330+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/config_path",
+      "value": "configs/eval_als_ml32m_test_seed1.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/config_hash",
+      "value": "sha256:b003ab2a1060b90ed4b1083557332ffdae01d85248ff8f2df3fa1c3fe9648395",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/seeds/model",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/name",
+      "value": "als",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/rank",
+      "value": 64,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/rank"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/reg_param",
+      "value": 0.01,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/reg_param"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/alpha",
+      "value": 1.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/alpha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/max_iter",
+      "value": 15,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/max_iter"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/weighting",
+      "value": "binary",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/weighting"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/seed",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/seed"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/param_hash",
+      "value": "242d79bb5224",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/param_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/user_factors_sha256",
+      "value": "7565d4c0e594e354a20854958d4980563d3cf7bcd5639e4246ad568dea42eb8d",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/user_factors_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/model/params/item_factors_sha256",
+      "value": "2a7b7462fdba4fbbaca0c5f48157e2e809c9a00a0471462e61c16417b6c7def1",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/model/params/item_factors_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/wall_clock_s",
+      "value": 62.198,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222202Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222202Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/run_id",
+      "value": "20260820T222514Z-20d8ff9",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/run_id"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/kind",
+      "value": "eval",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/kind"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/run_ts",
+      "value": "2026-08-20T22:26:16.936607+00:00",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/run_ts"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/git_sha",
+      "value": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/git_sha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/git_dirty",
+      "value": false,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/git_dirty"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/config_path",
+      "value": "configs/eval_alsdecay_ml32m_test_seed1.yaml",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/config_path"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/config_hash",
+      "value": "sha256:f94bf1f3ecd6c607df3b313c7d722af05e4bf9bbd689e6ab148381197868bf33",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/config_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/dataset_manifest_hash",
+      "value": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/dataset_manifest_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/splits/version",
+      "value": 1,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/splits/version"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/splits/frozen_at",
+      "value": "2026-08-19",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/splits/frozen_at"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/splits/file_hash",
+      "value": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/splits/file_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.interactions_5core",
+      "value": 3433604384732745693,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.interactions_5core"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.user_stats",
+      "value": 3610231462088564027,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.user_stats"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.item_features",
+      "value": 8148139012671154899,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.item_features"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/iceberg_snapshots/local.gold_ml32m.popularity",
+      "value": 4931082420935642385,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/iceberg_snapshots/local.gold_ml32m.popularity"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/seeds/bootstrap",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/seeds/bootstrap"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/seeds/model",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/seeds/model"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/name",
+      "value": "als",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/name"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/rank",
+      "value": 64,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/rank"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/reg_param",
+      "value": 0.01,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/reg_param"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/alpha",
+      "value": 1.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/alpha"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/max_iter",
+      "value": 15,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/max_iter"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/weighting",
+      "value": "time_decay",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/weighting"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/seed",
+      "value": 20260805,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/seed"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/half_life_days",
+      "value": 90.0,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/half_life_days"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/param_hash",
+      "value": "ef5950e57246",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/param_hash"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/user_factors_sha256",
+      "value": "9a235f69ccbaf7dff90c96e372a2f5d2be38f9733caccc19fbaf24b85ff3f17d",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/user_factors_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/model/params/item_factors_sha256",
+      "value": "9d97f3c707339f00a260455f2fbd311e87b13d246de7bf846440e80377cefd86",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/model/params/item_factors_sha256"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/wall_clock_s",
+      "value": 61.524,
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/wall_clock_s"
+      }
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T222514Z-20d8ff9/hardware",
+      "value": "x86_64 · Linux",
+      "source": {
+        "kind": "runs_record",
+        "run_id": "20260820T222514Z-20d8ff9",
+        "source_pointer": "/hardware"
+      }
     }
   ],
   "descriptive": [
@@ -89537,6 +94226,54 @@
       "pointer": "/regime_map/maps/als/arm_label",
       "subtree": false,
       "note": "challenger display label"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/schema_version",
+      "subtree": false,
+      "note": "document schema version"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/generated_by",
+      "subtree": false,
+      "note": "exporter module"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/notes",
+      "subtree": false,
+      "note": "what this document is and how it is anchored"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/amazon_electronics/source",
+      "subtree": false,
+      "note": "where this number lives in the log"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/churn_contrast/ml32m/source",
+      "subtree": false,
+      "note": "where this number lives in the log"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/confirmatory_source/path",
+      "subtree": false,
+      "note": "repo-relative path of the derived artifact"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/figures",
+      "subtree": true,
+      "note": "committed SVGs copied under demo/img/"
+    },
+    {
+      "file": "contrast.json",
+      "pointer": "/caveats",
+      "subtree": true,
+      "note": "display copy for the caveat block"
     },
     {
       "file": "dq.json",
@@ -94031,6 +98768,18 @@
       "pointer": "/runs/20260818T072256Z-3f3530a/fields_absent_in_record",
       "subtree": true,
       "note": "kind='regime_map' records do not carry these fields"
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T134403Z-e2263d2/fields_absent_in_record",
+      "subtree": true,
+      "note": "kind='churn_contrast' records do not carry these fields"
+    },
+    {
+      "file": "receipts.json",
+      "pointer": "/runs/20260820T221701Z-20d8ff9/run_id_collision",
+      "subtree": true,
+      "note": "collided run_id disclosure"
     }
   ]
 }

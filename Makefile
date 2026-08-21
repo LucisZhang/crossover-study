@@ -595,6 +595,7 @@ demo-export:
 	uv run python -m batch_recsys_lab.demo.export_policy_grid --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_lineage --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_phase8 --config configs/demo_export.yaml
+	uv run python -m batch_recsys_lab.demo.export_contrast --config configs/demo_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_dq --config configs/dq_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_shoppers --config configs/shoppers_export.yaml
 	uv run python -m batch_recsys_lab.demo.export_receipts --config configs/demo_export.yaml

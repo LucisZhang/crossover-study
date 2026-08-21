@@ -48,7 +48,18 @@
     "20260818T064207Z-56d871c",
     "20260818T064306Z-56d871c",
     "20260818T072211Z-3f3530a",
-    "20260818T072256Z-3f3530a"
+    "20260818T072256Z-3f3530a",
+    "20260820T134403Z-e2263d2",
+    "20260820T220854Z-20d8ff9",
+    "20260820T220955Z-20d8ff9",
+    "20260820T221055Z-20d8ff9",
+    "20260820T221155Z-20d8ff9",
+    "20260820T221701Z-20d8ff9",
+    "20260820T221831Z-20d8ff9",
+    "20260820T221933Z-20d8ff9",
+    "20260820T222041Z-20d8ff9",
+    "20260820T222202Z-20d8ff9",
+    "20260820T222514Z-20d8ff9"
   ],
   "note": "Every field below is copied verbatim from the matching results/runs.jsonl record (append-only). demo/data/trace_manifest.json re-resolves each one.",
   "runs": {
@@ -1252,6 +1263,431 @@
       "fields_absent_in_record": [
         "model"
       ]
+    },
+    "20260820T134403Z-e2263d2": {
+      "run_id": "20260820T134403Z-e2263d2",
+      "kind": "churn_contrast",
+      "run_ts": "2026-08-20T13:44:03.648361+00:00",
+      "git_sha": "e2263d24e03a0a61d2743314f60cdd21c289dadb",
+      "git_dirty": false,
+      "config_path": "configs/churn_contrast_ml32m.yaml",
+      "config_hash": "sha256:682d2e89e2c86cd71d46c43b844b70fd54f5f6b3a92ec7cd1285a6599cf3505f",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.item_features": 8148139012671154899
+      },
+      "seeds": {
+        "note": "no stochastic step: exact counts over the frozen TEST window, no bootstrap"
+      },
+      "wall_clock_s": 26.124,
+      "hardware": "x86_64 · Linux",
+      "fields_absent_in_record": [
+        "model"
+      ]
+    },
+    "20260820T220854Z-20d8ff9": {
+      "run_id": "20260820T220854Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:09:55.135313+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_random_ml32m_test.yaml",
+      "config_hash": "sha256:1ad58d7b2a1854f61d3271b4881151b70fe594ed03784fb80049e6a43c06f8c0",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 13
+      },
+      "model": {
+        "name": "random",
+        "params": {
+          "seed": 13
+        }
+      },
+      "wall_clock_s": 60.041,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T220955Z-20d8ff9": {
+      "run_id": "20260820T220955Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:10:55.703816+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_pop_alltime_ml32m_test.yaml",
+      "config_hash": "sha256:9ebd051b0d937643e02db9c91f816bd7c16c944925c13486ca06eb80587632a8",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "popularity",
+        "params": {
+          "as_of": "train_end",
+          "window_days": 0
+        }
+      },
+      "wall_clock_s": 59.696,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T221055Z-20d8ff9": {
+      "run_id": "20260820T221055Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:11:55.106578+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_pop_t12m_ml32m_test.yaml",
+      "config_hash": "sha256:0e8c7581986745417dfc534edfc0132a547303c80dbe8d90c9989002d31ee9b0",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "popularity",
+        "params": {
+          "as_of": "train_end",
+          "window_days": 365
+        }
+      },
+      "wall_clock_s": 58.601,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T221155Z-20d8ff9": {
+      "run_id": "20260820T221155Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:17:01.423040+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_itemknn_ml32m_test.yaml",
+      "config_hash": "sha256:26fd5f3e1155033f6fbb4122c382b48bd52d4d5f799af1da8ea4ca2d38a0d832",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "item_knn",
+        "params": {
+          "top_n": 50,
+          "shrinkage": 0.0,
+          "block_size": 8192
+        }
+      },
+      "wall_clock_s": 305.496,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T221701Z-20d8ff9": {
+      "run_id": "20260820T221701Z-20d8ff9",
+      "run_id_collision": {
+        "records_sharing_this_run_id": 2,
+        "config_paths": [
+          "configs/eval_alsdecay_ml32m_test_seed1.yaml",
+          "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        ],
+        "record_selector": {
+          "/config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml"
+        },
+        "note": "results/runs.jsonl is append-only and two records were minted with this run_id in the same second; this card documents the record the selector picks, and every trace entry citing it carries the same selector."
+      },
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:18:30.876460+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_itemknn_t12m_ml32m_test.yaml",
+      "config_hash": "sha256:21212ee94a62fb72e684abc3a6d83355c96be6f257603996ca0e40c118d15d9a",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "item_knn",
+        "params": {
+          "top_n": 50,
+          "shrinkage": 0.0,
+          "block_size": 8192,
+          "train_window_days": 365
+        }
+      },
+      "wall_clock_s": 88.445,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T221831Z-20d8ff9": {
+      "run_id": "20260820T221831Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:19:33.228082+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_content_ml32m_test.yaml",
+      "config_hash": "sha256:b7f20158b6f42b1e34fa29e1e61bf3069c264397f024f3d1cc0e674f967da740",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "content",
+        "params": {
+          "recipe_hash": "9fa4d7d913f1",
+          "artifact_root": "data/eval/minilm_ml32m",
+          "five_core_snapshot_id": 3433604384732745693,
+          "embeddings_sha256": "7e61ce90f2fcfcb98bddf0d665649afc92327115b4c8a261d24b8225128b626b",
+          "item_ids_sha256": "9e1eddc413e7421084bf7f42359800f5a8a650db03b5d66550807da95adb3752",
+          "embedding_dim": 384
+        }
+      },
+      "wall_clock_s": 61.513,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T221933Z-20d8ff9": {
+      "run_id": "20260820T221933Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:20:41.049297+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_blend_ml32m_test.yaml",
+      "config_hash": "sha256:f1106526df4be3b14d4f7bf6e0e5a2526fc9f2e4965b3d8c4db08696089d51d8",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "content_pop_blend",
+        "params": {
+          "alpha": 0.1,
+          "as_of": "train_end",
+          "window_days": 365,
+          "recipe_hash": "9fa4d7d913f1",
+          "artifact_root": "data/eval/minilm_ml32m",
+          "content_params": {
+            "recipe_hash": "9fa4d7d913f1",
+            "artifact_root": "data/eval/minilm_ml32m",
+            "five_core_snapshot_id": 3433604384732745693,
+            "embeddings_sha256": "7e61ce90f2fcfcb98bddf0d665649afc92327115b4c8a261d24b8225128b626b",
+            "item_ids_sha256": "9e1eddc413e7421084bf7f42359800f5a8a650db03b5d66550807da95adb3752",
+            "embedding_dim": 384
+          }
+        }
+      },
+      "wall_clock_s": 67.034,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T222041Z-20d8ff9": {
+      "run_id": "20260820T222041Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:22:01.936515+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_hybrid_ml32m_test.yaml",
+      "config_hash": "sha256:c79e9ac8d089faf0110cdb2d615e9e385d8ad687f91521d6da1e93344cbe7e36",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": null
+      },
+      "model": {
+        "name": "hybrid",
+        "params": {
+          "n_star": 100.0,
+          "low": {
+            "name": "item_knn",
+            "params": {
+              "top_n": 50,
+              "shrinkage": 0.0,
+              "block_size": 8192,
+              "train_window_days": 365
+            }
+          },
+          "high": {
+            "name": "popularity",
+            "params": {
+              "as_of": "train_end",
+              "window_days": 365
+            }
+          }
+        }
+      },
+      "wall_clock_s": 80.127,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T222202Z-20d8ff9": {
+      "run_id": "20260820T222202Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:23:05.697330+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_als_ml32m_test_seed1.yaml",
+      "config_hash": "sha256:b003ab2a1060b90ed4b1083557332ffdae01d85248ff8f2df3fa1c3fe9648395",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 20260805
+      },
+      "model": {
+        "name": "als",
+        "params": {
+          "rank": 64,
+          "reg_param": 0.01,
+          "alpha": 1.0,
+          "max_iter": 15,
+          "weighting": "binary",
+          "seed": 20260805,
+          "param_hash": "242d79bb5224",
+          "user_factors_sha256": "7565d4c0e594e354a20854958d4980563d3cf7bcd5639e4246ad568dea42eb8d",
+          "item_factors_sha256": "2a7b7462fdba4fbbaca0c5f48157e2e809c9a00a0471462e61c16417b6c7def1"
+        }
+      },
+      "wall_clock_s": 62.198,
+      "hardware": "x86_64 · Linux"
+    },
+    "20260820T222514Z-20d8ff9": {
+      "run_id": "20260820T222514Z-20d8ff9",
+      "kind": "eval",
+      "run_ts": "2026-08-20T22:26:16.936607+00:00",
+      "git_sha": "20d8ff995f4baceda31a9eedfc78effd632099ce",
+      "git_dirty": false,
+      "config_path": "configs/eval_alsdecay_ml32m_test_seed1.yaml",
+      "config_hash": "sha256:f94bf1f3ecd6c607df3b313c7d722af05e4bf9bbd689e6ab148381197868bf33",
+      "dataset_manifest_hash": "sha256:1f830512534c39f3768e2f8b03a05d950c77fbb927e51b072a9eb541432e98a2",
+      "splits": {
+        "version": 1,
+        "frozen_at": "2026-08-19",
+        "file_hash": "sha256:7c94db0023154e278c85bc6d12338feaccb1b82b1fec6bab5fa9f8b771b35894"
+      },
+      "iceberg_snapshots": {
+        "local.gold_ml32m.interactions_5core": 3433604384732745693,
+        "local.gold_ml32m.user_stats": 3610231462088564027,
+        "local.gold_ml32m.item_features": 8148139012671154899,
+        "local.gold_ml32m.popularity": 4931082420935642385
+      },
+      "seeds": {
+        "bootstrap": 20260805,
+        "model": 20260805
+      },
+      "model": {
+        "name": "als",
+        "params": {
+          "rank": 64,
+          "reg_param": 0.01,
+          "alpha": 1.0,
+          "max_iter": 15,
+          "weighting": "time_decay",
+          "seed": 20260805,
+          "half_life_days": 90.0,
+          "param_hash": "ef5950e57246",
+          "user_factors_sha256": "9a235f69ccbaf7dff90c96e372a2f5d2be38f9733caccc19fbaf24b85ff3f17d",
+          "item_factors_sha256": "9d97f3c707339f00a260455f2fbd311e87b13d246de7bf846440e80377cefd86"
+        }
+      },
+      "wall_clock_s": 61.524,
+      "hardware": "x86_64 · Linux"
     }
   }
 }

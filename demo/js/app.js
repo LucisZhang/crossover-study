@@ -8,6 +8,7 @@ import { initData, doc, DOCUMENTS } from './data.js';
 import { initReceipts, initReceiptsSection } from './receipts.js';
 import * as crossover from './crossover.js';
 import * as regime from './regime.js';
+import * as contrast from './contrast.js';
 import * as shoppers from './shoppers.js';
 import * as search from './search.js';
 import * as dq from './dq.js';
@@ -17,6 +18,7 @@ import * as fmt from './fmt.js';
 const SECTIONS = [
   { id: 'exhibit-crossover', init: crossover.init },
   { id: 'exhibit-regime', init: regime.init },
+  { id: 'exhibit-contrast', init: contrast.init },
   { id: 'exhibit-shoppers', init: shoppers.init },
   { id: 'exhibit-search', init: search.init },
   { id: 'exhibit-dq', init: dq.init },

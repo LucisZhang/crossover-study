@@ -20,9 +20,15 @@ ORPHAN         every manifest entry's pointer exists in its document
 DOC_MISMATCH   entry value == document value, exactly (same type, no epsilon)
 SOURCE_*       entry value == the value re-read from its source: a runs.jsonl
                record, a record-anchored results artifact (re-hashed against
-               the SHA-256 the anchoring record carries), or — in ``full`` mode
-               — the per-user parquet a record names
+               the SHA-256 the anchoring record carries), a committed derived
+               artifact (re-hashed against the manifest's pin, with its INPUTS
+               anchored to append-only records), or — in ``full`` mode — the
+               per-user parquet a record names
 RECEIPTS       every run_id the manifest depends on has a receipts.json card
+
+A run_id that several records share is never resolved positionally: the citing
+entry must carry a ``record_selector`` (JSON pointer -> expected value) that
+picks exactly one record, or the entry fails SOURCE_MISSING.
 
 Any failure prints a grouped report and exits non-zero.
 """
@@ -108,7 +114,7 @@ class _Resolver:
         self.runs_log = runs_log
         self.repo_root = repo_root
         self.mode = mode
-        self.runs: dict[str, dict] = {}
+        self.runs: dict[str, list[dict]] = {}
         with open(runs_log) as fh:
             for lineno, raw in enumerate(fh, 1):
                 raw = raw.strip()
@@ -118,7 +124,7 @@ class _Resolver:
                 rid = rec.get("run_id")
                 if rid is None:
                     raise ValueError(f"{runs_log}:{lineno}: record without run_id")
-                self.runs[rid] = rec
+                self.runs.setdefault(rid, []).append(rec)
         self._artifacts: dict[str, Any] = {}
         self._artifact_hashes: dict[str, str] = {}
         self._tables: dict[str, Any] = {}
@@ -133,10 +139,38 @@ class _Resolver:
         p = Path(rel)
         return p if p.is_absolute() else self.repo_root / p
 
-    def record(self, run_id: str) -> dict:
-        if run_id not in self.runs:
+    def record(self, run_id: str, selector: dict | None = None) -> dict:
+        """Exactly one record, or LookupError.
+
+        Re-implemented independently of ``export_core.select_record``: a
+        collided run_id with no ``record_selector`` in the manifest entry is a
+        failure, and a selector that does not pick exactly one record is a
+        failure. Nothing here falls back to first- or last-occurrence.
+        """
+        candidates = self.runs.get(run_id)
+        if not candidates:
             raise LookupError(f"run_id {run_id!r} is not in {self.runs_log}")
-        return self.runs[run_id]
+        if selector:
+            matched = []
+            for rec in candidates:
+                try:
+                    if all(_get(rec, ptr) == val for ptr, val in selector.items()):
+                        matched.append(rec)
+                except LookupError:
+                    continue
+        else:
+            matched = list(candidates)
+        if len(matched) == 1:
+            return matched[0]
+        if not selector:
+            raise LookupError(
+                f"run_id {run_id!r} names {len(candidates)} records in {self.runs_log} and the "
+                "manifest entry carries no record_selector — the citation is ambiguous"
+            )
+        raise LookupError(
+            f"run_id {run_id!r} with record_selector {selector!r} matched {len(matched)} of "
+            f"{len(candidates)} record(s) in {self.runs_log}; expected exactly 1"
+        )
 
     def artifact_hash(self, rel: str) -> str:
         if rel not in self._artifact_hashes:
@@ -335,7 +369,13 @@ def verify(
         _verify_source(e, where, resolver, rep, mode)
 
     # -- receipts closure --
-    needed = {e["source"]["run_id"] for e in entries if "run_id" in e.get("source", {})}
+    needed: set[str] = set()
+    for e in entries:
+        src = e.get("source", {})
+        if "run_id" in src:
+            needed.add(src["run_id"])
+        for anchor in src.get("input_anchors", []):
+            needed.add(anchor["run_id"])
     if "receipts.json" in docs:
         have = set(docs["receipts.json"].get("runs", {}))
         for rid in sorted(needed - have):
@@ -355,7 +395,7 @@ def _verify_source(e: dict, where: str, resolver: _Resolver, rep: Report, mode: 
     value = e["value"]
     try:
         if kind == "runs_record":
-            rec = resolver.record(src["run_id"])
+            rec = resolver.record(src["run_id"], src.get("record_selector"))
             got = _get(rec, src["source_pointer"])
             if not _same(got, value):
                 rep.fail(
@@ -390,6 +430,54 @@ def _verify_source(e: dict, where: str, resolver: _Resolver, rep: Report, mode: 
                     f"{where}: {src['source_file']}{src['pointer']} is {_fmt(got)}, exported as {_fmt(value)}",
                 )
             rep.count("src_results_artifact")
+
+        elif kind == "derived_artifact":
+            actual = resolver.artifact_hash(src["source_file"])
+            if actual != src["sha256"]:
+                rep.fail(
+                    "SOURCE_HASH",
+                    f"{where}: {src['source_file']} hashes to {actual}, manifest pinned "
+                    f"{src['sha256']} — the derived artifact drifted since the export",
+                )
+                return
+            doc = resolver.artifact_doc(src["source_file"])
+            if doc.get("derived") is not True or doc.get("appends_to_runs_jsonl") is not False:
+                rep.fail(
+                    "SOURCE_ANCHOR",
+                    f"{where}: {src['source_file']} is cited as a derived artifact but declares "
+                    f"derived={doc.get('derived')!r} / "
+                    f"appends_to_runs_jsonl={doc.get('appends_to_runs_jsonl')!r}",
+                )
+                return
+            for field in ("kind", "git_sha", "config_hash"):
+                pinned = src["artifact_kind"] if field == "kind" else src[field]
+                if doc.get(field) != pinned:
+                    rep.fail(
+                        "SOURCE_ANCHOR",
+                        f"{where}: {src['source_file']}/{field} is {doc.get(field)!r}, "
+                        f"manifest pinned {pinned!r}",
+                    )
+                    return
+            for anchor in src["input_anchors"]:
+                rec = resolver.record(anchor["run_id"], anchor.get("record_selector"))
+                in_artifact = _get(doc, anchor["artifact_pointer"])
+                in_record = _get(rec, anchor["record_pointer"])
+                if in_artifact != in_record:
+                    rep.fail(
+                        "SOURCE_ANCHOR",
+                        f"{where}: {src['source_file']}{anchor['artifact_pointer']} is "
+                        f"{_fmt(in_artifact)} but run {anchor['run_id']}"
+                        f"{anchor['record_pointer']} is {_fmt(in_record)} — the derived "
+                        "artifact's inputs are not the ones the log published",
+                    )
+                    return
+            got = _get(doc, src["pointer"])
+            if not _same(got, value):
+                rep.fail(
+                    "SOURCE_MISMATCH",
+                    f"{where}: {src['source_file']}{src['pointer']} is {_fmt(got)}, exported as {_fmt(value)}",
+                )
+            rep.count("src_derived_artifact")
 
         elif kind == "per_user_artifact":
             rec = resolver.record(src["run_id"])

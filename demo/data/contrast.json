@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "generated_by": "batch_recsys_lab.demo.export_contrast",
+  "notes": "Exporter-generated (make demo-export). Global arm NDCG@10 and both churn shares are copied leaf-by-leaf from results/runs.jsonl records (kind=eval / kind=regime_map / kind=churn_contrast); the depth-bucket deltas, CIs, p/q-values and the D1/D4/recall-guard outcomes are copied from results/confirmatory_ml32m_test.json, a committed derived T9-3c analysis of those same one-shot TEST records that appends nothing to the log and is anchored by SHA-256 plus its per-user-parquet inputs. demo/data/trace_manifest.json re-resolves every leaf below; `make demo-verify` is the check.",
+  "churn_contrast": {
+    "statistic": "share of eval-split GT interactions on items with n_train_support <= 4",
+    "amazon_electronics": {
+      "value": 0.4111295514585914,
+      "run_id": "20260817T095926Z-633d454",
+      "source": "results/runs.jsonl (kind=regime_map, T8-1) /results/gate — the same measurement demo/data/phase8.json shows at /regime_map/gate/measured_share",
+      "band": ">=0.25",
+      "verdict": "MEASURED AND SUPPORTED — churn diagnosis converts from derived to measured"
+    },
+    "ml32m": {
+      "value": 0.06403017747252186,
+      "run_id": "20260820T134403Z-e2263d2",
+      "source": "results/runs.jsonl (kind=churn_contrast, T9-3a) /results/gate",
+      "band": "<0.10",
+      "verdict": "CHURN DIAGNOSIS WRONG — near-total TRAIN/TEST catalog overlap; STOP, revisit T8-2 design"
+    },
+    "difference": -0.34709937398606955
+  },
+  "ml32m_global_ndcg10": {
+    "pop_t12m": {
+      "value": 0.2475101546393383,
+      "run_id": "20260820T221055Z-20d8ff9",
+      "model_name": "popularity",
+      "model_seed": null
+    },
+    "itemknn_t12m": {
+      "value": 0.08561856278434565,
+      "run_id": "20260820T221701Z-20d8ff9",
+      "model_name": "item_knn",
+      "model_seed": null
+    },
+    "als": {
+      "value": 0.09040525177627338,
+      "run_id": "20260820T222202Z-20d8ff9",
+      "model_name": "als",
+      "model_seed": 20260805
+    },
+    "blend_alpha0_1": {
+      "value": 0.25087466115408347,
+      "run_id": "20260820T221933Z-20d8ff9",
+      "model_name": "content_pop_blend",
+      "model_seed": null
+    }
+  },
+  "verdict": {
+    "verdict": "D1_CROSSOVER",
+    "verdict_code": "D1",
+    "headline": "CROSSOVER at n* = 20 — personalization wins from a definable history depth onward and keeps winning",
+    "n_star": 20,
+    "crossover_bucket": "20-49",
+    "d4_flag": true,
+    "d4_token": "D4_SIGNIFICANT_NEGATIVES",
+    "bh_significant_negative_buckets": [
+      "0"
+    ]
+  },
+  "winning_deep_buckets": [
+    {
+      "label": "20-49",
+      "n_users": 242,
+      "delta": 0.03331706067297835,
+      "ci_lo": 0.010695782804417651,
+      "ci_hi": 0.05517465473104838,
+      "p_value_uncorrected": 0.005994005994005994,
+      "q_value": 0.011988011988011988,
+      "bh_significant": true,
+      "user_share": 0.02736627841230352
+    },
+    {
+      "label": "50-99",
+      "n_users": 431,
+      "delta": 0.01980916723878097,
+      "ci_lo": 0.003372089979447112,
+      "ci_hi": 0.038052283198016935,
+      "p_value_uncorrected": 0.015984015984015984,
+      "q_value": 0.025574425574425574,
+      "bh_significant": true,
+      "user_share": 0.04873911568472238
+    },
+    {
+      "label": "100+",
+      "n_users": 4191,
+      "delta": 0.011180539577156215,
+      "ci_lo": 0.007070239237351424,
+      "ci_hi": 0.014887620046157757,
+      "p_value_uncorrected": 0.001998001998001998,
+      "q_value": 0.005328005328005328,
+      "bh_significant": true,
+      "user_share": 0.47393418523125636
+    }
+  ],
+  "d4_depth0": {
+    "label": "0",
+    "n_users": 3882,
+    "delta": -0.38441919421593973,
+    "ci_lo": -0.3925536913043543,
+    "ci_hi": -0.37504946428358243,
+    "p_value_uncorrected": 0.001998001998001998,
+    "q_value": 0.005328005328005328,
+    "bh_significant": true,
+    "user_share": 0.4389912925477779
+  },
+  "recall_guard": {
+    "definition": "§5(g) label only, never confirmatory: recall@20 must agree in sign and BH-significance (its own BH family) with ndcg@10",
+    "claim_labels": [
+      "20-49",
+      "50-99",
+      "100+"
+    ],
+    "agreeing_labels": [],
+    "metric_robust": false
+  },
+  "source_run_ids": {
+    "m_star": "20260820T221701Z-20d8ff9",
+    "p_star": "20260820T221055Z-20d8ff9",
+    "random": "20260820T220854Z-20d8ff9",
+    "pop_alltime": "20260820T220955Z-20d8ff9",
+    "itemknn": "20260820T221155Z-20d8ff9",
+    "als": "20260820T222202Z-20d8ff9",
+    "als_decay": "20260820T222514Z-20d8ff9",
+    "content": "20260820T221831Z-20d8ff9",
+    "blend": "20260820T221933Z-20d8ff9",
+    "hybrid": "20260820T222041Z-20d8ff9"
+  },
+  "confirmatory_source": {
+    "path": "results/confirmatory_ml32m_test.json",
+    "generated_ts": "2026-08-20T22:57:57Z",
+    "git_sha": "5a18f3160f00c6fcfadf5e90d2797104f724620e",
+    "config_hash": "sha256:d65ff162ca1473253fa7f43719c891733a862a4641b7196a05386c5f39506c5f"
+  },
+  "figures": {
+    "regime_map": "img/crossover_ml32m_test.svg",
+    "deep_buckets": "img/crossover_ml32m_deep_test.svg"
+  },
+  "caveats": [
+    {
+      "id": "recall_guard_ns",
+      "text": "Top-of-list-only: none of the three winning buckets has the Recall@20 guard BH-significant in the same direction (§5g); metric_robust is false."
+    },
+    {
+      "id": "cold_user_loss",
+      "text": "Depth-0 (cold) users lose −38.44% NDCG@10 vs pop-t12m, BH-significant (D4_SIGNIFICANT_NEGATIVES)."
+    },
+    {
+      "id": "regime_contrast_not_causal",
+      "text": "Regime contrast, not causal proof: explicit-rating movie data changes several variables at once (§8b T8-4)."
+    },
+    {
+      "id": "ml32m_timestamp_caveat",
+      "text": "MovieLens timestamps are rating-ENTRY times on a backfilled catalog (cite Sun et al., arXiv:2307.09985), not purchase/consumption times."
+    }
+  ]
+}
