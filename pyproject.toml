@@ -1,7 +1,7 @@
 [project]
 name = "batch-recsys-lab"
 version = "0.1.0"
-description = "Batch Recsys Lab: Spark + Iceberg lakehouse for large-scale recommender evaluation"
+description = "Crossover Study: Spark + Iceberg lakehouse for large-scale recommender evaluation"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "pyspark==4.0.4",

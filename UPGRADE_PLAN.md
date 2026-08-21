@@ -1,4 +1,4 @@
-# UPGRADE PLAN — Batch Recsys Lab
+# UPGRADE PLAN — Crossover Study
 
 **A contract-checked Spark + Iceberg batch lakehouse that processes the full 43.9M-interaction Amazon Electronics dataset on a 16GB laptop, evaluates four recommender families with temporal splits, full-catalog ranking metrics, and bootstrap confidence intervals — and ships a measured answer to the question most recommender demos dodge: how much history does a user need before personalization actually beats popularity?**
 
@@ -25,7 +25,7 @@ Gaps THIS project must own: **(a) no large-scale BATCH processing** (streaming e
 
 ### 1.2 The one-sentence pitch
 
-> **"How much history does a user need before personalization beats popularity?"** Batch Recsys Lab ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking metrics and bootstrap CIs — and turns the measured crossover into a routing policy that knows exactly where each model stops working.
+> **"How much history does a user need before personalization beats popularity?"** Crossover Study ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking metrics and bootstrap CIs — and turns the measured crossover into a routing policy that knows exactly where each model stops working.
 >
 > *[Amendment 2026-08-06: the "measured crossover" claim is superseded by the Phase 3 measured outcome (see §6.4) — CF never crosses popularity at observed depths. Final pitch wording deferred to Phase 6.]*
 
@@ -39,7 +39,7 @@ Gaps THIS project must own: **(a) no large-scale BATCH processing** (streaming e
 
 ### 1.4 Naming
 
-Primary: **Batch Recsys Lab**. Alternates: *Cold-Start Lab* (names the signature finding), *Recommender Systems Lab*. Keep the site's "\<Domain\> \<Noun\> Lab" pattern; avoid "Quality"/"Reliability"/"Policy" (taken). Owner picks the final name; the repo can be renamed cheaply before publication.
+Primary: **Crossover Study**. Alternates: *Cold-Start Lab* (names the signature finding), *Recommender Systems Lab*. Keep the site's "\<Domain\> \<Noun\> Lab" pattern; avoid "Quality"/"Reliability"/"Policy" (taken). Owner picks the final name; the repo can be renamed cheaply before publication.
 
 ---
 

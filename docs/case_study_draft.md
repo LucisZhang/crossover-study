@@ -1,8 +1,8 @@
-# Batch Recsys Lab
+# Crossover Study
 
 > **DRAFT — pending Checkpoint 2 (assembled demo review); final copy will be revised after demo verification.**
 
-> **"How much history does a user need before personalization beats popularity?"** Batch Recsys Lab ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking and bootstrap CIs — and measures the answer: **no amount.** Pure personalization never beats recency-weighted popularity at any observed depth; the only arm that wins is popularity itself, gently re-ranked by a normalized semantic-content blend — and it wins everywhere, by a small margin (+6% relative NDCG@10) that 1,000-resample paired CIs cleanly separate from zero.
+> **"How much history does a user need before personalization beats popularity?"** Crossover Study ingests 43.9M Amazon Electronics reviews through a contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates popularity, item-kNN, ALS, and semantic-content retrieval under temporal splits with full-catalog ranking and bootstrap CIs — and measures the answer: **no amount.** Pure personalization never beats recency-weighted popularity at any observed depth; the only arm that wins is popularity itself, gently re-ranked by a normalized semantic-content blend — and it wins everywhere, by a small margin (+6% relative NDCG@10) that 1,000-resample paired CIs cleanly separate from zero.
 
 **Reading the labels.** Every claim below carries an evidence class: **[measured]** — produced by a recorded run in `results/runs.jsonl`; **[derived]** — arithmetic recomposition of values already recorded, no new scoring; **[estimated]** — inferred, with the inference stated; **[projected]** — reasoned from code properties, not observed. Where a claim has a receipt, the run_id, record kind, or Make target is named inline; those become links in the receipts drawer.
 

@@ -1,10 +1,12 @@
-# Batch Recsys Lab
+# crossover-study
+
+Crossover Study — when does personalization beat popularity?
 
 > **"How much history does a user need before personalization beats popularity?"**
 > The measured answer: **there is no such depth — no history-depth crossover exists
 > in this data.** The optimal routing is no routing.
 
-Batch Recsys Lab ingests 43.9M Amazon Electronics reviews through a
+Crossover Study ingests 43.9M Amazon Electronics reviews through a
 contract-checked Spark + Iceberg lakehouse on a single 16GB laptop, evaluates
 popularity, item-kNN, ALS, and semantic-content retrieval under a frozen temporal
 split with full-catalog ranking metrics and bootstrap CIs — and publishes a null,
